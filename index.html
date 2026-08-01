@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URBANOVA SOLUTIONS - Plateforme Web Corporate & Investissement</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B132B',
+                            navy: '#1C2541',
+                            blue: '#3A506B',
+                            gold: '#D4AF37',
+                            goldHover: '#F3E5AB',
+                            light: '#F8FAFC',
+                            success: '#10B981',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0B132B;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #F3E5AB;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Navigation Bar -->
+    <header class="bg-brand-dark text-white sticky top-0 z-50 shadow-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('accueil')">
+                    <div
+                        class="bg-gradient-to-r from-brand-gold to-yellow-500 p-2 rounded-lg text-brand-dark font-extrabold text-xl">
+                        <i class="fa-solid fa-city"></i>
+                    </div>
+                    <div>
+                        <span
+                            class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-brand-gold via-yellow-200 to-white bg-clip-text text-transparent">URBANOVA</span>
+                        <p class="text-[9px] text-slate-400 tracking-widest uppercase -mt-1">SOLUTIONS</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden lg:flex space-x-1 xl:space-x-2 text-sm font-medium">
+                    <button onclick="switchTab('accueil')"
+                        class="nav-link px-3 py-2 rounded-md transition-all text-brand-gold border-b-2 border-brand-gold"
+                        id="nav-accueil">Accueil</button>
+                    <button onclick="switchTab('apropos')"
+                        class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
+                        id="nav-apropos">À propos</button>
+                    <button onclick="switchTab('marketplace')"
+                        class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
+                        id="nav-marketplace">Marketplace</button>
+                    <button onclick="switchTab('levee')"
+                        class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
+                        id="nav-levee">Levée de fonds</button>
+                    <button onclick="switchTab('investisseur')"
+                        class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
+                        id="nav-investisseur">Espace Investisseur</button>
+                    <button onclick="switchTab('actualites')"
+                        class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
+                        id="nav-actualites">Actualités</button>
+                    <button onclick="switchTab('contact')"
+                        class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
+                        id="nav-contact">Contact</button>
+                </nav>
+
+                <!-- Actions -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <button onclick="switchTab('investisseur')"
+                        class="text-slate-300 hover:text-white text-sm font-medium transition-all">Se connecter</button>
+                    <button onclick="switchTab('levee')"
+                        class="bg-brand-gold hover:bg-yellow-500 text-brand-dark px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-brand-gold/20 transition-all hover:-translate-y-0.5">S'inscrire</button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="lg:hidden">
+                    <button onclick="toggleMobileMenu()"
+                        class="text-slate-300 hover:text-white focus:outline-none p-2 rounded-md"
+                        aria-label="Ouvrir le menu">
+                        <i class="fa-solid fa-bars text-2xl" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-brand-navy border-t border-slate-800 px-4 pt-2 pb-4 space-y-1">
+            <button onclick="switchTab('accueil'); toggleMobileMenu()"
+                class="block w-full text-left px-3 py-2.5 rounded-md text-brand-gold font-medium">Accueil</button>
+            <button onclick="switchTab('apropos'); toggleMobileMenu()"
+                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">À propos</button>
+            <button onclick="switchTab('marketplace'); toggleMobileMenu()"
+                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Marketplace</button>
+            <button onclick="switchTab('levee'); toggleMobileMenu()"
+                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Levée de fonds</button>
+            <button onclick="switchTab('investisseur'); toggleMobileMenu()"
+                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Espace Investisseur</button>
+            <button onclick="switchTab('actualites'); toggleMobileMenu()"
+                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Actualités</button>
+            <button onclick="switchTab('contact'); toggleMobileMenu()"
+                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Contact</button>
+            <div class="pt-4 border-t border-slate-700 flex flex-col space-y-2">
+                <button onclick="switchTab('investisseur'); toggleMobileMenu()"
+                    class="w-full text-center py-2 text-slate-300 hover:text-white font-medium">Se connecter</button>
+                <button onclick="switchTab('levee'); toggleMobileMenu()"
+                    class="w-full text-center py-2.5 bg-brand-gold text-brand-dark rounded-md font-bold">S'inscrire</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container for dynamic pages -->
+    <main class="flex-grow">
+
+        <!-- ================= PAGE 1: ACCUEIL ================= -->
+        <div id="page-accueil" class="tab-content">
+            <!-- Hero Section with Background -->
+            <section class="relative bg-brand-dark text-white py-24 md:py-36 overflow-hidden">
+                <div class="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-30"
+                    style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80')">
+                </div>
+                <!-- Radial golden light source simulation -->
+                <div class="absolute -top-40 -left-40 w-96 h-96 bg-brand-gold/10 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl"></div>
+
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <p class="text-brand-gold uppercase tracking-widest font-semibold text-sm mb-3">URBANOVA SOLUTIONS
+                    </p>
+                    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 max-w-4xl leading-tight">
+                        Structurer les villes <br><span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-brand-gold to-yellow-400">africaines
+                            de demain</span>
+                    </h1>
+                    <p class="text-slate-300 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
+                        Construction, Immobilier, Infrastructures et Investissements pour un développement durable en
+                        République Démocratique du Congo et Afrique Centrale.
+                    </p>
+
+                    <!-- Calls to Action -->
+                    <div class="flex flex-wrap gap-4 mb-16">
+                        <button onclick="switchTab('contact')"
+                            class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold px-8 py-4 rounded-xl shadow-xl shadow-brand-gold/20 transition-all hover:-translate-y-1">Demander
+                            un devis</button>
+                        <button onclick="switchTab('levee')"
+                            class="border-2 border-slate-400 hover:border-brand-gold text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/5 transition-all hover:-translate-y-1">Soumettre
+                            un projet</button>
+                        <button onclick="switchTab('marketplace')"
+                            class="border-2 border-slate-400 hover:border-brand-gold text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/5 transition-all hover:-translate-y-1">Investir
+                            avec nous</button>
+                        <button onclick="switchTab('contact')"
+                            class="border-2 border-slate-400 hover:border-brand-gold text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/5 transition-all hover:-translate-y-1">Devenir
+                            partenaire</button>
+                    </div>
+
+                    <!-- Key Stats Display -->
+                    <div
+                        class="grid grid-cols-2 md:grid-cols-5 gap-6 bg-brand-navy/60 backdrop-blur-md border border-slate-700/50 p-6 md:p-8 rounded-2xl">
+                        <div class="text-center md:border-r border-slate-700/60 last:border-0 p-2">
+                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">120+</span>
+                            <span class="text-xs md:text-sm text-slate-300">Projets réalisés</span>
+                        </div>
+                        <div class="text-center md:border-r border-slate-700/60 last:border-0 p-2">
+                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">45 M$</span>
+                            <span class="text-xs md:text-sm text-slate-300">Investissements mobilisés</span>
+                        </div>
+                        <div class="text-center md:border-r border-slate-700/60 last:border-0 p-2">
+                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">2 500</span>
+                            <span class="text-xs md:text-sm text-slate-300">Logements développés</span>
+                        </div>
+                        <div class="text-center md:border-r border-slate-700/60 last:border-0 p-2">
+                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">5 000</span>
+                            <span class="text-xs md:text-sm text-slate-300">Emplois créés</span>
+                        </div>
+                        <div class="text-center col-span-2 md:col-span-1 p-2">
+                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">4</span>
+                            <span class="text-xs md:text-sm text-slate-300">Pays d'intervention <br><span
+                                    class="text-[10px] text-slate-400">RDC • Rwanda • Ouganda • Burundi</span></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Departments Section -->
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto mb-16">
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-brand-dark mb-4">Nos Départements</h2>
+                        <p class="text-slate-600 text-lg">Une expertise multisectorielle au service du développement
+                            urbain durable en République Démocratique du Congo.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Dept 1 -->
+                        <div
+                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
+                            <div
+                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
+                                <i class="fa-solid fa-helmet-safety"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-brand-dark mb-3">Construction & Maintenance</h3>
+                            <p class="text-slate-600">Édification et entretien d'ouvrages durables, respectueux de
+                                l'environnement et des standards de sécurité modernes.</p>
+                        </div>
+                        <!-- Dept 2 -->
+                        <div
+                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
+                            <div
+                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-brand-dark mb-3">Assainissement & Déchets</h3>
+                            <p class="text-slate-600">Gestion environnementale intégrée, tri, recyclage et propreté
+                                urbaine pour préserver la santé publique.</p>
+                        </div>
+                        <!-- Dept 3 -->
+                        <div
+                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
+                            <div
+                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
+                                <i class="fa-solid fa-building-circle-check"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-brand-dark mb-3">Facility Management</h3>
+                            <p class="text-slate-600">Exploitation, sécurisation, et maintenance d'infrastructures
+                                d'envergure pour prolonger la durée de vie de vos actifs.</p>
+                        </div>
+                        <!-- Dept 4 -->
+                        <div
+                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
+                            <div
+                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
+                                <i class="fa-solid fa-house-chimney-window"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-brand-dark mb-3">Immobilier & Aménagement</h3>
+                            <p class="text-slate-600">Promotion immobilière et aménagement de zones urbaines intégrées
+                                favorisant la mixité sociale et économique.</p>
+                        </div>
+                        <!-- Dept 5 -->
+                        <div
+                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
+                            <div
+                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
+                                <i class="fa-solid fa-compass-drafting"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-brand-dark mb-3">Ingénierie</h3>
+                            <p class="text-slate-600">Assistance technique de haut niveau, études de sol, architecture
+                                moderne et conception modulaire de projets.</p>
+                        </div>
+                        <!-- Dept 6 -->
+                        <div
+                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
+                            <div
+                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
+                                <i class="fa-solid fa-leaf"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-brand-dark mb-3">Développement durable</h3>
+                            <p class="text-slate-600">Conception d'infrastructures à fort impact environnemental positif
+                                (énergies renouvelables, captage d'eau).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Projects (Projets Phares) -->
+            <section class="py-20 bg-slate-50 border-t border-b border-slate-100">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-brand-dark mb-3">Projets phares</h2>
+                            <p class="text-slate-600 max-w-2xl">Découvrez nos réalisations majeures en cours d'exécution
+                                ou livrées avec succès sur le continent.</p>
+                        </div>
+                        <button onclick="switchTab('marketplace')"
+                            class="mt-4 md:mt-0 text-brand-gold font-bold hover:text-yellow-600 flex items-center space-x-2 transition-all">
+                            <span>Voir tous les projets</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Projects Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Project 1 -->
+                        <div
+                            class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all group">
+                            <div class="relative h-60 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80"
+                                    alt="Résidence Kivu Green"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <span
+                                    class="absolute top-4 right-4 bg-brand-success/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>En cours
+                                </span>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-brand-dark mb-2">Résidence Kivu Green</h3>
+                                <div class="flex items-center space-x-2 text-slate-500 text-sm mb-4">
+                                    <i class="fa-solid fa-location-dot text-brand-gold"></i>
+                                    <span>Goma, RDC</span>
+                                </div>
+                                <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-sm">
+                                    <span class="text-slate-600 font-medium">40 logements</span>
+                                    <div>
+                                        <p class="text-slate-400 text-xs text-right">Budget</p>
+                                        <p class="text-brand-dark font-extrabold text-base">1 200 000 $</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project 2 -->
+                        <div
+                            class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all group">
+                            <div class="relative h-60 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=600&q=80"
+                                    alt="Urban Market Center"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <span
+                                    class="absolute top-4 right-4 bg-blue-600/90 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                                    Finalisé
+                                </span>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-brand-dark mb-2">Urban Market Center</h3>
+                                <div class="flex items-center space-x-2 text-slate-500 text-sm mb-4">
+                                    <i class="fa-solid fa-location-dot text-brand-gold"></i>
+                                    <span>Butembo, RDC</span>
+                                </div>
+                                <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-sm">
+                                    <span class="text-slate-600 font-medium">Centre commercial</span>
+                                    <div>
+                                        <p class="text-slate-400 text-xs text-right">Budget</p>
+                                        <p class="text-brand-dark font-extrabold text-base">2 500 000 $</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project 3 -->
+                        <div
+                            class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all group">
+                            <div class="relative h-60 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80"
+                                    alt="Business Park Kinshasa"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <span
+                                    class="absolute top-4 right-4 bg-brand-success/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>En cours
+                                </span>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-brand-dark mb-2">Business Park Kinshasa</h3>
+                                <div class="flex items-center space-x-2 text-slate-500 text-sm mb-4">
+                                    <i class="fa-solid fa-location-dot text-brand-gold"></i>
+                                    <span>Kinshasa, RDC</span>
+                                </div>
+                                <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-sm">
+                                    <span class="text-slate-600 font-medium">Bureaux & Commerces</span>
+                                    <div>
+                                        <p class="text-slate-400 text-xs text-right">Budget</p>
+                                        <p class="text-brand-dark font-extrabold text-base">5 800 000 $</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dual CTA Banners -->
+            <section class="py-16 bg-brand-dark text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-brand-navy to-brand-dark"></div>
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Left Block (Submit project) -->
+                        <div
+                            class="bg-slate-900/50 border border-slate-700/60 p-8 rounded-2xl shadow-xl flex flex-col justify-between">
+                            <div>
+                                <span
+                                    class="text-brand-gold uppercase tracking-wider font-semibold text-xs block mb-2">Secteur
+                                    Immobilier</span>
+                                <h3 class="text-2xl font-bold mb-4">Vous avez un projet immobilier ?</h3>
+                                <p class="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
+                                    Soumettez votre dossier technique, profitez d'une validation d'experts et accédez à 
+                                    notre réseau international d'investisseurs certifiés.
+                                </p>
+                            </div>
+                            <button onclick="switchTab('levee')"
+                                class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-3.5 px-6 rounded-xl transition-all self-start flex items-center space-x-2 shadow-lg shadow-brand-gold/15">
+                                <span>Soumettre un projet</span>
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+
+                        <!-- Right Block (Invest) -->
+                        <div
+                            class="bg-slate-900/50 border border-slate-700/60 p-8 rounded-2xl shadow-xl flex flex-col justify-between">
+                            <div>
+                                <span
+                                    class="text-brand-gold uppercase tracking-wider font-semibold text-xs block mb-2">Finance
+                                    & Climat</span>
+                                <h3 class="text-2xl font-bold mb-4">Vous êtes investisseur ?</h3>
+                                <p class="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
+                                    Rejoignez notre écosystème d'investisseurs, explorez des opportunités qualifiées et
+                                    suivez vos rendements via notre tableau de bord de pointe.
+                                </p>
+                            </div>
+                            <button onclick="switchTab('investisseur')"
+                                class="bg-transparent border border-brand-gold hover:bg-brand-gold hover:text-brand-dark text-brand-gold font-bold py-3.5 px-6 rounded-xl transition-all self-start flex items-center space-x-2">
+                                <span>Devenir investisseur</span>
+                                <i class="fa-solid fa-user-tie"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= PAGE 2: À PROPOS ================= -->
+        <div id="page-apropos" class="tab-content hidden">
+            <!-- Header Section -->
+            <section class="bg-brand-dark text-white py-12 border-b border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-xs text-slate-400 space-x-2 mb-3">
+                        <span class="hover:text-white cursor-pointer" onclick="switchTab('accueil')">Accueil</span>
+                        <span>/</span>
+                        <span class="text-brand-gold font-medium">À propos</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold">À propos de nous</h1>
+                </div>
+            </section>
+
+            <!-- Mission, Vision & Values Section -->
+            <section class="py-16 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <!-- Mission -->
+                            <div class="mb-10">
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <span class="w-8 h-1 bg-brand-gold rounded-full"></span>
+                                    <h2 class="text-2xl font-extrabold text-brand-dark uppercase tracking-wide">Mission
+                                    </h2>
+                                </div>
+                                <p class="text-slate-600 text-lg leading-relaxed">
+                                    Concevoir, développer et opérer des solutions urbaines durables à fort impact pour
+                                    restructurer durablement l'environnement urbain et mobiliser des capitaux qualifiés.
+                                </p>
+                            </div>
+
+                            <!-- Vision -->
+                            <div class="mb-10">
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <span class="w-8 h-1 bg-brand-gold rounded-full"></span>
+                                    <h2 class="text-2xl font-extrabold text-brand-dark uppercase tracking-wide">Vision
+                                    </h2>
+                                </div>
+                                <p class="text-slate-600 text-lg leading-relaxed">
+                                    Devenir la référence africaine incontournable en matière de développement urbain
+                                    intégré et de facilitation financière de projets durables en Afrique Centrale.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Right Illustration Card -->
+                        <div
+                            class="relative bg-brand-dark rounded-3xl overflow-hidden p-8 h-[380px] shadow-2xl flex items-end">
+                            <div class="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-40"
+                                style="background-image: url('https://images.unsplash.com/photo-1448697138198-9fa6d0db244d?auto=format&fit=crop&w=1000&q=80')">
+                            </div>
+                            <div class="relative z-10 text-white">
+                                <h3 class="text-2xl font-extrabold mb-2">Soutenir la croissance régionale</h3>
+                                <p class="text-slate-300 text-sm">Une gouvernance forte au service de l'émergence des
+                                    villes de demain en RDC.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Values Grid -->
+                    <div class="mt-20">
+                        <h2 class="text-2xl font-extrabold text-brand-dark text-center mb-12">Nos valeurs</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+                            <!-- Value 1 -->
+                            <div
+                                class="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-center hover:shadow-lg transition-all">
+                                <div class="text-brand-gold text-3xl mb-4"><i class="fa-solid fa-star"></i></div>
+                                <h4 class="font-bold text-brand-dark mb-1">Excellence</h4>
+                                <p class="text-xs text-slate-500">Rigueur dans nos processus.</p>
+                            </div>
+                            <!-- Value 2 -->
+                            <div
+                                class="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-center hover:shadow-lg transition-all">
+                                <div class="text-brand-gold text-3xl mb-4"><i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <h4 class="font-bold text-brand-dark mb-1">Intégrité</h4>
+                                <p class="text-xs text-slate-500">Transparence et confiance.</p>
+                            </div>
+                            <!-- Value 3 -->
+                            <div
+                                class="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-center hover:shadow-lg transition-all">
+                                <div class="text-brand-gold text-3xl mb-4"><i class="fa-solid fa-lightbulb"></i>
+                            </div>
+                                <h4 class="font-bold text-brand-dark mb-1">Innovation</h4>
+                                <p class="text-xs text-slate-500">Technologies d'avenir.</p>
+                            </div>
+                            <!-- Value 4 -->
+                            <div
+                                class="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-center hover:shadow-lg transition-all">
+                                <div class="text-brand-gold text-3xl mb-4"><i class="fa-solid fa-seedling"></i>
+                            </div>
+                                <h4 class="font-bold text-brand-dark mb-1">Durabilité</h4>
+                                <p class="text-xs text-slate-500">Vision à long terme.</p>
+                            </div>
+                            <!-- Value 5 -->
+                            <div
+                                class="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-center hover:shadow-lg transition-all">
+                                <div class="text-brand-gold text-3xl mb-4"><i class="fa-solid fa-chart-line"></i>
+                            </div>
+                                <h4 class="font-bold text-brand-dark mb-1">Impact</h4>
+                                <p class="text-xs text-slate-500">Transformation durable.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notre Gouvernance & QSE -->
+            <section class="py-16 bg-slate-50 border-t border-slate-100">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-brand-dark mb-6">Notre gouvernance</h2>
+                            <p class="text-slate-600 mb-6 leading-relaxed">
+                                URBANOVA SOLUTIONS s'appuie sur un organigramme clair, un comité de direction diversifié
+                                et une équipe dirigeante chevronnée pour garantir la transparence opérationnelle et le
+                                respect des engagements des investisseurs.
+                            </p>
+                            <button
+                                class="bg-brand-navy text-white hover:bg-slate-800 font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-md">En
+                                savoir plus</button>
+                        </div>
+
+                        <!-- Policy Card QSE -->
+                        <div class="bg-white p-8 rounded-2xl shadow-md border border-slate-100">
+                            <h3 class="text-xl font-bold text-brand-dark mb-6 flex items-center space-x-2">
+                                <i class="fa-solid fa-award text-brand-gold"></i>
+                                <span>Politique QSE RDC</span>
+                            </h3>
+                            <p class="text-sm text-slate-600 mb-8">
+                                Nous respectons rigoureusement les normes internationales de Qualité, Sécurité, et
+                                d'Environnement pour tous les chantiers conduits en République Démocratique du Congo.
+                            </p>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div
+                                    class="bg-emerald-50 border border-emerald-100 text-emerald-800 text-center py-4 rounded-xl font-bold text-xs shadow-sm">
+                                    <span class="block text-emerald-500 text-lg mb-1"><i
+                                            class="fa-solid fa-circle-check"></i></span>
+                                    ISO 9001
+                                </div>
+                                <div
+                                    class="bg-emerald-50 border border-emerald-100 text-emerald-800 text-center py-4 rounded-xl font-bold text-xs shadow-sm">
+                                    <span class="block text-emerald-500 text-lg mb-1"><i
+                                            class="fa-solid fa-circle-check"></i></span>
+                                    ISO 14001
+                                </div>
+                                <div
+                                    class="bg-emerald-50 border border-emerald-100 text-emerald-800 text-center py-4 rounded-xl font-bold text-xs shadow-sm">
+                                    <span class="block text-emerald-500 text-lg mb-1"><i
+                                            class="fa-solid fa-circle-check"></i></span>
+                                    ISO 45001
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= PAGE 3: MARKETPLACE ================= -->
+        <div id="page-marketplace" class="tab-content hidden">
+            <!-- Header Section -->
+            <section class="bg-brand-dark text-white py-12 border-b border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-xs text-slate-400 space-x-2 mb-3">
+                        <span class="hover:text-white cursor-pointer" onclick="switchTab('accueil')">Accueil</span>
+                        <span>/</span>
+                        <span class="text-brand-gold font-medium">Marketplace</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold">Marketplace des opportunités</h1>
+                </div>
+            </section>
+
+            <!-- Main Content Area with Filters & Grid -->
+            <section class="py-12 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                        <!-- Left Sidebar: Filters -->
+                        <div class="bg-slate-50 border border-slate-200/60 p-6 rounded-2xl h-fit">
+                            <h3 class="font-bold text-brand-dark text-lg mb-6 flex items-center justify-between">
+                                <span>Filtres</span>
+                                <i class="fa-solid fa-sliders text-slate-400"></i>
+                            </h3>
+
+                            <form id="filterForm" class="space-y-6"
+                                onsubmit="event.preventDefault(); applyMarketplaceFilters();">
+                                <!-- Country filter -->
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Pays</label>
+                                    <select id="filterCountry"
+                                        class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                        <option value="all">Tous les pays</option>
+                                        <option value="RDC">Congo (RDC)</option>
+                                        <option value="Rwanda">Rwanda</option>
+                                        <option value="Burundi">Burundi</option>
+                                    </select>
+                                </div>
+
+                                <!-- City Filter -->
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Ville</label>
+                                    <select id="filterCity"
+                                        class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                        <option value="all">Toutes les villes</option>
+                                        <option value="Goma">Goma</option>
+                                        <option value="Kinshasa">Kinshasa</option>
+                                        <option value="Kigali">Kigali</option>
+                                        <option value="Butembo">Butembo</option>
+                                    </select>
+                                </div>
+
+                                <!-- Sector Filter -->
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Secteur</label>
+                                    <select id="filterSector"
+                                        class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                        <option value="all">Tous les secteurs</option>
+                                        <option value="Résidentiel">Résidentiel</option>
+                                        <option value="Commercial">Commercial</option>
+                                        <option value="Bureaux">Bureaux</option>
+                                    </select>
+                                </div>
+
+                                <!-- ROI expected filter slider -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label
+                                            class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Rendement
+                                            attendu (ROI)</label>
+                                        <span id="roiVal" class="text-xs font-bold text-brand-gold">0% +</span>
+                                    </div>
+                                    <input type="range" id="filterROI" min="0" max="30" value="0"
+                                        class="w-full accent-brand-gold"
+                                        oninput="document.getElementById('roiVal').innerText = this.value + '% +'">
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="pt-4 space-y-2">
+                                    <button type="submit"
+                                        class="w-full bg-brand-navy hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md">Appliquer
+                                        les filtres</button>
+                                    <button type="button" onclick="resetMarketplaceFilters()"
+                                        class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2.5 rounded-xl text-sm transition-all">Réinitialiser</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Right Area: Projects Grid -->
+                        <div class="lg:col-span-3">
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="text-slate-600 font-medium" id="resultsCount">3 opportunités
+                                    disponibles</span>
+                                <select
+                                    class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                    <option>Plus récentes</option>
+                                    <option>Rentabilité (Élevé)</option>
+                                    <option>Financement recherché (Bas)</option>
+                                </select>
+                            </div>
+
+                            <!-- Dynamic Cards Container -->
+                            <div id="marketplaceGrid" class="space-y-6">
+                                <!-- Cards will be loaded dynamically by script -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= PAGE 4: LEVÉE DE FONDS (SOUMISSION) ================= -->
+        <div id="page-levee" class="tab-content hidden">
+            <!-- Header Section -->
+            <section class="bg-brand-dark text-white py-12 border-b border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-xs text-slate-400 space-x-2 mb-3">
+                        <span class="hover:text-white cursor-pointer" onclick="switchTab('accueil')">Accueil</span>
+                        <span>/</span>
+                        <span class="text-brand-gold font-medium">Levée de fonds</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold">Soumettre un projet</h1>
+                </div>
+            </section>
+
+            <!-- Multi-step Form Wizard Container -->
+            <section class="py-16 bg-slate-50">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6">
+                    <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                        <!-- Steps Indicator -->
+                        <div
+                            class="bg-brand-navy text-white px-6 py-6 md:px-12 flex justify-between items-center border-b border-slate-800">
+                            <!-- Step 1 -->
+                            <div class="flex items-center space-x-3 step-indicator" data-step="1">
+                                <div class="w-8 h-8 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold text-sm"
+                                    id="stepIndicator-1">1</div>
+                                <span class="hidden md:inline text-xs font-bold uppercase tracking-wider text-slate-300"
+                                    id="stepText-1">Informations générales</span>
+                            </div>
+                            <div class="h-[2px] flex-grow bg-slate-700 mx-4 hidden md:block"></div>
+                            <!-- Step 2 -->
+                            <div class="flex items-center space-x-3 step-indicator" data-step="2">
+                                <div class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center justify-center font-bold text-sm"
+                                    id="stepIndicator-2">2</div>
+                                <span class="hidden md:inline text-xs font-bold uppercase tracking-wider text-slate-400"
+                                    id="stepText-2">Données financières</span>
+                            </div>
+                            <div class="h-[2px] flex-grow bg-slate-700 mx-4 hidden md:block"></div>
+                            <!-- Step 3 -->
+                            <div class="flex items-center space-x-3 step-indicator" data-step="3">
+                                <div class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center justify-center font-bold text-sm"
+                                    id="stepIndicator-3">3</div>
+                                <span class="hidden md:inline text-xs font-bold uppercase tracking-wider text-slate-400"
+                                    id="stepText-3">Documents requis</span>
+                            </div>
+                            <div class="h-[2px] flex-grow bg-slate-700 mx-4 hidden md:block"></div>
+                            <!-- Step 4 -->
+                            <div class="flex items-center space-x-3 step-indicator" data-step="4">
+                                <div class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center justify-center font-bold text-sm"
+                                    id="stepIndicator-4">4</div>
+                                <span class="hidden md:inline text-xs font-bold uppercase tracking-wider text-slate-400"
+                                    id="stepText-4">Vérification</span>
+                            </div>
+                        </div>
+
+                        <!-- Step content forms -->
+                        <div class="p-8 md:p-12">
+                            <form id="submissionWizard" onsubmit="event.preventDefault();">
+
+                                <!-- STEP 1 -->
+                                <div id="formStep-1" class="space-y-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-bold text-brand-dark mb-2">Nom du projet
+                                                *</label>
+                                            <input type="text" id="projName" placeholder="Ex: Résidence Horizon"
+                                                class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                                                required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-bold text-brand-dark mb-2">Promoteur /
+                                                Société *</label>
+                                            <input type="text" id="projOwner" placeholder="Ex: SARL Horizon"
+                                                class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                                                required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-bold text-brand-dark mb-2">Localisation
+                                                *</label>
+                                            <input type="text" id="projLoc" placeholder="Ex: Goma, RDC"
+                                                class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                                                required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-bold text-brand-dark mb-2">Secteur
+                                                *</label>
+                                            <select id="projSector"
+                                                class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                                                required>
+                                                <option value="">Sélectionnez un secteur</option>
+                                                <option value="Résidentiel">Résidentiel</option>
+                                                <option value="Commercial">Commercial</option>
+                                                <option value="Bureaux">Bureaux / Tertiaire</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-brand-dark mb-2">Description du
+                                            projet *</label>
+                                        <textarea id="projDesc" rows="4"
+                                            placeholder="Décrivez votre projet immobilier en détail..."
+                                            class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                                            required></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 2 -->
+                                <div id="formStep-2" class="space-y-6 hidden">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-bold text-brand-dark mb-2">Coût total du
+                                                projet ($) *</label>
+                                            <input type="number" id="projCost" placeholder="Ex: 800000"
+                                                class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-bold text-brand-dark mb-2">Financement
+                                                recherché ($) *</label>
+                                            <input type="number" id="projTarget" placeholder="Ex: 500000"
+                                                class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-bold text-brand-dark mb-2">Apport personnel
+                                                ($)</label>
+                                            <input type="number" id="projOwnEquity" placeholder="Ex: 300000"
+                                                class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-bold text-brand-dark mb-2">ROI attendu
+                                                (%)</label>
+                                            <input type="number" id="projRoi" placeholder="Ex: 24"
+                                                class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 3 -->
+                                <div id="formStep-3" class="space-y-6 hidden">
+                                    <p class="text-sm text-slate-500 mb-4">Veuillez joindre les documents de référence
+                                        pour maximiser la confiance des investisseurs qualifiés.</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div
+                                            class="border-2 border-dashed border-slate-300 hover:border-brand-gold rounded-2xl p-6 text-center cursor-pointer transition-all bg-slate-50">
+                                            <i class="fa-solid fa-file-pdf text-3xl text-slate-400 mb-3"></i>
+                                            <p class="text-sm font-bold text-brand-dark">Business Plan & Deck</p>
+                                            <p class="text-xs text-slate-400 mt-1">Glissez un fichier ou cliquez pour
+                                                uploader</p>
+                                        </div>
+                                        <div
+                                            class="border-2 border-dashed border-slate-300 hover:border-brand-gold rounded-2xl p-6 text-center cursor-pointer transition-all bg-slate-50">
+                                            <i class="fa-solid fa-file-excel text-3xl text-slate-400 mb-3"></i>
+                                            <p class="text-sm font-bold text-brand-dark">Modèle Financier (Excel)</p>
+                                            <p class="text-xs text-slate-400 mt-1">Données prévisionnelles d'activité
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- STEP 4 -->
+                                <div id="formStep-4" class="space-y-6 hidden">
+                                    <div class="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl text-center">
+                                        <i class="fa-solid fa-circle-check text-4xl text-brand-success mb-3"></i>
+                                        <h3 class="text-lg font-bold text-emerald-900">Dossier prêt à la vérification
+                                        </h3>
+                                        <p class="text-sm text-emerald-700 mt-1">Votre projet va être analysé par
+                                            l'équipe administrative de la plateforme URBANOVA solutions sous 48 heures
+                                            ouvrables.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Footer / Navigation Buttons of the Wizard -->
+                                <div class="mt-12 flex justify-between items-center border-t border-slate-100 pt-6">
+                                    <button type="button" id="prevStepBtn" onclick="navigateWizard(-1)"
+                                        class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3 rounded-xl text-sm transition-all invisible">Précédent</button>
+                                    <button type="button" id="nextStepBtn" onclick="navigateWizard(1)"
+                                        class="bg-brand-navy hover:bg-slate-800 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-md">Suivant</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= PAGE 5: ESPACE INVESTISSEUR (PORTAIL) ================= -->
+        <div id="page-investisseur" class="tab-content hidden bg-slate-100">
+            <!-- Header Section -->
+            <section class="bg-brand-dark text-white py-12 border-b border-slate-800">
+                <div
+                    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <div class="text-xs text-slate-400 space-x-2 mb-3">
+                            <span class="hover:text-white cursor-pointer" onclick="switchTab('accueil')">Accueil</span>
+                            <span>/</span>
+                            <span class="text-brand-gold font-medium">Espace Investisseur</span>
+                        </div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold">Espace Investisseur Certifié</h1>
+                    </div>
+                    <div
+                        class="mt-4 md:mt-0 bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl flex items-center space-x-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold text-sm">
+                            JD
+                        </div>
+                        <div>
+                            <span class="block text-sm font-bold text-white">Jean Dupont</span>
+                            <span class="text-xs text-brand-success flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-brand-success"></span> Investisseur Certifié
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Investor Dashboard Structure -->
+            <section class="py-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+                        <!-- Left Panel Menu -->
+                        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm h-fit">
+                            <div class="bg-brand-navy p-4 text-white text-xs font-semibold tracking-wider uppercase">
+                                Menu de pilotage</div>
+                            <nav class="p-2 space-y-1">
+                                <button onclick="setInvestorTab('dashboard')" id="invest-tab-dashboard"
+                                    class="w-full text-left px-4 py-3 rounded-xl text-sm font-bold flex items-center space-x-3 bg-brand-gold/15 text-brand-dark">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <span>Tableau de bord</span>
+                                </button>
+                                <button onclick="setInvestorTab('investissements')" id="invest-tab-investissements"
+                                    class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    <span>Mes investissements</span>
+                                </button>
+                                <button onclick="setInvestorTab('dataroom')" id="invest-tab-dataroom"
+                                    class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50 justify-between">
+                                    <span class="flex items-center space-x-3">
+                                        <i class="fa-solid fa-lock text-brand-gold"></i>
+                                        <span>Data Room Sécurisée</span>
+                                    </span>
+                                    <span
+                                        class="bg-brand-gold/20 text-brand-gold text-[10px] px-2 py-0.5 rounded-full font-bold">PRO</span>
+                                </button>
+                                <button onclick="switchTab('marketplace')"
+                                    class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50">
+                                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                                    <span>Opportunités</span>
+                                </button>
+                                <button onclick="switchTab('accueil')"
+                                    class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center space-x-3 text-red-600 hover:bg-red-50 mt-8">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                    <span>Déconnexion</span>
+                                </button>
+                            </nav>
+                        </div>
+
+                        <!-- Right Panel Contents -->
+                        <div class="lg:col-span-3 space-y-8">
+
+                            <!-- TAB SUB-CONTENT: DASHBOARD -->
+                            <div id="invest-sub-dashboard" class="invest-sub-content space-y-8">
+                                <!-- Top Performance Stats Card Grid -->
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                                        <span
+                                            class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Projets
+                                            investis</span>
+                                        <span class="text-2xl md:text-3xl font-extrabold text-brand-dark">5</span>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                                        <span
+                                            class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Montant
+                                            total investi</span>
+                                        <span class="text-2xl md:text-3xl font-extrabold text-brand-dark">2.3 M$</span>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                                        <span
+                                            class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">ROI
+                                            moyen</span>
+                                        <span
+                                            class="text-2xl md:text-3xl font-extrabold text-brand-success">18.5%</span>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                                        <span
+                                            class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Gains
+                                            réalisés</span>
+                                        <span class="text-2xl md:text-3xl font-extrabold text-brand-dark">320 K$</span>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Investments Table -->
+                                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                                        <h3 class="font-extrabold text-brand-dark text-lg">Mes investissements récents
+                                        </h3>
+                                        <button onclick="switchTab('marketplace')"
+                                            class="text-brand-gold text-xs font-bold hover:underline">Investir à 
+                                            nouveau</button>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left text-sm">
+                                            <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-semibold">
+                                                <tr>
+                                                    <th class="p-4">Projet</th>
+                                                    <th class="p-4">Montant investi</th>
+                                                    <th class="p-4">Progression</th>
+                                                    <th class="p-4">ROI attendu</th>
+                                                    <th class="p-4">Statut</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100">
+                                                <tr>
+                                                    <td class="p-4 font-bold text-brand-dark">Urban Business Park</td>
+                                                    <td class="p-4">1 000 000 $</td>
+                                                    <td class="p-4">
+                                                        <div class="flex items-center space-x-2">
+                                                            <div
+                                                                class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                                                <div class="bg-brand-success h-full" style="width: 35%">
+                                                                </div>
+                                                            </div>
+                                                            <span class="text-xs font-semibold">35%</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-4 font-semibold">28%</td>
+                                                    <td class="p-4">
+                                                        <span
+                                                            class="bg-emerald-50 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-semibold">En
+                                                            cours</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-4 font-bold text-brand-dark">Résidence Horizon</td>
+                                                    <td class="p-4">500 000 $</td>
+                                                    <td class="p-4">
+                                                        <div class="flex items-center space-x-2">
+                                                            <div
+                                                                class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                                                <div class="bg-brand-success h-full" style="width: 31%">
+                                                                </div>
+                                                            </div>
+                                                            <span class="text-xs font-semibold">31%</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-4 font-semibold">24%</td>
+                                                    <td class="p-4">
+                                                        <span
+                                                            class="bg-emerald-50 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-semibold">En
+                                                            cours</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="p-4 font-bold text-brand-dark">Eco City Villas</td>
+                                                    <td class="p-4">300 000 $</td>
+                                                    <td class="p-4">
+                                                        <div class="flex items-center space-x-2">
+                                                            <div
+                                                                class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                                                <div class="bg-brand-success h-full" style="width: 22%">
+                                                                </div>
+                                                            </div>
+                                                            <span class="text-xs font-semibold">22%</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-4 font-semibold">22%</td>
+                                                    <td class="p-4">
+                                                        <span
+                                                            class="bg-blue-50 text-blue-800 text-xs px-2.5 py-1 rounded-full font-semibold">Planifié</span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB SUB-CONTENT: INVESTISSEMENTS DETAIL -->
+                            <div id="invest-sub-investissements" class="invest-sub-content hidden space-y-8">
+                                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                                    <h3 class="font-extrabold text-brand-dark text-lg mb-4">Détails de mon portefeuille
+                                    </h3>
+                                    <p class="text-slate-600 mb-6">Suivez l'état technique et les rapports financiers
+                                        trimestriels audités de l'ensemble de vos actifs immobiliers.</p>
+                                    <div
+                                        class="bg-slate-50 p-6 rounded-xl border border-slate-200 flex items-center justify-between">
+                                        <div class="flex items-center space-x-4">
+                                            <i class="fa-solid fa-file-invoice-dollar text-brand-gold text-4xl"></i>
+                                            <div>
+                                                <h4 class="font-bold text-brand-dark">Rapport d'activité Q2 2026</h4>
+                                                <p class="text-xs text-slate-500">Mis à jour le 15 Juin 2026</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            class="bg-brand-navy text-white hover:bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold flex items-center space-x-2">
+                                            <i class="fa-solid fa-download"></i>
+                                            <span>Télécharger</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB SUB-CONTENT: SECURED DATA ROOM -->
+                            <div id="invest-sub-dataroom" class="invest-sub-content hidden space-y-8">
+                                <!-- KYC Validation Screen simulator (Locks/Unlocks confidential data) -->
+                                <div id="dataroom-locked-state"
+                                    class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center space-y-6">
+                                    <div
+                                        class="w-16 h-16 bg-brand-gold/15 text-brand-gold rounded-full flex items-center justify-center text-3xl mx-auto">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </div>
+                                    <div class="max-w-md mx-auto">
+                                        <h3 class="text-2xl font-extrabold text-brand-dark mb-2">Accéder à la Data Room
+                                            Sécurisée</h3>
+                                        <p class="text-sm text-slate-600 leading-relaxed">
+                                            Conformément aux réglementations financières, l'accès aux audits de due
+                                            diligence, aux business plans et aux plans cadastraux confidentiels est
+                                            strictement protégé.
+                                        </p>
+                                    </div>
+
+                                    <!-- Interactive Form to unlock -->
+                                    <div
+                                        class="border border-slate-200 bg-slate-50 p-6 rounded-2xl max-w-lg mx-auto text-left space-y-4">
+                                        <h4 class="font-bold text-brand-dark text-sm border-b border-slate-200 pb-2">
+                                            Compléter la vérification</h4>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-500 mb-1">Type
+                                                d'investisseur</label>
+                                            <select
+                                                class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs focus:ring-1 focus:ring-brand-gold focus:outline-none">
+                                                <option>Personne Physique (Business Angel / Diaspora)</option>
+                                                <option>Personne Morale (Fonds d'investissement / Family Office)
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" id="ndaConsent" class="rounded accent-brand-gold">
+                                            <label for="ndaConsent" class="text-xs text-slate-600">Je consens à la
+                                                signature électronique d'un accord de non-divulgation (NDA)</label>
+                                        </div>
+                                        <button onclick="unlockDataRoom()"
+                                            class="w-full bg-brand-navy hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center space-x-2">
+                                            <i class="fa-solid fa-signature"></i>
+                                            <span>Signer l'accord & Déverrouiller</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Unlocked State (Confidential file space) -->
+                                <div id="dataroom-unlocked-state"
+                                    class="hidden bg-white p-8 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                                    <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                                        <div>
+                                            <span
+                                                class="bg-brand-success/10 text-brand-success text-xs font-bold px-2.5 py-1 rounded-full">Accès
+                                                Autorisé</span>
+                                            <h3 class="text-2xl font-extrabold text-brand-dark mt-2">Dossiers d'audit
+                                                confidentiels</h3>
+                                        </div>
+                                        <i class="fa-solid fa-folder-open text-brand-gold text-3xl"></i>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div
+                                            class="p-4 border border-slate-200 rounded-xl hover:border-brand-gold transition-all flex justify-between items-center">
+                                            <div class="flex items-center space-x-3">
+                                                <i class="fa-solid fa-file-pdf text-red-500 text-2xl"></i>
+                                                <div>
+                                                    <span class="block text-sm font-bold text-brand-dark">Business Plan
+                                                        Horizon</span>
+                                                    <span class="text-xs text-slate-400">PDF • 14.2 MB</span>
+                                                </div>
+                                            </div>
+                                            <button class="text-slate-400 hover:text-brand-gold"><i
+                                                    class="fa-solid fa-download"></i></button>
+                                        </div>
+                                        <div
+                                            class="p-4 border border-slate-200 rounded-xl hover:border-brand-gold transition-all flex justify-between items-center">
+                                            <div class="flex items-center space-x-3">
+                                                <i class="fa-solid fa-file-excel text-emerald-500 text-2xl"></i>
+                                                <div>
+                                                    <span class="block text-sm font-bold text-brand-dark">Modèle
+                                                        prévisionnel 10 ans</span>
+                                                    <span class="text-xs text-slate-400">XLSX • 4.8 MB</span>
+                                                </div>
+                                            </div>
+                                            <button class="text-slate-400 hover:text-brand-gold"><i
+                                                    class="fa-solid fa-download"></i></button>
+                                        </div>
+                                        <div
+                                            class="p-4 border border-slate-200 rounded-xl hover:border-brand-gold transition-all flex justify-between items-center">
+                                            <div class="flex items-center space-x-3">
+                                                <i class="fa-solid fa-file-shield text-blue-500 text-2xl"></i>
+                                                <div>
+                                                    <span class="block text-sm font-bold text-brand-dark">Rapport de Due
+                                                        Diligence</span>
+                                                    <span class="text-xs text-slate-400">PDF • 8.1 MB</span>
+                                                </div>
+                                            </div>
+                                            <button class="text-slate-400 hover:text-brand-gold"><i
+                                                    class="fa-solid fa-download"></i></button>
+                                        </div>
+                                        <div
+                                            class="p-4 border border-slate-200 rounded-xl hover:border-brand-gold transition-all flex justify-between items-center">
+                                            <div class="flex items-center space-x-3">
+                                                <i class="fa-solid fa-file-signature text-amber-500 text-2xl"></i>
+                                                <div>
+                                                    <span class="block text-sm font-bold text-brand-dark">Titres
+                                                        fonciers & Permis</span>
+                                                    <span class="text-xs text-slate-400">PDF • 18.5 MB</span>
+                                                </div>
+                                            </div>
+                                            <button class="text-slate-400 hover:text-brand-gold"><i
+                                                    class="fa-solid fa-download"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= PAGE 6: ACTUALITÉS ================= -->
+        <div id="page-actualites" class="tab-content hidden">
+            <!-- Header Section -->
+            <section class="bg-brand-dark text-white py-12 border-b border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-xs text-slate-400 space-x-2 mb-3">
+                        <span class="hover:text-white cursor-pointer" onclick="switchTab('accueil')">Accueil</span>
+                        <span>/</span>
+                        <span class="text-brand-gold font-medium">Actualités</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold">Espace Actualités</h1>
+                </div>
+            </section>
+
+            <!-- News Grid with Categorized Filter buttons -->
+            <section class="py-16 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <!-- Category Tabs -->
+                    <div class="flex flex-wrap gap-2 justify-center mb-12">
+                        <button
+                            class="px-5 py-2 rounded-full text-sm font-bold bg-brand-navy text-white">Toutes</button>
+                        <button
+                            class="px-5 py-2 rounded-full text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600">Entreprise</button>
+                        <button
+                            class="px-5 py-2 rounded-full text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600">Projets</button>
+                        <button
+                            class="px-5 py-2 rounded-full text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600">Marché</button>
+                        <button
+                            class="px-5 py-2 rounded-full text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600">Partenariats</button>
+                    </div>
+
+                    <!-- News Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- News 1 -->
+                        <div
+                            class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between">
+                            <div>
+                                <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80"
+                                    alt="News 1" class="h-48 w-full object-cover">
+                                <div class="p-6">
+                                    <span class="text-xs font-bold text-brand-gold block mb-2">15 Mai 2026</span>
+                                    <h3 class="font-bold text-brand-dark text-lg mb-3">URBANOVA lance un nouveau projet
+                                        de 100 logements à Goma</h3>
+                                    <p class="text-sm text-slate-600">Ce projet d'envergure intègre des infrastructures
+                                        de récupération d'eau et d'électricité solaire.</p>
+                                </div>
+                            </div>
+                            <div class="p-6 pt-0">
+                                <button
+                                    class="text-brand-navy font-bold text-sm hover:text-brand-gold flex items-center space-x-1">
+                                    <span>Lire la suite</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- News 2 -->
+                        <div
+                            class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between">
+                            <div>
+                                <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80"
+                                    alt="News 2" class="h-48 w-full object-cover">
+                                <div class="p-6">
+                                    <span class="text-xs font-bold text-brand-gold block mb-2">2 Mai 2026</span>
+                                    <h3 class="font-bold text-brand-dark text-lg mb-3">Partenariat stratégique avec la
+                                        BAD pour le développement urbain</h3>
+                                    <p class="text-sm text-slate-600">Un protocole d'entente a été signé pour appuyer la
+                                        levée de fonds des éco-quartiers.</p>
+                                </div>
+                            </div>
+                            <div class="p-6 pt-0">
+                                <button
+                                    class="text-brand-navy font-bold text-sm hover:text-brand-gold flex items-center space-x-1">
+                                    <span>Lire la suite</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- News 3 -->
+                        <div
+                            class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between">
+                            <div>
+                                <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80"
+                                    alt="News 3" class="h-48 w-full object-cover">
+                                <div class="p-6">
+                                    <span class="text-xs font-bold text-brand-gold block mb-2">20 Avril 2026</span>
+                                    <h3 class="font-bold text-brand-dark text-lg mb-3">URBANOVA parmi les 100
+                                        entreprises qui transforment l'Afrique</h3>
+                                    <p class="text-sm text-slate-600">Notre modèle de financement collaboratif
+                                        d'ouvrages publics a été salué par l'Union Africaine.</p>
+                                </div>
+                            </div>
+                            <div class="p-6 pt-0">
+                                <button
+                                    class="text-brand-navy font-bold text-sm hover:text-brand-gold flex items-center space-x-1">
+                                    <span>Lire la suite</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= PAGE 7: CONTACT ================= -->
+        <div id="page-contact" class="tab-content hidden">
+            <!-- Header Section -->
+            <section class="bg-brand-dark text-white py-12 border-b border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-xs text-slate-400 space-x-2 mb-3">
+                        <span class="hover:text-white cursor-pointer" onclick="switchTab('accueil')">Accueil</span>
+                        <span>/</span>
+                        <span class="text-brand-gold font-medium">Contact</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold">Contactez-nous</h1>
+                </div>
+            </section>
+
+            <!-- Main grid containing coordinates and form -->
+            <section class="py-16 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <!-- Left Coordinate Information -->
+                        <div class="space-y-8">
+                            <h2 class="text-2xl font-extrabold text-brand-dark">Coordonnées de l'entreprise</h2>
+                            <p class="text-slate-600 leading-relaxed">
+                                Nos équipes d'ingénierie et de relation investisseurs sont à votre entière écoute pour
+                                structurer et catalyser la réussite de vos projets urbains durables en RD Congo.
+                            </p>
+
+                            <div class="space-y-6">
+                                <!-- Address -->
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-brand-gold/10 text-brand-gold p-3 rounded-xl"><i
+                                            class="fa-solid fa-map-location-dot"></i></div>
+                                    <div>
+                                        <span class="block font-bold text-slate-700">Adresse</span>
+                                        <span class="text-slate-500 text-sm">Avenue de l'Unité, Quartier Himbi, Goma,
+                                            Nord-Kivu, RD Congo</span>
+                                    </div>
+                                </div>
+                                <!-- Tel -->
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-brand-gold/10 text-brand-gold p-3 rounded-xl"><i
+                                            class="fa-solid fa-phone"></i></div>
+                                    <div>
+                                        <span class="block font-bold text-slate-700">Téléphone</span>
+                                        <span class="text-slate-500 text-sm block">+243 900 000 000</span>
+                                        <span class="text-slate-500 text-sm block">+243 800 000 000</span>
+                                    </div>
+                                </div>
+                                <!-- Email -->
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-brand-gold/10 text-brand-gold p-3 rounded-xl"><i
+                                            class="fa-solid fa-envelope"></i></div>
+                                    <div>
+                                        <span class="block font-bold text-slate-700">Email</span>
+                                        <span class="text-slate-500 text-sm">contact@urbanova.cd</span>
+                                    </div>
+                                </div>
+                                <!-- Horaires -->
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-brand-gold/10 text-brand-gold p-3 rounded-xl"><i
+                                            class="fa-solid fa-clock"></i></div>
+                                    <div>
+                                        <span class="block font-bold text-slate-700">Horaires d'ouverture</span>
+                                        <span class="text-slate-500 text-sm block">Lun - Ven : 8h00 - 17h00</span>
+                                        <span class="text-slate-500 text-sm block">Sam : 9h00 - 13h00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Form -->
+                        <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200">
+                            <h3 class="font-bold text-brand-dark text-xl mb-6">Formulaire de contact</h3>
+
+                            <form id="contactForm" class="space-y-4"
+                                onsubmit="event.preventDefault(); submitContactForm();">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nom
+                                            complet</label>
+                                        <input type="text" id="contactName" placeholder="Votre nom"
+                                            class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm focus:ring-1 focus:ring-brand-gold focus:outline-none"
+                                            required>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-500 uppercase mb-1">Email</label>
+                                        <input type="email" id="contactEmail" placeholder="Votre email"
+                                            class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm focus:ring-1 focus:ring-brand-gold focus:outline-none"
+                                            required>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-500 uppercase mb-1">Téléphone</label>
+                                        <input type="text" id="contactPhone" placeholder="Votre téléphone"
+                                            class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm focus:ring-1 focus:ring-brand-gold focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-slate-500 uppercase mb-1">Sujet</label>
+                                        <select id="contactSubject"
+                                            class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm focus:ring-1 focus:ring-brand-gold focus:outline-none">
+                                            <option>Demande d'informations</option>
+                                            <option>Investissement Climat / Immobilier</option>
+                                            <option>Demande de devis</option>
+                                            <option>Postuler (Carrières)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Message</label>
+                                    <textarea id="contactMessage" rows="5" placeholder="Votre message..."
+                                        class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm focus:ring-1 focus:ring-brand-gold focus:outline-none"
+                                        required></textarea>
+                                </div>
+
+                                <button type="submit"
+                                    class="w-full bg-brand-navy hover:bg-slate-800 text-white font-bold py-4 rounded-xl text-sm transition-all shadow-md">Envoyer
+                                    le message</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-brand-dark text-white border-t border-slate-800 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <!-- Branding info -->
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('accueil')">
+                        <div class="bg-brand-gold p-2 rounded-lg text-brand-dark font-extrabold text-lg">
+                            <i class="fa-solid fa-city"></i>
+                        </div>
+                        <div>
+                            <span
+                                class="text-lg font-extrabold tracking-wider bg-gradient-to-r from-brand-gold via-yellow-200 to-white bg-clip-text text-transparent">URBANOVA</span>
+                            <p class="text-[8px] text-slate-400 tracking-widest uppercase -mt-1">SOLUTIONS</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        Construisons aujourd'hui les villes durables de demain. Écosystème d'investissements et
+                        d'ingénierie moderne en Afrique Centrale.
+                    </p>
+                    <div class="flex space-x-3 text-brand-gold text-lg">
+                        <a href="#" class="hover:text-white"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="hover:text-white"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#" class="hover:text-white"><i class="fa-brands fa-x-twitter"></i></a>
+                    </div>
+                </div>
+
+                <!-- Navigation Quick links -->
+                <div>
+                    <h4 class="font-bold text-slate-200 mb-4 text-sm uppercase tracking-wider">Navigation</h4>
+                    <ul class="space-y-2.5 text-sm text-slate-400">
+                        <li><button onclick="switchTab('accueil')"
+                                class="hover:text-brand-gold transition-all">Accueil</button></li>
+                        <li><button onclick="switchTab('apropos')" class="hover:text-brand-gold transition-all">À
+                                propos</button></li>
+                        <li><button onclick="switchTab('marketplace')"
+                                class="hover:text-brand-gold transition-all">Marketplace</button></li>
+                        <li><button onclick="switchTab('levee')" class="hover:text-brand-gold transition-all">Levée de
+                                fonds</button></li>
+                    </ul>
+                </div>
+
+                <!-- Resources links -->
+                <div>
+                    <h4 class="font-bold text-slate-200 mb-4 text-sm uppercase tracking-wider">Ressources</h4>
+                    <ul class="space-y-2.5 text-sm text-slate-400">
+                        <li><button onclick="setInvestorTab('dataroom'); switchTab('investisseur');"
+                                class="hover:text-brand-gold transition-all">Data Room Sécurisée</button></li>
+                        <li><button onclick="switchTab('actualites')"
+                                class="hover:text-brand-gold transition-all">Actualités</button></li>
+                        <li><button onclick="switchTab('contact')"
+                                class="hover:text-brand-gold transition-all">Carrières</button></li>
+                        <li><button onclick="switchTab('contact')" class="hover:text-brand-gold transition-all">Devenir
+                                partenaire</button></li>
+                    </ul>
+                </div>
+
+                <!-- Fast Coordinates -->
+                <div>
+                    <h4 class="font-bold text-slate-200 mb-4 text-sm uppercase tracking-wider">Contact</h4>
+                    <p class="text-sm text-slate-400 mb-2">Goma, RD Congo</p>
+                    <p class="text-sm text-slate-400 mb-2">+243 900 000 000</p>
+                    <p class="text-sm text-slate-400">contact@urbanova.cd</p>
+                </div>
+            </div>
+
+            <div
+                class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
+                <p>&copy; 2026 URBANOVA SOLUTIONS. Tous droits réservés.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white">Mentions légales</a>
+                    <a href="#" class="hover:text-white">Politique de confidentialité</a>
+                    <a href="#" class="hover:text-white">CGU</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Global UI Dialog / Notification Toast -->
+    <div id="toastMessage"
+        class="fixed bottom-5 right-5 z-50 bg-brand-navy border border-brand-gold text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i class="fa-solid fa-circle-check text-brand-gold text-xl" id="toastIcon"></i>
+        <div>
+            <span class="block font-bold text-sm" id="toastTitle">Succès</span>
+            <span class="text-xs text-slate-300" id="toastBody">Action réalisée avec succès.</span>
+        </div>
+    </div>
+
+
+    <script>
+        // Core data representing Marketplace investment projects matching specifications & image layout
+        const projectDatabase = [
+            {
+                id: 'proj-1',
+                title: 'Résidence Horizon',
+                location: 'Goma, RDC',
+                country: 'RDC',
+                city: 'Goma',
+                sector: 'Résidentiel',
+                target: 800000,
+                raised: 250000,
+                roi: 24,
+                progress: 31,
+                status: 'En cours',
+                image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                id: 'proj-2',
+                title: 'Urban Business Park',
+                location: 'Kinshasa, RDC',
+                country: 'RDC',
+                city: 'Kinshasa',
+                sector: 'Bureaux',
+                target: 6000000,
+                raised: 2100000,
+                roi: 28,
+                progress: 35,
+                status: 'En cours',
+                image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                id: 'proj-3',
+                title: 'Eco City Villas',
+                location: 'Kigali, Rwanda',
+                country: 'Rwanda',
+                city: 'Kigali',
+                sector: 'Résidentiel',
+                target: 1500000,
+                raised: 330000,
+                roi: 22,
+                progress: 22,
+                status: 'Planifié',
+                image: 'https://images.unsplash.com/photo-151291777408-0-9991f1c4c750?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                id: 'proj-4',
+                title: 'Commercial Hub Goma',
+                location: 'Goma, RDC',
+                country: 'RDC',
+                city: 'Goma',
+                sector: 'Commercial',
+                target: 2000000,
+                raised: 500000,
+                roi: 25,
+                progress: 25,
+                status: 'En cours',
+                image: 'https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=600&q=80'
+            }
+        ];
+
+        // Active state managers
+        let activeTab = 'accueil';
+        let wizardStep = 1;
+        let isDataRoomUnlocked = false;
+
+        // On Load initialization
+        window.onload = function () {
+            renderMarketplace(projectDatabase);
+        }
+
+        // Tab Switcher between Pages
+        function switchTab(tabId) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(el => el.classList.add('hidden'));
+
+            // Show active tab
+            const targetEl = document.getElementById('page-' + tabId);
+            if (targetEl) {
+                targetEl.classList.remove('hidden');
+            }
+
+            // Update Nav link classes
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(link => {
+                link.classList.remove('text-brand-gold', 'border-b-2', 'border-brand-gold');
+                link.classList.add('text-slate-300');
+            });
+
+            const activeLink = document.getElementById('nav-' + tabId);
+            if (activeLink) {
+                activeLink.classList.remove('text-slate-300');
+                activeLink.classList.add('text-brand-gold', 'border-b-2', 'border-brand-gold');
+            }
+
+            activeTab = tabId;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Mobile Menu Toggler
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.className = "fa-solid fa-xmark text-2xl";
+            } else {
+                menu.classList.add('hidden');
+                icon.className = "fa-solid fa-bars text-2xl";
+            }
+        }
+
+        // Toast Messages
+        function showToast(title, body, type = 'success') {
+            const toast = document.getElementById('toastMessage');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastBody = document.getElementById('toastBody');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastTitle.innerText = title;
+            toastBody.innerText = body;
+
+            if (type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-brand-success text-xl";
+            } else {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-brand-gold text-xl";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 4000);
+        }
+
+        // Marketplace Render Logic
+        function renderMarketplace(projects) {
+            const container = document.getElementById('marketplaceGrid');
+            const counter = document.getElementById('resultsCount');
+
+            if (!container) return;
+            container.innerHTML = '';
+
+            counter.innerText = `${projects.length} opportunité(s) disponible(s)`;
+
+            if (projects.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+                        <i class="fa-solid fa-folder-open text-4xl text-slate-400 mb-3"></i>
+                        <h4 class="font-bold text-slate-700">Aucun projet ne correspond à ces critères</h4>
+                        <p class="text-xs text-slate-400 mt-1">Essayez d'ajuster ou réinitialiser les filtres.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            projects.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col md:flex-row";
+
+                card.innerHTML = `
+                    <!-- Left Image -->
+                    <div class="relative w-full md:w-1/3 h-52 md:h-auto overflow-hidden">
+                        <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover">
+                        <span class="absolute top-4 left-4 bg-brand-navy/90 backdrop-blur-md text-brand-gold text-xs font-bold px-3 py-1 rounded-full">
+                            ${p.sector}
+                        </span>
+                    </div>
+
+                    <!-- Right Details -->
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-xl font-extrabold text-brand-dark">${p.title}</h3>
+                                <span class="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">${p.status}</span>
+                            </div>
+                            <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-brand-gold mr-1.5"></i>${p.location}</p>
+                            
+                            <!-- Financial Progress info -->
+                            <div class="mt-4 space-y-2">
+                                <div class="flex justify-between text-xs font-bold text-slate-600">
+                                    <span>Recherché: ${p.target.toLocaleString()} $</span>
+                                    <span>Mobilisé: ${p.raised.toLocaleString()} $</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                    <div class="bg-brand-gold h-full" style="width: ${p.progress}%"></div>
+                                </div>
+                                <div class="flex justify-between text-[11px] text-slate-400">
+                                    <span>Progression: ${p.progress}%</span>
+                                    <span>ROI attendu: <strong class="text-brand-success font-bold">${p.roi}%</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="mt-6 flex justify-end">
+                            <button onclick="investigateProject('${p.id}')" class="bg-brand-navy hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl text-xs transition-all shadow-sm">
+                                Voir le dossier
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Apply filters
+        function applyMarketplaceFilters() {
+            const country = document.getElementById('filterCountry').value;
+            const city = document.getElementById('filterCity').value;
+            const sector = document.getElementById('filterSector').value;
+            const roi = parseInt(document.getElementById('filterROI').value);
+
+            const filtered = projectDatabase.filter(p => {
+                if (country !== 'all' && p.country !== country) return false;
+                if (city !== 'all' && p.city !== city) return false;
+                if (sector !== 'all' && p.sector !== sector) return false;
+                if (p.roi < roi) return false;
+                return true;
+            });
+
+            renderMarketplace(filtered);
+            showToast("Filtres appliqués", `${filtered.length} opportunité(s) filtrée(s).`);
+        }
+
+        // Reset Filters
+        function resetMarketplaceFilters() {
+            document.getElementById('filterForm').reset();
+            document.getElementById('roiVal').innerText = "0% +";
+            renderMarketplace(projectDatabase);
+            showToast("Réinitialisation", "Tous les filtres de recherche ont été remis à zéro.");
+        }
+
+        // Click to Investigate project
+        function investigateProject(id) {
+            // Directing the user to the safe space Data Room inside Espace Investisseur
+            showToast("Accès au dossier", "Veuillez vous identifier et signer l'accord pour accéder à la Data Room.");
+            setInvestorTab('dataroom');
+            switchTab('investisseur');
+        }
+
+        // Wizard Form Step Navigation
+        function navigateWizard(direction) {
+            const currentForm = document.getElementById(`formStep-${wizardStep}`);
+
+            // Basic validation check
+            if (direction === 1) {
+                if (wizardStep === 1) {
+                    const name = document.getElementById('projName').value;
+                    const owner = document.getElementById('projOwner').value;
+                    const loc = document.getElementById('projLoc').value;
+                    if (!name || !owner || !loc) {
+                        showToast("Champs requis", "Veuillez remplir tous les champs obligatoires (*)", "warning");
+                        return;
+                    }
+                }
+                if (wizardStep === 2) {
+                    const cost = document.getElementById('projCost').value;
+                    const target = document.getElementById('projTarget').value;
+                    if (!cost || !target) {
+                        showToast("Données financières", "Veuillez renseigner le coût et le financement cible.", "warning");
+                        return;
+                    }
+                }
+            }
+
+            // Update steps
+            currentForm.classList.add('hidden');
+            wizardStep += direction;
+
+            // Cap limits
+            if (wizardStep > 4) {
+                // Final submit triggers simulated action
+                submitFundraisingProject();
+                return;
+            }
+
+            const nextForm = document.getElementById(`formStep-${wizardStep}`);
+            nextForm.classList.remove('hidden');
+
+            // Update indicators and headers visually
+            updateStepIndicators();
+        }
+
+        function updateStepIndicators() {
+            // Manage Previous button visibility
+            const prevBtn = document.getElementById('prevStepBtn');
+            if (wizardStep > 1) {
+                prevBtn.classList.remove('invisible');
+            } else {
+                prevBtn.classList.add('invisible');
+            }
+
+            // Manage Next button text
+            const nextBtn = document.getElementById('nextStepBtn');
+            if (wizardStep === 4) {
+                nextBtn.innerText = "Finaliser la soumission";
+                nextBtn.className = "bg-brand-success hover:bg-emerald-600 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-md";
+            } else {
+                nextBtn.innerText = "Suivant";
+                nextBtn.className = "bg-brand-navy hover:bg-slate-800 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-md";
+            }
+
+            // Render Circle markers color
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`stepIndicator-${i}`);
+                const text = document.getElementById(`stepText-${i}`);
+
+                if (i === wizardStep) {
+                    indicator.className = "w-8 h-8 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold text-sm";
+                    if (text) text.className = "hidden md:inline text-xs font-bold uppercase tracking-wider text-brand-gold";
+                } else if (i < wizardStep) {
+                    indicator.className = "w-8 h-8 rounded-full bg-brand-success text-white flex items-center justify-center font-bold text-sm";
+                    if (text) text.className = "hidden md:inline text-xs font-bold uppercase tracking-wider text-brand-success";
+                } else {
+                    indicator.className = "w-8 h-8 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center justify-center font-bold text-sm";
+                    if (text) text.className = "hidden md:inline text-xs font-bold uppercase tracking-wider text-slate-400";
+                }
+            }
+        }
+
+        // Submits fundraising form and pushes to database dynamically!
+        function submitFundraisingProject() {
+            const name = document.getElementById('projName').value;
+            const owner = document.getElementById('projOwner').value;
+            const loc = document.getElementById('projLoc').value;
+            const sector = document.getElementById('projSector').value;
+            const target = parseInt(document.getElementById('projTarget').value);
+            const roi = parseInt(document.getElementById('projRoi').value) || 20;
+
+            const newProject = {
+                id: `proj-${Date.now()}`,
+                title: name,
+                location: loc,
+                country: 'RDC',
+                city: loc.split(',')[0].trim(),
+                sector: sector,
+                target: target,
+                raised: 0,
+                roi: roi,
+                progress: 0,
+                status: 'En attente',
+                image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'
+            };
+
+            // Inject to local database array
+            projectDatabase.unshift(newProject);
+            renderMarketplace(projectDatabase);
+
+            showToast("Projet Soumis", "Félicitations! Votre projet a bien été enregistré pour validation administrative.");
+
+            // Reset wizard
+            document.getElementById('submissionWizard').reset();
+            wizardStep = 1;
+            document.getElementById('formStep-4').classList.add('hidden');
+            document.getElementById('formStep-1').classList.remove('hidden');
+            updateStepIndicators();
+
+            // Redirect to marketplace to let user preview
+            switchTab('marketplace');
+        }
+
+        // Investor Dashboard tab switcher
+        function setInvestorTab(tab) {
+            // Hide sub tabs
+            const subs = document.querySelectorAll('.invest-sub-content');
+            subs.forEach(el => el.classList.add('hidden'));
+
+            // Show target
+            document.getElementById(`invest-sub-${tab}`).classList.remove('hidden');
+
+            // Manage nav buttons styling inside Investor Panel
+            const buttons = [
+                { id: 'dashboard', el: document.getElementById('invest-tab-dashboard') },
+                { id: 'investissements', el: document.getElementById('invest-tab-investissements') },
+                { id: 'dataroom', el: document.getElementById('invest-tab-dataroom') }
+            ];
+
+            buttons.forEach(btn => {
+                if (btn.id === tab) {
+                    btn.el.className = "w-full text-left px-4 py-3 rounded-xl text-sm font-bold flex items-center space-x-3 bg-brand-gold/15 text-brand-dark";
+                } else {
+                    btn.el.className = "w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50";
+                }
+            });
+        }
+
+        // Unlock Data Room secure system
+        function unlockDataRoom() {
+            const consent = document.getElementById('ndaConsent').checked;
+            if (!consent) {
+                showToast("NDA Obligatoire", "Vous devez approuver l'accord de non-divulgation (NDA) pour continuer.", "warning");
+                return;
+            }
+
+            isDataRoomUnlocked = true;
+            document.getElementById('dataroom-locked-state').classList.add('hidden');
+            document.getElementById('dataroom-unlocked-state').classList.remove('hidden');
+            showToast("Accès déverrouillé", "Data Room débloquée. Les documents confidentiels sont désormais accessibles.");
+        }
+
+        // Submit Contact Form
+        function submitContactForm() {
+            const name = document.getElementById('contactName').value;
+            const subject = document.getElementById('contactSubject').value;
+
+            showToast("Message Envoyé !", `Merci ${name}, notre service de support étudie votre demande concernant "${subject}".`);
+            document.getElementById('contactForm').reset();
+        }
+    </script>
+</body>
+
+</html>
