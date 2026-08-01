@@ -1001,26 +1001,26 @@
                                         <span
                                             class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Projets
                                             investis</span>
-                                        <span class="text-2xl md:text-3xl font-extrabold text-brand-dark">5</span>
+                                        <span class="text-2xl md:text-3xl font-extrabold text-brand-dark" id="investProjectCount">0</span>
                                     </div>
                                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                                         <span
                                             class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Montant
                                             total investi</span>
-                                        <span class="text-2xl md:text-3xl font-extrabold text-brand-dark">2.3 M$</span>
+                                        <span class="text-2xl md:text-3xl font-extrabold text-brand-dark" id="investTotalAmount">0 $</span>
                                     </div>
                                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                                         <span
                                             class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">ROI
                                             moyen</span>
                                         <span
-                                            class="text-2xl md:text-3xl font-extrabold text-brand-success">18.5%</span>
+                                            class="text-2xl md:text-3xl font-extrabold text-brand-success" id="investAvgRoi">0%</span>
                                     </div>
                                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                                         <span
                                             class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Gains
                                             réalisés</span>
-                                        <span class="text-2xl md:text-3xl font-extrabold text-brand-dark">320 K$</span>
+                                        <span class="text-2xl md:text-3xl font-extrabold text-brand-dark" id="investTotalGains">0 $</span>
                                     </div>
                                 </div>
 
@@ -1042,71 +1042,35 @@
                                                     <th class="p-4">Progression</th>
                                                     <th class="p-4">ROI attendu</th>
                                                     <th class="p-4">Statut</th>
+                                                    <th class="p-4">Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="divide-y divide-slate-100">
+                                            <tbody class="divide-y divide-slate-100" id="investorInvestmentsTable">
                                                 <tr>
-                                                    <td class="p-4 font-bold text-brand-dark">Urban Business Park</td>
-                                                    <td class="p-4">1 000 000 $</td>
-                                                    <td class="p-4">
-                                                        <div class="flex items-center space-x-2">
-                                                            <div
-                                                                class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
-                                                                <div class="bg-brand-success h-full" style="width: 35%">
-                                                                </div>
-                                                            </div>
-                                                            <span class="text-xs font-semibold">35%</span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="p-4 font-semibold">28%</td>
-                                                    <td class="p-4">
-                                                        <span
-                                                            class="bg-emerald-50 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-semibold">En
-                                                            cours</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="p-4 font-bold text-brand-dark">Résidence Horizon</td>
-                                                    <td class="p-4">500 000 $</td>
-                                                    <td class="p-4">
-                                                        <div class="flex items-center space-x-2">
-                                                            <div
-                                                                class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
-                                                                <div class="bg-brand-success h-full" style="width: 31%">
-                                                                </div>
-                                                            </div>
-                                                            <span class="text-xs font-semibold">31%</span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="p-4 font-semibold">24%</td>
-                                                    <td class="p-4">
-                                                        <span
-                                                            class="bg-emerald-50 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-semibold">En
-                                                            cours</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="p-4 font-bold text-brand-dark">Eco City Villas</td>
-                                                    <td class="p-4">300 000 $</td>
-                                                    <td class="p-4">
-                                                        <div class="flex items-center space-x-2">
-                                                            <div
-                                                                class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
-                                                                <div class="bg-brand-success h-full" style="width: 22%">
-                                                                </div>
-                                                            </div>
-                                                            <span class="text-xs font-semibold">22%</span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="p-4 font-semibold">22%</td>
-                                                    <td class="p-4">
-                                                        <span
-                                                            class="bg-blue-50 text-blue-800 text-xs px-2.5 py-1 rounded-full font-semibold">Planifié</span>
-                                                    </td>
+                                                    <td colspan="6" class="p-4 text-center text-slate-500">Chargement des investissements...</td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
+                                </div>
+                                
+                                <!-- Quick Actions -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <button onclick="switchTab('marketplace')" class="bg-brand-navy hover:bg-slate-800 text-white p-6 rounded-2xl shadow-sm border border-slate-200 text-left transition-all">
+                                        <i class="fa-solid fa-plus-circle text-brand-gold text-2xl mb-2"></i>
+                                        <h4 class="font-bold text-lg">Nouvel investissement</h4>
+                                        <p class="text-sm text-slate-300">Explorer les opportunités</p>
+                                    </button>
+                                    <button onclick="setInvestorTab('investissements')" class="bg-white hover:bg-slate-50 p-6 rounded-2xl shadow-sm border border-slate-200 text-left transition-all">
+                                        <i class="fa-solid fa-chart-line text-brand-navy text-2xl mb-2"></i>
+                                        <h4 class="font-bold text-lg text-brand-dark">Voir mes rapports</h4>
+                                        <p class="text-sm text-slate-500">Analyse détaillée</p>
+                                    </button>
+                                    <button onclick="setInvestorTab('dataroom')" class="bg-white hover:bg-slate-50 p-6 rounded-2xl shadow-sm border border-slate-200 text-left transition-all">
+                                        <i class="fa-solid fa-folder-open text-brand-gold text-2xl mb-2"></i>
+                                        <h4 class="font-bold text-lg text-brand-dark">Data Room</h4>
+                                        <p class="text-sm text-slate-500">Documents confidentiels</p>
+                                    </button>
                                 </div>
                             </div>
 
@@ -2014,7 +1978,7 @@
         // Check authentication status on load
         async function checkAuthStatus() {
             try {
-                const response = await fetch('/urbanovacorp/?route=api/check-auth');
+                const response = await fetch('/urbanovacorp/api.php?action=check-auth');
                 const result = await response.json();
                 
                 if (result.authenticated && result.user) {
@@ -2116,8 +2080,10 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
+            console.log('Attempting login with:', { email });
+            
             try {
-                const response = await fetch('/urbanovacorp/?route=api/login', {
+                const response = await fetch('/urbanovacorp/api.php?action=login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2125,7 +2091,9 @@
                     body: JSON.stringify({ email, password })
                 });
 
+                console.log('Login response status:', response.status);
                 const result = await response.json();
+                console.log('Login result:', result);
 
                 if (result.success) {
                     showToast("Connexion réussie", "Bienvenue " + result.user.name + " !");
@@ -2135,6 +2103,7 @@
                     updateInvestorSpaceButton();
                     document.getElementById('loginForm').reset();
                 } else {
+                    console.error('Login failed:', result.message);
                     showToast("Erreur", result.message, "warning");
                 }
             } catch (error) {
@@ -2210,8 +2179,10 @@
             }
 
             try {
+                console.log('Attempting registration with:', { name, email, phone, country, city });
+                
                 // Register user
-                const registerResponse = await fetch('/urbanovacorp/?route=api/register', {
+                const registerResponse = await fetch('/urbanovacorp/api.php?action=register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2219,7 +2190,9 @@
                     body: JSON.stringify({ name, email, password, phone, country, city })
                 });
 
+                console.log('Register response status:', registerResponse.status);
                 const registerResult = await registerResponse.json();
+                console.log('Register result:', registerResult);
 
                 if (!registerResult.success) {
                     showToast("Erreur", registerResult.message, "warning");
@@ -2230,7 +2203,7 @@
 
                 // Submit project if provided
                 if (projectData) {
-                    const projectResponse = await fetch('/urbanovacorp/?route=api/submit-project', {
+                    const projectResponse = await fetch('/urbanovacorp/api.php?action=submit-project', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -2242,20 +2215,20 @@
 
                     if (projectResult.success) {
                         showToast("Inscription réussie", "Compte créé et projet soumis avec succès !");
-                    await loadProjectsFromAPI();
-                    closeRegisterModal();
-                    updateUIForLoggedInUser();
-                    document.getElementById('registerForm').reset();
-                    registerWizardStep = 1;
-                    updateRegisterStepIndicators();
-                } else {
-                    showToast("Compte créé", "Votre compte a été créé mais le projet n'a pas pu être soumis: " + projectResult.message, "warning");
-                    closeRegisterModal();
-                    updateUIForLoggedInUser();
-                    document.getElementById('registerForm').reset();
-                    registerWizardStep = 1;
-                    updateRegisterStepIndicators();
-                }
+                        await loadProjectsFromAPI();
+                        closeRegisterModal();
+                        updateUIForLoggedInUser();
+                        document.getElementById('registerForm').reset();
+                        registerWizardStep = 1;
+                        updateRegisterStepIndicators();
+                    } else {
+                        showToast("Compte créé", "Votre compte a été créé mais le projet n'a pas pu être soumis: " + projectResult.message, "warning");
+                        closeRegisterModal();
+                        updateUIForLoggedInUser();
+                        document.getElementById('registerForm').reset();
+                        registerWizardStep = 1;
+                        updateRegisterStepIndicators();
+                    }
                 } else {
                     showToast("Inscription réussie", "Bienvenue " + registerResult.user.name + " !");
                     closeRegisterModal();
@@ -2345,7 +2318,7 @@
         // Handle logout
         async function handleLogout() {
             try {
-                const response = await fetch('/urbanovacorp/?route=api/logout');
+                const response = await fetch('/urbanovacorp/api.php?action=logout');
                 const result = await response.json();
 
                 if (result.success) {
@@ -2362,7 +2335,7 @@
         // Load projects from PHP API
         async function loadProjectsFromAPI() {
             try {
-                const response = await fetch('/urbanovacorp/?route=api/projects');
+                const response = await fetch('/urbanovacorp/api.php?action=projects');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -2446,12 +2419,21 @@
         // Load investor data from API
         async function loadInvestorData() {
             try {
-                const response = await fetch('/urbanovacorp/?route=api/investor-data');
+                const response = await fetch('/urbanovacorp/api.php?action=investor-data');
                 const result = await response.json();
                 
                 if (result.success) {
                     console.log('Investor data loaded:', result.data);
-                    // Data is loaded, UI will show defaults if no investments
+                    
+                    // Update dashboard stats
+                    const data = result.data;
+                    document.getElementById('investProjectCount').textContent = data.project_count || 0;
+                    document.getElementById('investTotalAmount').textContent = (data.total_invested || 0).toLocaleString() + ' $';
+                    document.getElementById('investAvgRoi').textContent = (data.avg_roi || 0) + '%';
+                    document.getElementById('investTotalGains').textContent = (data.total_gains || 0).toLocaleString() + ' $';
+                    
+                    // Render investments table
+                    renderInvestorInvestments(data.investments || []);
                 } else {
                     console.error('API Error:', result.message);
                     showToast("Erreur", result.message || "Erreur lors du chargement des données", "warning");
@@ -2460,6 +2442,56 @@
                 console.error('Error loading investor data:', error);
                 showToast("Erreur", "Impossible de charger les données de l'investisseur", "warning");
             }
+        }
+
+        // Render investor investments table
+        function renderInvestorInvestments(investments) {
+            const tableBody = document.getElementById('investorInvestmentsTable');
+            
+            if (!investments || investments.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-4 text-center text-slate-500">
+                            Aucun investissement pour le moment. 
+                            <button onclick="switchTab('marketplace')" class="text-brand-gold font-bold hover:underline">Explorer les opportunités</button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tableBody.innerHTML = investments.map(inv => `
+                <tr>
+                    <td class="p-4 font-bold text-brand-dark">${inv.project_name || 'Projet #' + inv.project_id}</td>
+                    <td class="p-4">${(inv.amount || 0).toLocaleString()} $</td>
+                    <td class="p-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div class="bg-brand-success h-full" style="width: ${inv.progress || 0}%"></div>
+                            </div>
+                            <span class="text-xs font-semibold">${inv.progress || 0}%</span>
+                        </div>
+                    </td>
+                    <td class="p-4 font-semibold">${inv.roi || 0}%</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                            inv.status === 'active' ? 'bg-emerald-50 text-emerald-800' :
+                            inv.status === 'completed' ? 'bg-blue-50 text-blue-800' :
+                            'bg-slate-100 text-slate-700'
+                        }">${inv.status === 'active' ? 'En cours' : inv.status === 'completed' ? 'Terminé' : inv.status}</span>
+                    </td>
+                    <td class="p-4">
+                        <button onclick="viewInvestmentDetails(${inv.id})" class="text-brand-gold hover:text-brand-navy text-xs font-bold">
+                            Détails
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // View investment details
+        function viewInvestmentDetails(investmentId) {
+            showToast("Info", "Détails de l'investissement #" + investmentId + " - Fonctionnalité à venir");
         }
 
         // Admin Login
@@ -2511,7 +2543,7 @@
         async function loadAdminData() {
             try {
                 // Load projects
-                const projectsResponse = await fetch('/urbanovacorp/?route=api/projects');
+                const projectsResponse = await fetch('/urbanovacorp/api.php?action=projects');
                 const projectsResult = await projectsResponse.json();
                 
                 if (projectsResult.success) {
@@ -2555,6 +2587,10 @@
                             <div class="flex items-center space-x-4 mt-2 text-sm">
                                 <span class="text-slate-500">Secteur: ${project.sector}</span>
                                 <span class="text-slate-500">Cible: ${project.funding_sought.toLocaleString()} $</span>
+                                <span class="text-slate-500">ROI: ${project.expected_roi}%</span>
+                            </div>
+                            <div class="mt-2 text-xs text-slate-500">
+                                <span class="font-semibold">Description:</span> ${project.description ? project.description.substring(0, 100) + '...' : 'Aucune description'}
                             </div>
                         </div>
                         <div class="flex items-center space-x-2">
@@ -2567,8 +2603,15 @@
                                 <button onclick="approveProject(${project.id})" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold transition-all">
                                     Approuver
                                 </button>
+                                <button onclick="viewProjectDetails(${project.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-bold transition-all">
+                                    Détails
+                                </button>
                                 <button onclick="rejectProject(${project.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold transition-all">
                                     Rejeter
+                                </button>
+                            ` : project.status === 'approved' ? `
+                                <button onclick="viewProjectDetails(${project.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-bold transition-all">
+                                    Détails
                                 </button>
                             ` : ''}
                         </div>
@@ -2577,10 +2620,32 @@
             `).join('');
         }
 
+        // View project details
+        function viewProjectDetails(projectId) {
+            const project = projectDatabase.find(p => p.id === projectId);
+            if (!project) {
+                showToast("Erreur", "Projet non trouvé", "warning");
+                return;
+            }
+            
+            const details = `
+                <strong>Nom:</strong> ${project.title}
+                <br><strong>Promoteur:</strong> ${project.promoter}
+                <br><strong>Localisation:</strong> ${project.city}, ${project.country}
+                <br><strong>Secteur:</strong> ${project.sector}
+                <br><strong>Financement recherché:</strong> ${project.funding_sought.toLocaleString()} $
+                <br><strong>ROI attendu:</strong> ${project.expected_roi}%
+                <br><strong>Description:</strong> ${project.description || 'Aucune description'}
+                <br><strong>Statut:</strong> ${project.status}
+            `;
+            
+            alert("Détails du projet:\n\n" + details);
+        }
+
         // Approve Project
         async function approveProject(projectId) {
             try {
-                const response = await fetch('/urbanovacorp/?route=api/approve-project', {
+                const response = await fetch('/urbanovacorp/api.php?action=approve-project', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: projectId, action: 'approve' })
@@ -2603,7 +2668,7 @@
         // Reject Project
         async function rejectProject(projectId) {
             try {
-                const response = await fetch('/urbanovacorp/?route=api/approve-project', {
+                const response = await fetch('/urbanovacorp/api.php?action=approve-project', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: projectId, action: 'reject' })
@@ -2724,10 +2789,15 @@
                         </div>
 
                         <!-- Action Button -->
-                        <div class="mt-6 flex justify-end">
+                        <div class="mt-6 flex justify-end space-x-2">
                             <button onclick="investigateProject('${p.id}')" class="bg-brand-navy hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl text-xs transition-all shadow-sm">
                                 Voir le dossier
                             </button>
+                            ${p.status === 'approved' ? `
+                                <button onclick="openInvestModal('${p.id}', '${p.title}', ${p.target}, ${p.raised})" class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-2.5 px-6 rounded-xl text-xs transition-all shadow-sm">
+                                    Investir
+                                </button>
+                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -2869,7 +2939,7 @@
             };
 
             try {
-                const response = await fetch('/urbanovacorp/?route=api/submit-project', {
+                const response = await fetch('/urbanovacorp/api.php?action=submit-project', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2959,7 +3029,7 @@
             };
 
             try {
-                const response = await fetch('/urbanovacorp/?route=api/submit-contact', {
+                const response = await fetch('/urbanovacorp/api.php?action=submit-contact', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2977,6 +3047,95 @@
                 }
             } catch (error) {
                 console.error('Error submitting contact:', error);
+                showToast("Erreur", "Erreur de connexion au serveur", "warning");
+            }
+        }
+
+        // Open investment modal
+        function openInvestModal(projectId, projectTitle, target, raised) {
+            if (!currentUser || currentUser.role !== 'investor') {
+                showToast("Accès réservé", "Vous devez être connecté en tant qu'investisseur pour investir", "warning");
+                openLoginModal();
+                return;
+            }
+
+            const remaining = target - raised;
+            const modalHtml = `
+                <div id="investModal" class="fixed inset-0 z-50">
+                    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeInvestModal()"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-extrabold text-brand-dark">Investir dans ${projectTitle}</h2>
+                            <button onclick="closeInvestModal()" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mb-6 p-4 bg-slate-50 rounded-xl">
+                            <p class="text-sm text-slate-600 mb-2">Financement recherché: ${target.toLocaleString()} $</p>
+                            <p class="text-sm text-slate-600 mb-2">Déjà mobilisé: ${raised.toLocaleString()} $</p>
+                            <p class="text-sm font-bold text-brand-gold">Reste à mobiliser: ${remaining.toLocaleString()} $</p>
+                        </div>
+                        
+                        <form id="investForm" class="space-y-4" onsubmit="event.preventDefault(); handleInvestment(${projectId});">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Montant à investir ($)</label>
+                                <input type="number" id="investAmount" min="1" max="${remaining}" placeholder="Montant"
+                                    class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                                    required>
+                            </div>
+                            <button type="submit"
+                                class="w-full bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-3 rounded-xl text-sm transition-all shadow-md">
+                                Confirmer l'investissement
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        // Close investment modal
+        function closeInvestModal() {
+            const modal = document.getElementById('investModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Handle investment
+        async function handleInvestment(projectId) {
+            const amount = document.getElementById('investAmount').value;
+            
+            if (!amount || amount <= 0) {
+                showToast("Erreur", "Veuillez entrer un montant valide", "warning");
+                return;
+            }
+
+            try {
+                const response = await fetch('/urbanovacorp/api.php?action=invest-project', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ project_id: projectId, amount: amount })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast("Investissement réussi !", "Votre investissement a été enregistré avec succès");
+                    closeInvestModal();
+                    await loadProjectsFromAPI();
+                    if (currentUser && currentUser.role === 'investor') {
+                        await loadInvestorData();
+                    }
+                } else {
+                    showToast("Erreur", result.message, "warning");
+                }
+            } catch (error) {
+                console.error('Investment error:', error);
                 showToast("Erreur", "Erreur de connexion au serveur", "warning");
             }
         }

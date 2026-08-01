@@ -53,34 +53,27 @@ if (!isset($_SESSION['language'])) {
 
 // Simple routing based on query parameter or path
 $route = $_GET['route'] ?? '/';
-$route = ltrim($route, '/');
 
-// If no route specified, use the path from REQUEST_URI
-if ($route === '/') {
-    $request_uri = $_SERVER['REQUEST_URI'];
-    $request_uri = strtok($request_uri, '?');
-    $path = ltrim($request_uri, '/');
-    
-    // Remove directory name if present
-    $path = preg_replace('#^[^/]+/#', '', $path);
-    $path = preg_replace('#^[^/]+$#', '', $path);
-    
-    if (!empty($path)) {
-        $route = $path;
-    }
-}
+// Debug logging
+error_log('Requested route: ' . $route);
+error_log('REQUEST_URI: ' . ($_SERVER['REQUEST_URI'] ?? 'not set'));
+error_log('GET params: ' . json_encode($_GET));
+
+// Remove leading/trailing slashes
+$route = trim($route, '/');
 
 // Default to home if empty
 if (empty($route)) {
-    $route = '/';
+    $route = 'home';
 }
 
 // Simple router
 try {
+    error_log('Processing route: ' . $route);
+    
     switch ($route) {
-        case '/':
-        case '':
         case 'home':
+        case '/':
             // Main page with new interface
             require_once APP_PATH . '/Controllers/MainController.php';
             $controller = new App\Controllers\MainController();

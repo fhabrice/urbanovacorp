@@ -123,12 +123,16 @@ class ApiController extends SimpleController
     {
         header('Content-Type: application/json');
         
+        error_log('Register API called');
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            error_log('Register API: Method not allowed');
             echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
             exit;
         }
 
         if (!$this->db) {
+            error_log('Register API: Database not available');
             echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
             exit;
         }
@@ -138,11 +142,14 @@ class ApiController extends SimpleController
         if (!$data) {
             $data = $_POST;
         }
+        
+        error_log('Register API data: ' . json_encode($data));
 
         // Validation
         $required = ['name', 'email', 'password'];
         foreach ($required as $field) {
             if (empty($data[$field])) {
+                error_log("Register API: Missing field $field");
                 echo json_encode([
                     'success' => false,
                     'message' => "Le champ $field est requis"
@@ -153,12 +160,14 @@ class ApiController extends SimpleController
 
         // Validation email
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            error_log('Register API: Invalid email');
             echo json_encode(['success' => false, 'message' => 'Email invalide']);
             exit;
         }
 
         // Validation mot de passe
         if (strlen($data['password']) < 8) {
+            error_log('Register API: Password too short');
             echo json_encode(['success' => false, 'message' => 'Le mot de passe doit contenir au moins 8 caractères']);
             exit;
         }
@@ -169,12 +178,14 @@ class ApiController extends SimpleController
             $stmt->execute([$data['email']]);
             
             if ($stmt->fetch()) {
+                error_log('Register API: Email already exists');
                 echo json_encode(['success' => false, 'message' => 'Cet email est déjà utilisé']);
                 exit;
             }
 
-            // Hasher le mot de passe
-            $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
+            // Hasher le mot de passe avec options sécurisées
+            $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT, ['cost' => 12]);
+            error_log('Register API: Password hashed successfully');
 
             // Insérer l'utilisateur
             $stmt = $this->db->prepare("
@@ -182,7 +193,7 @@ class ApiController extends SimpleController
                 VALUES (?, ?, ?, 'investor', 'active', ?, ?, ?, NOW())
             ");
             
-            $stmt->execute([
+            $result = $stmt->execute([
                 $data['name'],
                 $data['email'],
                 $passwordHash,
@@ -190,14 +201,23 @@ class ApiController extends SimpleController
                 $data['country'] ?? '',
                 $data['city'] ?? ''
             ]);
-
+            
+            if (!$result) {
+                error_log('Register API: Insert failed');
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'insertion dans la base de données']);
+                exit;
+            }
+            
             $userId = $this->db->lastInsertId();
+            error_log('Register API: User created with ID ' . $userId);
 
             // Connecter automatiquement l'utilisateur
             $_SESSION['user_id'] = $userId;
             $_SESSION['user_name'] = $data['name'];
             $_SESSION['user_email'] = $data['email'];
             $_SESSION['user_role'] = 'investor';
+            
+            error_log('Register API: Session created');
 
             echo json_encode([
                 'success' => true,
@@ -226,12 +246,16 @@ class ApiController extends SimpleController
     {
         header('Content-Type: application/json');
         
+        error_log('Login API called');
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            error_log('Login API: Method not allowed');
             echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
             exit;
         }
 
         if (!$this->db) {
+            error_log('Login API: Database not available');
             echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
             exit;
         }
@@ -241,9 +265,12 @@ class ApiController extends SimpleController
         if (!$data) {
             $data = $_POST;
         }
+        
+        error_log('Login API data: ' . json_encode($data));
 
         // Validation
         if (empty($data['email']) || empty($data['password'])) {
+            error_log('Login API: Missing email or password');
             echo json_encode(['success' => false, 'message' => 'Email et mot de passe requis']);
             exit;
         }
@@ -253,20 +280,28 @@ class ApiController extends SimpleController
             $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ?");
             $stmt->execute([$data['email']]);
             $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            error_log('Login API: User found: ' . ($user ? 'yes' : 'no'));
 
             if (!$user) {
+                error_log('Login API: User not found for email: ' . $data['email']);
                 echo json_encode(['success' => false, 'message' => 'Email ou mot de passe incorrect']);
                 exit;
             }
 
             // Vérifier le mot de passe
-            if (!password_verify($data['password'], $user['password'])) {
+            $passwordVerified = password_verify($data['password'], $user['password']);
+            error_log('Login API: Password verified: ' . ($passwordVerified ? 'yes' : 'no'));
+            
+            if (!$passwordVerified) {
+                error_log('Login API: Password incorrect for user: ' . $data['email']);
                 echo json_encode(['success' => false, 'message' => 'Email ou mot de passe incorrect']);
                 exit;
             }
 
             // Vérifier le statut
             if ($user['status'] !== 'active') {
+                error_log('Login API: User status not active: ' . $user['status']);
                 echo json_encode(['success' => false, 'message' => 'Compte non activé']);
                 exit;
             }
@@ -276,6 +311,8 @@ class ApiController extends SimpleController
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_role'] = $user['role'];
+            
+            error_log('Login API: Session created for user ID: ' . $user['id']);
 
             echo json_encode([
                 'success' => true,
@@ -585,6 +622,8 @@ class ApiController extends SimpleController
             // Get individual investments
             $stmt = $this->db->prepare("
                 SELECT 
+                    inv.id,
+                    inv.project_id,
                     p.title as project,
                     inv.amount,
                     p.funding_raised as raised,
@@ -608,7 +647,9 @@ class ApiController extends SimpleController
                 $progress = $target > 0 ? round(($raised / $target) * 100) : 0;
                 
                 $formattedInvestments[] = [
-                    'project' => $inv['project'],
+                    'id' => $inv['id'] ?? 0,
+                    'project_id' => $inv['project_id'] ?? 0,
+                    'project_name' => $inv['project'],
                     'amount' => (int)$inv['amount'],
                     'progress' => $progress,
                     'roi' => (int)$inv['roi'],
@@ -617,18 +658,114 @@ class ApiController extends SimpleController
             }
             
             $data = [
-                'stats' => [
-                    'projects' => (int)($stats['projects'] ?? 0),
-                    'total_invested' => (int)($stats['total_invested'] ?? 0),
-                    'roi_average' => round((float)($stats['roi_average'] ?? 0), 1),
-                    'gains' => (int)($stats['gains'] ?? 0)
-                ],
+                'project_count' => (int)($stats['projects'] ?? 0),
+                'total_invested' => (int)($stats['total_invested'] ?? 0),
+                'avg_roi' => round((float)($stats['roi_average'] ?? 0), 1),
+                'total_gains' => (int)($stats['gains'] ?? 0),
                 'investments' => $formattedInvestments
             ];
             
             echo json_encode([
                 'success' => true,
                 'data' => $data
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur de base de données: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+
+    /**
+     * Translate project status to French
+     */
+    private function translateStatus($status)
+    {
+        $translations = [
+            'pending' => 'En attente',
+            'approved' => 'Approuvé',
+            'rejected' => 'Rejeté',
+            'active' => 'En cours',
+            'completed' => 'Terminé'
+        ];
+        return $translations[$status] ?? $status;
+    }
+
+    /**
+     * Invest in a project
+     */
+    public function investInProject()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Non authentifié']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (empty($data['project_id']) || empty($data['amount'])) {
+            echo json_encode(['success' => false, 'message' => 'ID du projet et montant requis']);
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $projectId = $data['project_id'];
+        $amount = (int)$data['amount'];
+
+        try {
+            // Check if project exists and is approved
+            $stmt = $this->db->prepare("SELECT * FROM projects WHERE id = ? AND status = 'approved'");
+            $stmt->execute([$projectId]);
+            $project = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            if (!$project) {
+                echo json_encode(['success' => false, 'message' => 'Projet non trouvé ou non approuvé']);
+                exit;
+            }
+
+            // Check if already invested
+            $stmt = $this->db->prepare("SELECT * FROM investments WHERE investor_id = ? AND project_id = ?");
+            $stmt->execute([$userId, $projectId]);
+            
+            if ($stmt->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'Vous avez déjà investi dans ce projet']);
+                exit;
+            }
+
+            // Insert investment
+            $stmt = $this->db->prepare("
+                INSERT INTO investments (investor_id, project_id, amount, created_at)
+                VALUES (?, ?, ?, NOW())
+            ");
+            
+            $stmt->execute([$userId, $projectId, $amount]);
+            
+            // Update project funding
+            $stmt = $this->db->prepare("UPDATE projects SET funding_raised = funding_raised + ? WHERE id = ?");
+            $stmt->execute([$amount, $projectId]);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Investissement réussi !'
             ]);
             exit;
         } catch (\PDOException $e) {
