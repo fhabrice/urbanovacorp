@@ -53,11 +53,17 @@ if (!isset($_SESSION['language'])) {
 $request_uri = $_SERVER['REQUEST_URI'];
 $request_uri = strtok($request_uri, '?');
 
-// Remove leading slash
+// Debug: show what path we're getting
+// echo "Request URI: " . $request_uri . "<br>";
+
+// Remove leading slash and remove directory name if present
 $path = ltrim($request_uri, '/');
+// Remove any directory names that might be in the path
+$path = preg_replace('#^[^/]+/#', '', $path);
+$path = preg_replace('#^[^/]+$#', '', $path);
 
 // Default route
-if (empty($path) || $path === 'index.php') {
+if (empty($path) || $path === 'index.php' || $path === 'start.php') {
     $path = '/';
 }
 

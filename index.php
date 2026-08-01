@@ -1,7 +1,6 @@
 <?php
 /**
- * URBANOVA SOLUTIONS - Main Entry Point
- * Plateforme Web Corporate & Investissement Immobilier
+ * URBANOVA SOLUTIONS - Main Entry Point (Simplified)
  */
 
 // Define base path
@@ -10,46 +9,121 @@ define('APP_PATH', BASE_PATH . '/app');
 define('PUBLIC_PATH', BASE_PATH . '/public');
 define('CONFIG_PATH', BASE_PATH . '/config');
 
-// Error reporting for development
+// Error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Simple autoloader
+spl_autoload_register(function ($class) {
+    $prefix = 'App\\';
+    $base_dir = APP_PATH . '/';
+    
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
+    
+    $relative_class = substr($class, $len);
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+    
+    if (file_exists($file)) {
+        require $file;
+    }
+});
+
+// Load language helper
+require_once APP_PATH . '/Helpers/language.php';
+
 // Load configuration
-if (file_exists(CONFIG_PATH . '/config.php')) {
-    require_once CONFIG_PATH . '/config.php';
-} else {
-    die('Configuration file not found. Please create config/config.php');
+$config = require CONFIG_PATH . '/config.php';
+
+// Start session
+if (session_status() === PHP_SESSION_NONE) {
+    session_name($config['security']['session_name']);
+    session_start();
 }
 
-// Load autoloader
-if (file_exists(BASE_PATH . '/vendor/autoload.php')) {
-    require_once BASE_PATH . '/vendor/autoload.php';
-} else {
-    // Simple autoloader if composer not installed
-    spl_autoload_register(function ($class) {
-        $prefix = 'App\\';
-        $base_dir = APP_PATH . '/';
-        
-        $len = strlen($prefix);
-        if (strncmp($prefix, $class, $len) !== 0) {
-            return;
-        }
-        
-        $relative_class = substr($class, $len);
-        $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
-        
-        if (file_exists($file)) {
-            require $file;
-        }
-    });
+// Set default language
+if (!isset($_SESSION['language'])) {
+    $_SESSION['language'] = $config['languages']['default'];
 }
 
-// Initialize application
+// Simple routing based on query parameter or path
+$route = $_GET['route'] ?? '/';
+$route = ltrim($route, '/');
+
+// If no route specified, use the path from REQUEST_URI
+if ($route === '/') {
+    $request_uri = $_SERVER['REQUEST_URI'];
+    $request_uri = strtok($request_uri, '?');
+    $path = ltrim($request_uri, '/');
+    
+    // Remove directory name if present
+    $path = preg_replace('#^[^/]+/#', '', $path);
+    $path = preg_replace('#^[^/]+$#', '', $path);
+    
+    if (!empty($path)) {
+        $route = $path;
+    }
+}
+
+// Default to home if empty
+if (empty($route)) {
+    $route = '/';
+}
+
+// Simple router
 try {
-    require_once APP_PATH . '/Core/Application.php';
-    $app = new App\Core\Application();
-    $app->run();
+    switch ($route) {
+        case '/':
+        case '':
+            // Home page
+            require_once APP_PATH . '/Controllers/HomeController.php';
+            $controller = new App\Controllers\HomeController();
+            $controller->index();
+            break;
+            
+        case 'about':
+            require_once APP_PATH . '/Controllers/AboutController.php';
+            $controller = new App\Controllers\AboutController();
+            $controller->index();
+            break;
+            
+        case 'governance':
+            require_once APP_PATH . '/Controllers/AboutController.php';
+            $controller = new App\Controllers\AboutController();
+            $controller->governance();
+            break;
+            
+        case 'services':
+            require_once APP_PATH . '/Controllers/AboutController.php';
+            $controller = new App\Controllers\AboutController();
+            $controller->services();
+            break;
+            
+        case 'contact':
+            require_once APP_PATH . '/Controllers/ContactController.php';
+            $controller = new App\Controllers\ContactController();
+            $controller->index();
+            break;
+            
+        case 'simple':
+            require __DIR__ . '/simple.php';
+            break;
+            
+        case 'test':
+            require __DIR__ . '/test.php';
+            break;
+            
+        default:
+            // 404 error
+            http_response_code(404);
+            require APP_PATH . '/Views/errors/404.php';
+            break;
+    }
 } catch (Exception $e) {
+    // 500 error
+    http_response_code(500);
     echo "<h1>Error</h1>";
     echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
     echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
