@@ -5,6 +5,8 @@
         <h1><?php echo __('auth.login_title'); ?></h1>
         
         <form method="POST" action="/login">
+            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token ?? ''; ?>">
+            
             <div class="form-group">
                 <label for="email"><?php echo __('auth.email'); ?></label>
                 <input type="email" id="email" name="email" required>

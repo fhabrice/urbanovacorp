@@ -308,4 +308,15 @@ return [
         'no_projects' => 'No projects',
         'no_investors' => 'No investors',
     ],
+    'nav' => [
+        'logout' => 'Logout',
+    ],
+    'security' => [
+        'csrf_error' => 'Security error. Please try again.',
+        'too_many_attempts' => 'Too many attempts. Please try again in 15 minutes.',
+    ],
+    'auth' => [
+        'invalid_email' => 'Invalid email address.',
+        'password_weak' => 'Password must be at least 8 characters with uppercase, lowercase and number.',
+    ],
 ];

@@ -5,6 +5,8 @@
         <h1><?php echo __('auth.register_title'); ?></h1>
         
         <form method="POST" action="/register">
+            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token ?? ''; ?>">
+            
             <div class="form-group">
                 <label for="first_name"><?php echo __('auth.first_name'); ?></label>
                 <input type="text" id="first_name" name="first_name" required>

@@ -2,11 +2,15 @@
 
 namespace App\Controllers;
 
+use App\Helpers\Security;
+
 class AuthController extends Controller
 {
     public function loginForm()
     {
-        return $this->view('auth/login');
+        // Generate CSRF token
+        $csrfToken = Security::generateCsrfToken();
+        return $this->view('auth/login', ['csrf_token' => $csrfToken]);
     }
 
     public function login()
@@ -15,12 +19,31 @@ class AuthController extends Controller
         $db = $this->getDb();
         $session = $this->getSession();
 
-        $email = $request->getBodyParam('email');
+        // Validate CSRF token
+        $csrfToken = $request->getBodyParam('csrf_token');
+        if (!Security::validateCsrfToken($csrfToken)) {
+            $session->setFlashMessage('error', __('security.csrf_error'));
+            return $this->redirect('/login');
+        }
+
+        $email = Security::sanitize($request->getBodyParam('email'));
         $password = $request->getBodyParam('password');
 
         // Validate input
         if (empty($email) || empty($password)) {
             $session->setFlashMessage('error', __('auth.empty_fields'));
+            return $this->redirect('/login');
+        }
+
+        // Validate email format
+        if (!Security::validateEmail($email)) {
+            $session->setFlashMessage('error', __('auth.invalid_email'));
+            return $this->redirect('/login');
+        }
+
+        // Rate limiting
+        if (!Security::checkRateLimit($email, 5, 900)) {
+            $session->setFlashMessage('error', __('security.too_many_attempts'));
             return $this->redirect('/login');
         }
 
@@ -30,10 +53,13 @@ class AuthController extends Controller
             [$email]
         );
 
-        if (!$user || !password_verify($password, $user['password'])) {
+        if (!$user || !Security::verifyPassword($password, $user['password'])) {
             $session->setFlashMessage('error', __('auth.invalid_credentials'));
             return $this->redirect('/login');
         }
+
+        // Clear rate limit on successful login
+        Security::clearRateLimit($email);
 
         // Check account status
         if ($user['status'] === 'suspended') {
@@ -71,7 +97,9 @@ class AuthController extends Controller
 
     public function registerForm()
     {
-        return $this->view('auth/register');
+        // Generate CSRF token
+        $csrfToken = Security::generateCsrfToken();
+        return $this->view('auth/register', ['csrf_token' => $csrfToken]);
     }
 
     public function register()
@@ -80,16 +108,29 @@ class AuthController extends Controller
         $db = $this->getDb();
         $session = $this->getSession();
 
-        $email = $request->getBodyParam('email');
+        // Validate CSRF token
+        $csrfToken = $request->getBodyParam('csrf_token');
+        if (!Security::validateCsrfToken($csrfToken)) {
+            $session->setFlashMessage('error', __('security.csrf_error'));
+            return $this->redirect('/register');
+        }
+
+        $email = Security::sanitize($request->getBodyParam('email'));
         $password = $request->getBodyParam('password');
         $passwordConfirm = $request->getBodyParam('password_confirm');
-        $firstName = $request->getBodyParam('first_name');
-        $lastName = $request->getBodyParam('last_name');
-        $role = $request->getBodyParam('role', 'promoter');
+        $firstName = Security::sanitize($request->getBodyParam('first_name'));
+        $lastName = Security::sanitize($request->getBodyParam('last_name'));
+        $role = Security::sanitize($request->getBodyParam('role', 'promoter'));
 
         // Validate input
         if (empty($email) || empty($password) || empty($firstName) || empty($lastName)) {
             $session->setFlashMessage('error', __('auth.all_fields_required'));
+            return $this->redirect('/register');
+        }
+
+        // Validate email format
+        if (!Security::validateEmail($email)) {
+            $session->setFlashMessage('error', __('auth.invalid_email'));
             return $this->redirect('/register');
         }
 
@@ -98,8 +139,8 @@ class AuthController extends Controller
             return $this->redirect('/register');
         }
 
-        if (strlen($password) < 8) {
-            $session->setFlashMessage('error', __('auth.password_too_short'));
+        if (!Security::validatePasswordStrength($password)) {
+            $session->setFlashMessage('error', __('auth.password_weak'));
             return $this->redirect('/register');
         }
 
@@ -115,7 +156,7 @@ class AuthController extends Controller
         }
 
         // Create user
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $hashedPassword = Security::hashPassword($password);
         
         $db->execute(
             "INSERT INTO users (email, password, first_name, last_name, role, status) VALUES (?, ?, ?, ?, ?, 'pending')",

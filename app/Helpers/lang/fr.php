@@ -308,4 +308,15 @@ return [
         'no_projects' => 'Aucun projet',
         'no_investors' => 'Aucun investisseur',
     ],
+    'nav' => [
+        'logout' => 'Déconnexion',
+    ],
+    'security' => [
+        'csrf_error' => 'Erreur de sécurité. Veuillez réessayer.',
+        'too_many_attempts' => 'Trop de tentatives. Veuillez réessayer dans 15 minutes.',
+    ],
+    'auth' => [
+        'invalid_email' => 'Adresse email invalide.',
+        'password_weak' => 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.',
+    ],
 ];

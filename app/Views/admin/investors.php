@@ -1,8 +1,4 @@
-<?php 
-$content = ob_get_clean();
-ob_start();
-require_once APP_PATH . '/Views/layouts/admin-layout.php';
-?>
+<?php ob_start(); ?>
 
 <div class="page-header">
     <h1><?php echo __('admin.investors'); ?></h1>
@@ -96,6 +92,4 @@ require_once APP_PATH . '/Views/layouts/admin-layout.php';
 }
 </style>
 
-<?php
-$content = ob_get_clean();
-require_once APP_PATH . '/Views/layouts/admin-layout.php';
+<?php $content = ob_get_clean(); require_once APP_PATH . '/Views/layouts/admin-layout.php'; ?>
