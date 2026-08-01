@@ -94,7 +94,7 @@
                         id="nav-levee">Levée de fonds</button>
                     <button onclick="switchTab('investisseur')"
                         class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
-                        id="nav-investisseur">Espace Investisseur</button>
+                        id="nav-investisseur">Espace Investisseur <span class="text-xs ml-1 opacity-75">(réservé)</span></button>
                     <button onclick="switchTab('actualites')"
                         class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
                         id="nav-actualites">Actualités</button>
@@ -133,12 +133,12 @@
             <button onclick="switchTab('levee'); toggleMobileMenu()"
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Levée de fonds</button>
             <button onclick="switchTab('investisseur'); toggleMobileMenu()"
-                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Espace Investisseur</button>
+                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Espace Investisseur <span class="text-xs opacity-75">(réservé)</span></button>
             <button onclick="switchTab('actualites'); toggleMobileMenu()"
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Actualités</button>
             <button onclick="switchTab('contact'); toggleMobileMenu()"
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Contact</button>
-            <div class="pt-4 border-t border-slate-700 flex flex-col space-y-2">
+            <div class="pt-4 border-t border-slate-700 flex flex-col space-y-2" id="mobileMenuAuth">
                 <button onclick="openLoginModal(); toggleMobileMenu()"
                     class="w-full text-center py-2 text-slate-300 hover:text-white font-medium">Se connecter</button>
                 <button onclick="openRegisterModal(); toggleMobileMenu()"
@@ -1624,7 +1624,10 @@
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRegisterModal()"></div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-extrabold text-brand-dark">Inscription</h2>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-brand-dark">Inscription</h2>
+                    <p class="text-sm text-brand-gold font-medium">Compte Investisseur</p>
+                </div>
                 <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-slate-600">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
@@ -1664,9 +1667,15 @@
                     <input type="text" id="registerCity" placeholder="Goma"
                         class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
                 </div>
+                <div class="bg-brand-gold/10 border border-brand-gold/30 p-3 rounded-xl">
+                    <p class="text-xs text-slate-600 text-center">
+                        <i class="fa-solid fa-info-circle text-brand-gold mr-1"></i>
+                        Vous serez inscrit en tant qu'investisseur pour accéder à l'espace investisseur
+                    </p>
+                </div>
                 <button type="submit"
                     class="w-full bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-3 rounded-xl text-sm transition-all shadow-md">
-                    S'inscrire
+                    S'inscrire comme Investisseur
                 </button>
             </form>
             
@@ -1775,16 +1784,38 @@
             // Update header buttons
             const actionsDiv = document.querySelector('.hidden.md\\:flex.items-center.space-x-4');
             if (actionsDiv && currentUser) {
+                const roleLabel = currentUser.role === 'investor' ? 'Investisseur' : 'Utilisateur';
                 actionsDiv.innerHTML = `
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold text-sm">
                             ${currentUser.initials || currentUser.name.substring(0, 2).toUpperCase()}
                         </div>
-                        <span class="text-slate-300 text-sm font-medium">${currentUser.name}</span>
+                        <div class="flex flex-col">
+                            <span class="text-slate-300 text-sm font-medium">${currentUser.name}</span>
+                            <span class="text-xs text-brand-gold">${roleLabel}</span>
+                        </div>
                     </div>
                     <button onclick="handleLogout()" class="text-slate-300 hover:text-white text-sm font-medium transition-all">
                         Déconnexion
                     </button>
+                `;
+            }
+
+            // Update mobile menu
+            const mobileMenuAuth = document.querySelector('#mobile-menu .pt-4.border-t');
+            if (mobileMenuAuth && currentUser) {
+                const roleLabel = currentUser.role === 'investor' ? 'Investisseur' : 'Utilisateur';
+                mobileMenuAuth.innerHTML = `
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-8 h-8 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold text-sm">
+                            ${currentUser.initials || currentUser.name.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-slate-300 text-sm font-medium">${currentUser.name}</span>
+                            <span class="text-xs text-brand-gold">${roleLabel}</span>
+                        </div>
+                    </div>
+                    <button onclick="handleLogout(); toggleMobileMenu()" class="w-full text-center py-2 text-slate-300 hover:text-white font-medium">Déconnexion</button>
                 `;
             }
         }
@@ -1919,8 +1950,12 @@
                     
                     if (!result.authenticated) {
                         showToast("Authentification requise", "Veuillez vous connecter pour accéder à l'espace investisseur", "warning");
-                        // Redirect to login or show login modal
-                        switchTab('contact'); // Temporary redirect
+                        openLoginModal();
+                        return;
+                    }
+                    
+                    if (!result.is_investor) {
+                        showToast("Accès réservé", "L'espace investisseur est réservé aux comptes investisseurs", "warning");
                         return;
                     }
                     
@@ -1928,6 +1963,8 @@
                     await loadInvestorData();
                 } catch (error) {
                     console.error('Auth check failed:', error);
+                    showToast("Erreur", "Impossible de vérifier l'authentification", "warning");
+                    return;
                 }
             }
 

@@ -471,13 +471,18 @@ class ApiController extends SimpleController
     {
         header('Content-Type: application/json');
         
-        $isAuthenticated = isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'investor';
+        $isAuthenticated = isset($_SESSION['user_id']);
+        $isInvestor = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'investor';
         
         echo json_encode([
             'success' => true,
             'authenticated' => $isAuthenticated,
+            'is_investor' => $isInvestor,
             'user' => $isAuthenticated ? [
-                'name' => $_SESSION['user_name'] ?? 'Investisseur',
+                'id' => $_SESSION['user_id'],
+                'name' => $_SESSION['user_name'] ?? 'Utilisateur',
+                'email' => $_SESSION['user_email'] ?? '',
+                'role' => $_SESSION['user_role'] ?? '',
                 'initials' => substr($_SESSION['user_name'] ?? 'JD', 0, 2)
             ] : null
         ]);
