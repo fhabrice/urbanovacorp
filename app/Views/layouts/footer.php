@@ -4,20 +4,20 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-section">
-                    <h3><?php echo __('footer.about'); ?></h3>
-                    <p><?php echo __('footer.about_text'); ?></p>
+                    <h3>À propos</h3>
+                    <p>URBANOVA SOLUTIONS est une entreprise spécialisée dans le développement urbain durable en RDC.</p>
                 </div>
                 <div class="footer-section">
-                    <h3><?php echo __('footer.services'); ?></h3>
+                    <h3>Services</h3>
                     <ul>
-                        <li><a href="/services"><?php echo __('services.construction'); ?></a></li>
-                        <li><a href="/services"><?php echo __('services.real_estate'); ?></a></li>
-                        <li><a href="/services"><?php echo __('services.engineering'); ?></a></li>
-                        <li><a href="/services"><?php echo __('services.facility'); ?></a></li>
+                        <li><a href="/urbanovacorp/?route=services">Construction & Maintenance</a></li>
+                        <li><a href="/urbanovacorp/?route=services">Immobilier & Aménagement</a></li>
+                        <li><a href="/urbanovacorp/?route=services">Ingénierie</a></li>
+                        <li><a href="/urbanovacorp/?route=services">Facility Management</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h3><?php echo __('footer.contact'); ?></h3>
+                    <h3>Contact</h3>
                     <ul>
                         <li><i class="fas fa-map-marker-alt"></i> Kinshasa, RDC</li>
                         <li><i class="fas fa-phone"></i> +243 XXX XXX XXX</li>
@@ -25,7 +25,7 @@
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h3><?php echo __('footer.follow'); ?></h3>
+                    <h3>Suivez-nous</h3>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-linkedin"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>
@@ -34,11 +34,11 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; <?php echo date('Y'); ?> <?php echo __('app.name'); ?>. <?php echo __('footer.rights'); ?></p>
+                <p>&copy; <?php echo date('Y'); ?> URBANOVA SOLUTIONS. Tous droits réservés.</p>
             </div>
         </div>
     </footer>
 
-    <script src="/assets/js/main.js"></script>
+    <script src="/urbanovacorp/public/assets/js/main.js"></script>
 </body>
 </html>

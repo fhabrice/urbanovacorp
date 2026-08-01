@@ -107,6 +107,16 @@ try {
             $controller->index();
             break;
             
+        case 'lang':
+            // Language switch
+            $lang = $_GET['lang'] ?? 'fr';
+            if (in_array($lang, ['fr', 'en'])) {
+                $_SESSION['language'] = $lang;
+            }
+            header('Location: /urbanovacorp/?route=/');
+            exit;
+            break;
+            
         case 'simple':
             require __DIR__ . '/simple.php';
             break;
