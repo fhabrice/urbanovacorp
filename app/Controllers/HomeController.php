@@ -2,27 +2,47 @@
 
 namespace App\Controllers;
 
-class HomeController extends Controller
+class HomeController extends SimpleController
 {
     public function index()
     {
-        $db = $this->getDb();
-
-        // Get statistics
+        // Static data for now (without database)
         $stats = [
-            'projects_completed' => $db->fetchOne("SELECT COUNT(*) as count FROM projects WHERE status = 'completed'")['count'] ?? 0,
-            'total_investments' => $db->fetchOne("SELECT SUM(funding_sought) as total FROM projects WHERE status = 'approved'")['total'] ?? 0,
-            'housing_units' => $db->fetchOne("SELECT SUM(housing_units) as total FROM projects WHERE status = 'completed'")['total'] ?? 0,
-            'jobs_created' => $db->fetchOne("SELECT SUM(jobs_created) as total FROM projects WHERE status = 'completed'")['total'] ?? 0,
+            'projects_completed' => 12,
+            'total_investments' => 2500000,
+            'housing_units' => 450,
+            'jobs_created' => 320,
         ];
 
-        // Get featured projects
-        $featuredProjects = $db->fetchAll("
-            SELECT * FROM projects
-            WHERE status = 'approved'
-            ORDER BY created_at DESC
-            LIMIT 3
-        ");
+        $featuredProjects = [
+            [
+                'id' => 1,
+                'title' => 'Résidence Kinshasa Heights',
+                'city' => 'Kinshasa',
+                'country' => 'RD Congo',
+                'funding_sought' => 500000,
+                'roi' => 15.5,
+                'image' => 'placeholder.jpg'
+            ],
+            [
+                'id' => 2,
+                'title' => 'Centre Commercial Lubumbashi',
+                'city' => 'Lubumbashi',
+                'country' => 'RD Congo',
+                'funding_sought' => 1200000,
+                'roi' => 18.2,
+                'image' => 'placeholder.jpg'
+            ],
+            [
+                'id' => 3,
+                'title' => 'Eco-Quartier Goma',
+                'city' => 'Goma',
+                'country' => 'RD Congo',
+                'funding_sought' => 800000,
+                'roi' => 14.8,
+                'image' => 'placeholder.jpg'
+            ]
+        ];
 
         return $this->view('home/index', [
             'stats' => $stats,
