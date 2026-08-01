@@ -104,10 +104,10 @@
                 </nav>
 
                 <!-- Actions -->
-                <div class="hidden md:flex items-center space-x-4">
-                    <button onclick="switchTab('investisseur')"
+                <div class="hidden md:flex items-center space-x-4" id="headerActions">
+                    <button onclick="openLoginModal()"
                         class="text-slate-300 hover:text-white text-sm font-medium transition-all">Se connecter</button>
-                    <button onclick="switchTab('levee')"
+                    <button onclick="openRegisterModal()"
                         class="bg-brand-gold hover:bg-yellow-500 text-brand-dark px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-brand-gold/20 transition-all hover:-translate-y-0.5">S'inscrire</button>
                 </div>
 
@@ -139,9 +139,9 @@
             <button onclick="switchTab('contact'); toggleMobileMenu()"
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Contact</button>
             <div class="pt-4 border-t border-slate-700 flex flex-col space-y-2">
-                <button onclick="switchTab('investisseur'); toggleMobileMenu()"
+                <button onclick="openLoginModal(); toggleMobileMenu()"
                     class="w-full text-center py-2 text-slate-300 hover:text-white font-medium">Se connecter</button>
-                <button onclick="switchTab('levee'); toggleMobileMenu()"
+                <button onclick="openRegisterModal(); toggleMobileMenu()"
                     class="w-full text-center py-2.5 bg-brand-gold text-brand-dark rounded-md font-bold">S'inscrire</button>
             </div>
         </div>
@@ -1580,6 +1580,105 @@
         </div>
     </div>
 
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeLoginModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-extrabold text-brand-dark">Connexion</h2>
+                <button onclick="closeLoginModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="loginForm" class="space-y-4" onsubmit="event.preventDefault(); handleLogin();">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" placeholder="votre@email.com"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                        required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Mot de passe</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                        required>
+                </div>
+                <button type="submit"
+                    class="w-full bg-brand-navy hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md">
+                    Se connecter
+                </button>
+            </form>
+            
+            <p class="text-center text-sm text-slate-600 mt-4">
+                Pas encore de compte ? 
+                <button onclick="closeLoginModal(); openRegisterModal()" class="text-brand-gold font-bold hover:underline">
+                    S'inscrire
+                </button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRegisterModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-extrabold text-brand-dark">Inscription</h2>
+                <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="registerForm" class="space-y-4" onsubmit="event.preventDefault(); handleRegister();">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Nom complet *</label>
+                    <input type="text" id="registerName" placeholder="Votre nom"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                        required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Email *</label>
+                    <input type="email" id="registerEmail" placeholder="votre@email.com"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                        required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Mot de passe * (min. 8 caractères)</label>
+                    <input type="password" id="registerPassword" placeholder="••••••••"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                        required minlength="8">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Téléphone</label>
+                    <input type="tel" id="registerPhone" placeholder="+243 XXX XXX XXX"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Pays</label>
+                    <input type="text" id="registerCountry" placeholder="RDC"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Ville</label>
+                    <input type="text" id="registerCity" placeholder="Goma"
+                        class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                </div>
+                <button type="submit"
+                    class="w-full bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-3 rounded-xl text-sm transition-all shadow-md">
+                    S'inscrire
+                </button>
+            </form>
+            
+            <p class="text-center text-sm text-slate-600 mt-4">
+                Déjà inscrit ? 
+                <button onclick="closeRegisterModal(); openLoginModal()" class="text-brand-navy font-bold hover:underline">
+                    Se connecter
+                </button>
+            </p>
+        </div>
+    </div>
+
 
     <script>
         // Core data representing Marketplace investment projects matching specifications & image layout
@@ -1646,11 +1745,147 @@
         let activeTab = 'accueil';
         let wizardStep = 1;
         let isDataRoomUnlocked = false;
+        let currentUser = null;
 
         // On Load initialization
         window.onload = function () {
             // Load projects from API
             loadProjectsFromAPI();
+            // Check authentication status
+            checkAuthStatus();
+        }
+
+        // Check authentication status on load
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/urbanovacorp/?route=api/check-auth');
+                const result = await response.json();
+                
+                if (result.authenticated && result.user) {
+                    currentUser = result.user;
+                    updateUIForLoggedInUser();
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+            }
+        }
+
+        // Update UI when user is logged in
+        function updateUIForLoggedInUser() {
+            // Update header buttons
+            const actionsDiv = document.querySelector('.hidden.md\\:flex.items-center.space-x-4');
+            if (actionsDiv && currentUser) {
+                actionsDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold text-sm">
+                            ${currentUser.initials || currentUser.name.substring(0, 2).toUpperCase()}
+                        </div>
+                        <span class="text-slate-300 text-sm font-medium">${currentUser.name}</span>
+                    </div>
+                    <button onclick="handleLogout()" class="text-slate-300 hover:text-white text-sm font-medium transition-all">
+                        Déconnexion
+                    </button>
+                `;
+            }
+        }
+
+        // Modal functions
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function openRegisterModal() {
+            document.getElementById('registerModal').classList.remove('hidden');
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.add('hidden');
+        }
+
+        // Handle login
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('/urbanovacorp/?route=api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast("Connexion réussie", "Bienvenue " + result.user.name + " !");
+                    currentUser = result.user;
+                    closeLoginModal();
+                    updateUIForLoggedInUser();
+                    document.getElementById('loginForm').reset();
+                } else {
+                    showToast("Erreur", result.message, "warning");
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast("Erreur", "Erreur de connexion au serveur", "warning");
+            }
+        }
+
+        // Handle register
+        async function handleRegister() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const phone = document.getElementById('registerPhone').value;
+            const country = document.getElementById('registerCountry').value;
+            const city = document.getElementById('registerCity').value;
+
+            try {
+                const response = await fetch('/urbanovacorp/?route=api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password, phone, country, city })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast("Inscription réussie", "Bienvenue " + result.user.name + " !");
+                    currentUser = result.user;
+                    closeRegisterModal();
+                    updateUIForLoggedInUser();
+                    document.getElementById('registerForm').reset();
+                } else {
+                    showToast("Erreur", result.message, "warning");
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                showToast("Erreur", "Erreur de connexion au serveur", "warning");
+            }
+        }
+
+        // Handle logout
+        async function handleLogout() {
+            try {
+                const response = await fetch('/urbanovacorp/?route=api/logout');
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast("Déconnexion", "Vous avez été déconnecté avec succès");
+                    currentUser = null;
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
         }
 
         // Load projects from PHP API

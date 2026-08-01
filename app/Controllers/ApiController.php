@@ -117,6 +117,205 @@ class ApiController extends SimpleController
     }
 
     /**
+     * Inscription d'un nouvel utilisateur
+     */
+    public function register()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        // Validation
+        $required = ['name', 'email', 'password'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "Le champ $field est requis"
+                ]);
+                exit;
+            }
+        }
+
+        // Validation email
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['success' => false, 'message' => 'Email invalide']);
+            exit;
+        }
+
+        // Validation mot de passe
+        if (strlen($data['password']) < 8) {
+            echo json_encode(['success' => false, 'message' => 'Le mot de passe doit contenir au moins 8 caractères']);
+            exit;
+        }
+
+        try {
+            // Vérifier si l'email existe déjà
+            $stmt = $this->db->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->execute([$data['email']]);
+            
+            if ($stmt->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'Cet email est déjà utilisé']);
+                exit;
+            }
+
+            // Hasher le mot de passe
+            $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
+
+            // Insérer l'utilisateur
+            $stmt = $this->db->prepare("
+                INSERT INTO users (name, email, password, role, status, phone, country, city, created_at)
+                VALUES (?, ?, ?, 'investor', 'active', ?, ?, ?, NOW())
+            ");
+            
+            $stmt->execute([
+                $data['name'],
+                $data['email'],
+                $passwordHash,
+                $data['phone'] ?? '',
+                $data['country'] ?? '',
+                $data['city'] ?? ''
+            ]);
+
+            $userId = $this->db->lastInsertId();
+
+            // Connecter automatiquement l'utilisateur
+            $_SESSION['user_id'] = $userId;
+            $_SESSION['user_name'] = $data['name'];
+            $_SESSION['user_email'] = $data['email'];
+            $_SESSION['user_role'] = 'investor';
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Inscription réussie ! Vous êtes maintenant connecté.',
+                'user' => [
+                    'id' => $userId,
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'role' => 'investor'
+                ]
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur de base de données: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+
+    /**
+     * Connexion d'un utilisateur
+     */
+    public function login()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        // Validation
+        if (empty($data['email']) || empty($data['password'])) {
+            echo json_encode(['success' => false, 'message' => 'Email et mot de passe requis']);
+            exit;
+        }
+
+        try {
+            // Rechercher l'utilisateur
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$data['email']]);
+            $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$user) {
+                echo json_encode(['success' => false, 'message' => 'Email ou mot de passe incorrect']);
+                exit;
+            }
+
+            // Vérifier le mot de passe
+            if (!password_verify($data['password'], $user['password'])) {
+                echo json_encode(['success' => false, 'message' => 'Email ou mot de passe incorrect']);
+                exit;
+            }
+
+            // Vérifier le statut
+            if ($user['status'] !== 'active') {
+                echo json_encode(['success' => false, 'message' => 'Compte non activé']);
+                exit;
+            }
+
+            // Créer la session
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_role'] = $user['role'];
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Connexion réussie !',
+                'user' => [
+                    'id' => $user['id'],
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'role' => $user['role']
+                ]
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur de base de données: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+
+    /**
+     * Déconnexion
+     */
+    public function logout()
+    {
+        header('Content-Type: application/json');
+        
+        // Détruire la session
+        session_unset();
+        session_destroy();
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Déconnexion réussie'
+        ]);
+        exit;
+    }
+
+    /**
      * Soumettre un nouveau projet
      */
     public function submitProject()

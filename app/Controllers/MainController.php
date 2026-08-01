@@ -66,4 +66,31 @@ class MainController extends SimpleController
         $api = new ApiController();
         $api->getInvestorData();
     }
+
+    /**
+     * API: Inscription (forward vers ApiController)
+     */
+    public function apiRegister()
+    {
+        $api = new ApiController();
+        $api->register();
+    }
+
+    /**
+     * API: Connexion (forward vers ApiController)
+     */
+    public function apiLogin()
+    {
+        $api = new ApiController();
+        $api->login();
+    }
+
+    /**
+     * API: Déconnexion (forward vers ApiController)
+     */
+    public function apiLogout()
+    {
+        $api = new ApiController();
+        $api->logout();
+    }
 }

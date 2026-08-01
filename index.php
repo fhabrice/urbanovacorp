@@ -115,6 +115,24 @@ try {
             $controller->apiInvestorData();
             break;
             
+        case 'api/register':
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
+            $controller->apiRegister();
+            break;
+            
+        case 'api/login':
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
+            $controller->apiLogin();
+            break;
+            
+        case 'api/logout':
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
+            $controller->apiLogout();
+            break;
+            
         // Legacy routes (keep for compatibility)
         case 'about':
             require_once APP_PATH . '/Controllers/AboutController.php';
