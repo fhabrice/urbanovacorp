@@ -4,6 +4,8 @@
  * Migration Runner
  */
 
+require_once __DIR__ . '/../app/Core/Database.php';
+
 class Migration
 {
     private $db;
