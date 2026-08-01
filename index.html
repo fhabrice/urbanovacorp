@@ -1649,11 +1649,49 @@
 
         // On Load initialization
         window.onload = function () {
-            renderMarketplace(projectDatabase);
+            // Load projects from API
+            loadProjectsFromAPI();
+        }
+
+        // Load projects from PHP API
+        async function loadProjectsFromAPI() {
+            try {
+                const response = await fetch('/urbanovacorp/?route=api/projects');
+                const result = await response.json();
+                
+                if (result.success) {
+                    projectDatabase = result.data;
+                    renderMarketplace(projectDatabase);
+                }
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                // Fallback to static data
+                renderMarketplace(projectDatabase);
+            }
         }
 
         // Tab Switcher between Pages
-        function switchTab(tabId) {
+        async function switchTab(tabId) {
+            // Check auth for investor tab
+            if (tabId === 'investisseur') {
+                try {
+                    const response = await fetch('/urbanovacorp/?route=api/check-auth');
+                    const result = await response.json();
+                    
+                    if (!result.authenticated) {
+                        showToast("Authentification requise", "Veuillez vous connecter pour accéder à l'espace investisseur", "warning");
+                        // Redirect to login or show login modal
+                        switchTab('contact'); // Temporary redirect
+                        return;
+                    }
+                    
+                    // Load investor data
+                    await loadInvestorData();
+                } catch (error) {
+                    console.error('Auth check failed:', error);
+                }
+            }
+
             // Hide all tab contents
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(el => el.classList.add('hidden'));
@@ -1679,6 +1717,22 @@
 
             activeTab = tabId;
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Load investor data from API
+        async function loadInvestorData() {
+            try {
+                const response = await fetch('/urbanovacorp/?route=api/investor-data');
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update UI with investor data
+                    // This would update the dashboard numbers, etc.
+                    console.log('Investor data loaded:', result.data);
+                }
+            } catch (error) {
+                console.error('Error loading investor data:', error);
+            }
         }
 
         // Mobile Menu Toggler
@@ -1906,7 +1960,7 @@
         }
 
         // Submits fundraising form and pushes to database dynamically!
-        function submitFundraisingProject() {
+        async function submitFundraisingProject() {
             const name = document.getElementById('projName').value;
             const owner = document.getElementById('projOwner').value;
             const loc = document.getElementById('projLoc').value;
@@ -1914,36 +1968,48 @@
             const target = parseInt(document.getElementById('projTarget').value);
             const roi = parseInt(document.getElementById('projRoi').value) || 20;
 
-            const newProject = {
-                id: `proj-${Date.now()}`,
-                title: name,
+            const projectData = {
+                name: name,
+                owner: owner,
                 location: loc,
-                country: 'RDC',
-                city: loc.split(',')[0].trim(),
                 sector: sector,
                 target: target,
-                raised: 0,
-                roi: roi,
-                progress: 0,
-                status: 'En attente',
-                image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'
+                roi: roi
             };
 
-            // Inject to local database array
-            projectDatabase.unshift(newProject);
-            renderMarketplace(projectDatabase);
+            try {
+                const response = await fetch('/urbanovacorp/?route=api/submit-project', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(projectData)
+                });
 
-            showToast("Projet Soumis", "Félicitations! Votre projet a bien été enregistré pour validation administrative.");
+                const result = await response.json();
 
-            // Reset wizard
-            document.getElementById('submissionWizard').reset();
-            wizardStep = 1;
-            document.getElementById('formStep-4').classList.add('hidden');
-            document.getElementById('formStep-1').classList.remove('hidden');
-            updateStepIndicators();
+                if (result.success) {
+                    showToast("Projet Soumis", "Félicitations! Votre projet a bien été enregistré pour validation administrative.");
+                    
+                    // Reload projects from API
+                    await loadProjectsFromAPI();
 
-            // Redirect to marketplace to let user preview
-            switchTab('marketplace');
+                    // Reset wizard
+                    document.getElementById('submissionWizard').reset();
+                    wizardStep = 1;
+                    document.getElementById('formStep-4').classList.add('hidden');
+                    document.getElementById('formStep-1').classList.remove('hidden');
+                    updateStepIndicators();
+
+                    // Redirect to marketplace to let user preview
+                    switchTab('marketplace');
+                } else {
+                    showToast("Erreur", result.message || "Erreur lors de la soumission du projet", "warning");
+                }
+            } catch (error) {
+                console.error('Error submitting project:', error);
+                showToast("Erreur", "Erreur de connexion au serveur", "warning");
+            }
         }
 
         // Investor Dashboard tab switcher
@@ -1986,12 +2052,42 @@
         }
 
         // Submit Contact Form
-        function submitContactForm() {
+        async function submitContactForm() {
             const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const phone = document.getElementById('contactPhone').value;
             const subject = document.getElementById('contactSubject').value;
+            const message = document.getElementById('contactMessage').value;
 
-            showToast("Message Envoyé !", `Merci ${name}, notre service de support étudie votre demande concernant "${subject}".`);
-            document.getElementById('contactForm').reset();
+            const contactData = {
+                name: name,
+                email: email,
+                phone: phone,
+                subject: subject,
+                message: message
+            };
+
+            try {
+                const response = await fetch('/urbanovacorp/?route=api/submit-contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(contactData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast("Message Envoyé !", `Merci ${name}, notre service de support étudie votre demande concernant "${subject}".`);
+                    document.getElementById('contactForm').reset();
+                } else {
+                    showToast("Erreur", result.message || "Erreur lors de l'envoi du message", "warning");
+                }
+            } catch (error) {
+                console.error('Error submitting contact:', error);
+                showToast("Erreur", "Erreur de connexion au serveur", "warning");
+            }
         }
     </script>
 </body>

@@ -77,12 +77,45 @@ try {
     switch ($route) {
         case '/':
         case '':
-            // Home page
-            require_once APP_PATH . '/Controllers/HomeController.php';
-            $controller = new App\Controllers\HomeController();
+        case 'home':
+            // Main page with new interface
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
             $controller->index();
             break;
             
+        // API Endpoints
+        case 'api/projects':
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
+            $controller->apiProjects();
+            break;
+            
+        case 'api/submit-project':
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
+            $controller->apiSubmitProject();
+            break;
+            
+        case 'api/submit-contact':
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
+            $controller->apiSubmitContact();
+            break;
+            
+        case 'api/check-auth':
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
+            $controller->apiCheckAuth();
+            break;
+            
+        case 'api/investor-data':
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
+            $controller->apiInvestorData();
+            break;
+            
+        // Legacy routes (keep for compatibility)
         case 'about':
             require_once APP_PATH . '/Controllers/AboutController.php';
             $controller = new App\Controllers\AboutController();
