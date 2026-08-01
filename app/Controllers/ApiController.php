@@ -84,73 +84,18 @@ class ApiController extends SimpleController
                 ]);
                 exit;
             } catch (\PDOException $e) {
-                // Fallback to static data on error
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Erreur de base de données: ' . $e->getMessage()
+                ]);
+                exit;
             }
         }
         
-        // Fallback static data
-        $projects = [
-            [
-                'id' => 'proj-1',
-                'title' => 'Résidence Horizon',
-                'location' => 'Goma, RDC',
-                'country' => 'RDC',
-                'city' => 'Goma',
-                'sector' => 'Résidentiel',
-                'target' => 800000,
-                'raised' => 250000,
-                'roi' => 24,
-                'progress' => 31,
-                'status' => 'En cours',
-                'image' => 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'
-            ],
-            [
-                'id' => 'proj-2',
-                'title' => 'Urban Business Park',
-                'location' => 'Kinshasa, RDC',
-                'country' => 'RDC',
-                'city' => 'Kinshasa',
-                'sector' => 'Bureaux',
-                'target' => 6000000,
-                'raised' => 2100000,
-                'roi' => 28,
-                'progress' => 35,
-                'status' => 'En cours',
-                'image' => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80'
-            ],
-            [
-                'id' => 'proj-3',
-                'title' => 'Eco City Villas',
-                'location' => 'Kigali, Rwanda',
-                'country' => 'Rwanda',
-                'city' => 'Kigali',
-                'sector' => 'Résidentiel',
-                'target' => 1500000,
-                'raised' => 330000,
-                'roi' => 22,
-                'progress' => 22,
-                'status' => 'Planifié',
-                'image' => 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80'
-            ],
-            [
-                'id' => 'proj-4',
-                'title' => 'Commercial Hub Goma',
-                'location' => 'Goma, RDC',
-                'country' => 'RDC',
-                'city' => 'Goma',
-                'sector' => 'Commercial',
-                'target' => 2000000,
-                'raised' => 500000,
-                'roi' => 25,
-                'progress' => 25,
-                'status' => 'En cours',
-                'image' => 'https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=600&q=80'
-            ]
-        ];
-
+        // No database connection
         echo json_encode([
-            'success' => true,
-            'data' => $projects
+            'success' => false,
+            'message' => 'Base de données non disponible'
         ]);
         exit;
     }
@@ -183,6 +128,11 @@ class ApiController extends SimpleController
             exit;
         }
 
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
         // Récupérer les données POST
         $data = json_decode(file_get_contents('php://input'), true);
         
@@ -202,82 +152,52 @@ class ApiController extends SimpleController
             }
         }
 
-        if ($this->db) {
-            try {
-                // Parse location
-                $locationParts = explode(',', $data['location']);
-                $city = trim($locationParts[0]);
-                $country = isset($locationParts[1]) ? trim($locationParts[1]) : 'RDC';
-                
-                // Insert into database
-                $stmt = $this->db->prepare("
-                    INSERT INTO projects (
-                        title, promoter, city, country, sector, 
-                        description, funding_sought, funding_raised, 
-                        expected_roi, status, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
-                ");
-                
-                $stmt->execute([
-                    $data['name'],
-                    $data['owner'],
-                    $city,
-                    $country,
-                    $data['sector'],
-                    $data['description'] ?? '',
-                    (int)$data['target'],
-                    0,
-                    (int)($data['roi'] ?? 20)
-                ]);
-                
-                $projectId = $this->db->lastInsertId();
-                
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Projet soumis avec succès',
-                    'data' => [
-                        'id' => $projectId,
-                        'title' => $data['name'],
-                        'status' => 'En attente'
-                    ]
-                ]);
-                exit;
-            } catch (\PDOException $e) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Erreur de base de données: ' . $e->getMessage()
-                ]);
-                exit;
-            }
+        try {
+            // Parse location
+            $locationParts = explode(',', $data['location']);
+            $city = trim($locationParts[0]);
+            $country = isset($locationParts[1]) ? trim($locationParts[1]) : 'RDC';
+            
+            // Insert into database
+            $stmt = $this->db->prepare("
+                INSERT INTO projects (
+                    title, promoter, city, country, sector, 
+                    description, funding_sought, funding_raised, 
+                    expected_roi, status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
+            ");
+            
+            $stmt->execute([
+                $data['name'],
+                $data['owner'],
+                $city,
+                $country,
+                $data['sector'],
+                $data['description'] ?? '',
+                (int)$data['target'],
+                0,
+                (int)($data['roi'] ?? 20)
+            ]);
+            
+            $projectId = $this->db->lastInsertId();
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Projet soumis avec succès',
+                'data' => [
+                    'id' => $projectId,
+                    'title' => $data['name'],
+                    'status' => 'En attente'
+                ]
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur de base de données: ' . $e->getMessage()
+            ]);
+            exit;
         }
-        
-        // Fallback: store in session
-        $newProject = [
-            'id' => 'proj-' . time(),
-            'title' => $data['name'],
-            'location' => $data['location'],
-            'country' => 'RDC',
-            'city' => explode(',', $data['location'])[0],
-            'sector' => $data['sector'],
-            'target' => (int)$data['target'],
-            'raised' => 0,
-            'roi' => (int)($data['roi'] ?? 20),
-            'progress' => 0,
-            'status' => 'En attente',
-            'image' => 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'
-        ];
-
-        if (!isset($_SESSION['projects'])) {
-            $_SESSION['projects'] = [];
-        }
-        array_unshift($_SESSION['projects'], $newProject);
-
-        echo json_encode([
-            'success' => true,
-            'message' => 'Projet soumis avec succès',
-            'data' => $newProject
-        ]);
-        exit;
     }
 
     /**
@@ -289,6 +209,11 @@ class ApiController extends SimpleController
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
             exit;
         }
 
@@ -310,43 +235,34 @@ class ApiController extends SimpleController
             }
         }
 
-        if ($this->db) {
-            try {
-                // Insert into contacts table
-                $stmt = $this->db->prepare("
-                    INSERT INTO contacts (
-                        name, email, phone, subject, message, created_at
-                    ) VALUES (?, ?, ?, ?, ?, NOW())
-                ");
-                
-                $stmt->execute([
-                    $data['name'],
-                    $data['email'],
-                    $data['phone'] ?? '',
-                    $data['subject'] ?? '',
-                    $data['message']
-                ]);
-                
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Message envoyé avec succès'
-                ]);
-                exit;
-            } catch (\PDOException $e) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Erreur de base de données: ' . $e->getMessage()
-                ]);
-                exit;
-            }
+        try {
+            // Insert into contacts table
+            $stmt = $this->db->prepare("
+                INSERT INTO contacts (
+                    name, email, phone, subject, message, created_at
+                ) VALUES (?, ?, ?, ?, ?, NOW())
+            ");
+            
+            $stmt->execute([
+                $data['name'],
+                $data['email'],
+                $data['phone'] ?? '',
+                $data['subject'] ?? '',
+                $data['message']
+            ]);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Message envoyé avec succès'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur de base de données: ' . $e->getMessage()
+            ]);
+            exit;
         }
-        
-        // Fallback: just return success
-        echo json_encode([
-            'success' => true,
-            'message' => 'Message envoyé avec succès'
-        ]);
-        exit;
     }
 
     /**
@@ -381,115 +297,83 @@ class ApiController extends SimpleController
             exit;
         }
 
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
         $userId = $_SESSION['user_id'];
 
-        if ($this->db) {
-            try {
-                // Get investor stats
-                $stmt = $this->db->prepare("
-                    SELECT 
-                        COUNT(DISTINCT inv.project_id) as projects,
-                        SUM(inv.amount) as total_invested,
-                        AVG(p.expected_roi) as roi_average,
-                        SUM(inv.amount * p.expected_roi / 100) as gains
-                    FROM investments inv
-                    JOIN projects p ON inv.project_id = p.id
-                    WHERE inv.investor_id = ?
-                ");
-                $stmt->execute([$userId]);
-                $stats = $stmt->fetch(\PDO::FETCH_ASSOC);
+        try {
+            // Get investor stats
+            $stmt = $this->db->prepare("
+                SELECT 
+                    COUNT(DISTINCT inv.project_id) as projects,
+                    SUM(inv.amount) as total_invested,
+                    AVG(p.expected_roi) as roi_average,
+                    SUM(inv.amount * p.expected_roi / 100) as gains
+                FROM investments inv
+                JOIN projects p ON inv.project_id = p.id
+                WHERE inv.investor_id = ?
+            ");
+            $stmt->execute([$userId]);
+            $stats = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            // Get individual investments
+            $stmt = $this->db->prepare("
+                SELECT 
+                    p.title as project,
+                    inv.amount,
+                    p.funding_raised as raised,
+                    p.funding_sought as target,
+                    p.expected_roi as roi,
+                    p.status
+                FROM investments inv
+                JOIN projects p ON inv.project_id = p.id
+                WHERE inv.investor_id = ?
+                ORDER BY inv.created_at DESC
+                LIMIT 10
+            ");
+            $stmt->execute([$userId]);
+            $investments = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            // Format investments
+            $formattedInvestments = [];
+            foreach ($investments as $inv) {
+                $target = (int)$inv['target'];
+                $raised = (int)$inv['raised'];
+                $progress = $target > 0 ? round(($raised / $target) * 100) : 0;
                 
-                // Get individual investments
-                $stmt = $this->db->prepare("
-                    SELECT 
-                        p.title as project,
-                        inv.amount,
-                        p.funding_raised as raised,
-                        p.funding_sought as target,
-                        p.expected_roi as roi,
-                        p.status
-                    FROM investments inv
-                    JOIN projects p ON inv.project_id = p.id
-                    WHERE inv.investor_id = ?
-                    ORDER BY inv.created_at DESC
-                    LIMIT 10
-                ");
-                $stmt->execute([$userId]);
-                $investments = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-                
-                // Format investments
-                $formattedInvestments = [];
-                foreach ($investments as $inv) {
-                    $target = (int)$inv['target'];
-                    $raised = (int)$inv['raised'];
-                    $progress = $target > 0 ? round(($raised / $target) * 100) : 0;
-                    
-                    $formattedInvestments[] = [
-                        'project' => $inv['project'],
-                        'amount' => (int)$inv['amount'],
-                        'progress' => $progress,
-                        'roi' => (int)$inv['roi'],
-                        'status' => $this->translateStatus($inv['status'])
-                    ];
-                }
-                
-                $data = [
-                    'stats' => [
-                        'projects' => (int)($stats['projects'] ?? 0),
-                        'total_invested' => (int)($stats['total_invested'] ?? 0),
-                        'roi_average' => round((float)($stats['roi_average'] ?? 0), 1),
-                        'gains' => (int)($stats['gains'] ?? 0)
-                    ],
-                    'investments' => $formattedInvestments
+                $formattedInvestments[] = [
+                    'project' => $inv['project'],
+                    'amount' => (int)$inv['amount'],
+                    'progress' => $progress,
+                    'roi' => (int)$inv['roi'],
+                    'status' => $this->translateStatus($inv['status'])
                 ];
-                
-                echo json_encode([
-                    'success' => true,
-                    'data' => $data
-                ]);
-                exit;
-            } catch (\PDOException $e) {
-                // Fallback to static data on error
             }
+            
+            $data = [
+                'stats' => [
+                    'projects' => (int)($stats['projects'] ?? 0),
+                    'total_invested' => (int)($stats['total_invested'] ?? 0),
+                    'roi_average' => round((float)($stats['roi_average'] ?? 0), 1),
+                    'gains' => (int)($stats['gains'] ?? 0)
+                ],
+                'investments' => $formattedInvestments
+            ];
+            
+            echo json_encode([
+                'success' => true,
+                'data' => $data
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur de base de données: ' . $e->getMessage()
+            ]);
+            exit;
         }
-        
-        // Fallback static data
-        $data = [
-            'stats' => [
-                'projects' => 5,
-                'total_invested' => 2300000,
-                'roi_average' => 18.5,
-                'gains' => 320000
-            ],
-            'investments' => [
-                [
-                    'project' => 'Urban Business Park',
-                    'amount' => 1000000,
-                    'progress' => 35,
-                    'roi' => 28,
-                    'status' => 'En cours'
-                ],
-                [
-                    'project' => 'Résidence Horizon',
-                    'amount' => 500000,
-                    'progress' => 31,
-                    'roi' => 24,
-                    'status' => 'En cours'
-                ],
-                [
-                    'project' => 'Eco City Villas',
-                    'amount' => 300000,
-                    'progress' => 22,
-                    'roi' => 22,
-                    'status' => 'Planifié'
-                ]
-            ]
-        ];
-
-        echo json_encode([
-            'success' => true,
-            'data' => $data
-        ]);
-        exit;
     }
 }

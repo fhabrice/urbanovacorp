@@ -1,10 +1,12 @@
 <?php
 /**
  * Database Setup Script for URBANOVA SOLUTIONS
- * Run this script to create the database and seed initial data
+ * Run this script to create the database and schema
+ * This creates an EMPTY database ready for real data
  */
 
 echo "<h1>Setup Database URBANOVA SOLUTIONS</h1>";
+echo "<p>Ce script crée une base de données vide prête pour la production.</p>";
 
 // Database configuration
 $host = 'localhost';
@@ -53,30 +55,16 @@ try {
         echo "<p style='color: red;'>✗ Fichier schema non trouvé</p>";
     }
     
-    // Seed data
-    $seedFile = __DIR__ . '/database/seed_data.sql';
-    if (file_exists($seedFile)) {
-        $seed = file_get_contents($seedFile);
-        
-        // Execute seed statements
-        $statements = explode(';', $seed);
-        foreach ($statements as $statement) {
-            $statement = trim($statement);
-            if (!empty($statement) && !preg_match('/^--/', $statement)) {
-                try {
-                    $pdo->exec($statement);
-                } catch (PDOException $e) {
-                    echo "<p style='color: orange;'>⚠ Erreur seed: " . htmlspecialchars($e->getMessage()) . "</p>";
-                }
-            }
-        }
-        echo "<p>✓ Données de test insérées</p>";
-    } else {
-        echo "<p style='color: red;'>✗ Fichier seed_data non trouvé</p>";
-    }
+    // Do NOT load seed data by default - platform is empty for production
+    echo "<p>✓ Base de données vide et prête pour les données réelles</p>";
     
     echo "<h2 style='color: green;'>✓ Setup terminé avec succès!</h2>";
+    echo "<p>La base de données est vide et prête à recevoir les vraies données.</p>";
     echo "<p><a href='/urbanovacorp/'>Aller au site</a></p>";
+    echo "<hr>";
+    echo "<h3>Optionnel: Charger des données de démonstration</h3>";
+    echo "<p>Pour charger des données de test (uniquement pour développement), exécutez:</p>";
+    echo "<p><a href='/urbanovacorp/load_demo_data.php'>load_demo_data.php</a></p>";
     
 } catch (PDOException $e) {
     echo "<h2 style='color: red;'>✗ Erreur de connexion à la base de données</h2>";
