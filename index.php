@@ -39,8 +39,11 @@ $config = require CONFIG_PATH . '/config.php';
 
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
-    session_name($config['security']['session_name']);
+    // Simplified session configuration
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
     session_start();
+    error_log('Session started: ' . session_id());
 }
 
 // Set default language
@@ -131,6 +134,12 @@ try {
             require_once APP_PATH . '/Controllers/MainController.php';
             $controller = new App\Controllers\MainController();
             $controller->apiLogout();
+            break;
+            
+        case 'api/approve-project':
+            require_once APP_PATH . '/Controllers/MainController.php';
+            $controller = new App\Controllers\MainController();
+            $controller->apiApproveProject();
             break;
             
         // Legacy routes (keep for compatibility)

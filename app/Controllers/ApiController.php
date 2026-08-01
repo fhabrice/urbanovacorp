@@ -357,18 +357,22 @@ class ApiController extends SimpleController
             $city = trim($locationParts[0]);
             $country = isset($locationParts[1]) ? trim($locationParts[1]) : 'RDC';
             
+            // Get promoter_id from session if user is logged in
+            $promoterId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+            
             // Insert into database
             $stmt = $this->db->prepare("
                 INSERT INTO projects (
-                    title, promoter, city, country, sector, 
+                    title, promoter, promoter_id, city, country, sector, 
                     description, funding_sought, funding_raised, 
                     expected_roi, status, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
             ");
             
             $stmt->execute([
                 $data['name'],
                 $data['owner'],
+                $promoterId,
                 $city,
                 $country,
                 $data['sector'],
@@ -471,10 +475,13 @@ class ApiController extends SimpleController
     {
         header('Content-Type: application/json');
         
+        // Debug session
+        error_log('Session data in checkAuth: ' . json_encode($_SESSION));
+        
         $isAuthenticated = isset($_SESSION['user_id']);
         $isInvestor = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'investor';
         
-        echo json_encode([
+        $response = [
             'success' => true,
             'authenticated' => $isAuthenticated,
             'is_investor' => $isInvestor,
@@ -485,8 +492,60 @@ class ApiController extends SimpleController
                 'role' => $_SESSION['user_role'] ?? '',
                 'initials' => substr($_SESSION['user_name'] ?? 'JD', 0, 2)
             ] : null
-        ]);
+        ];
+        
+        error_log('Auth check response: ' . json_encode($response));
+        
+        echo json_encode($response);
         exit;
+    }
+
+    /**
+     * Approuver ou rejeter un projet (Admin)
+     */
+    public function approveProject()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (empty($data['id']) || empty($data['action'])) {
+            echo json_encode(['success' => false, 'message' => 'ID et action requis']);
+            exit;
+        }
+
+        try {
+            $status = $data['action'] === 'approve' ? 'approved' : 'rejected';
+            
+            $stmt = $this->db->prepare("UPDATE projects SET status = ? WHERE id = ?");
+            $stmt->execute([$status, $data['id']]);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => $status === 'approved' ? 'Projet approuvé' : 'Projet rejeté'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur de base de données: ' . $e->getMessage()
+            ]);
+            exit;
+        }
     }
 
     /**
@@ -509,13 +568,13 @@ class ApiController extends SimpleController
         $userId = $_SESSION['user_id'];
 
         try {
-            // Get investor stats
+            // Get investor stats with COALESCE to handle NULL values for new investors
             $stmt = $this->db->prepare("
                 SELECT 
-                    COUNT(DISTINCT inv.project_id) as projects,
-                    SUM(inv.amount) as total_invested,
-                    AVG(p.expected_roi) as roi_average,
-                    SUM(inv.amount * p.expected_roi / 100) as gains
+                    COALESCE(COUNT(DISTINCT inv.project_id), 0) as projects,
+                    COALESCE(SUM(inv.amount), 0) as total_invested,
+                    COALESCE(AVG(p.expected_roi), 0) as roi_average,
+                    COALESCE(SUM(inv.amount * p.expected_roi / 100), 0) as gains
                 FROM investments inv
                 JOIN projects p ON inv.project_id = p.id
                 WHERE inv.investor_id = ?

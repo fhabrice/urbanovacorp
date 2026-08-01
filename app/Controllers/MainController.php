@@ -93,4 +93,13 @@ class MainController extends SimpleController
         $api = new ApiController();
         $api->logout();
     }
+
+    /**
+     * API: Approuver/Rejeter projet (forward vers ApiController)
+     */
+    public function apiApproveProject()
+    {
+        $api = new ApiController();
+        $api->approveProject();
+    }
 }
