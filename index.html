@@ -975,22 +975,36 @@
                                 <div id="formStep-3" class="space-y-6 hidden">
                                     <p class="text-sm text-slate-500 mb-4">Veuillez joindre les documents de référence
                                         pour maximiser la confiance des investisseurs qualifiés.</p>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div id="businessPlanDropzone"
                                             class="border-2 border-dashed border-slate-300 hover:border-brand-gold rounded-2xl p-6 text-center cursor-pointer transition-all bg-slate-50">
                                             <i class="fa-solid fa-file-pdf text-3xl text-slate-400 mb-3"></i>
-                                            <p class="text-sm font-bold text-brand-dark">Business Plan & Deck</p>
+                                            <p class="text-sm font-bold text-brand-dark">Business Plan</p>
                                             <p class="text-xs text-slate-400 mt-1">Glissez un fichier ou cliquez pour
                                                 uploader</p>
+                                            <p id="businessPlanFileName" class="text-xs text-slate-500 mt-2">Aucun fichier sélectionné</p>
                                         </div>
-                                        <div
+                                        <div id="pitchDeckDropzone"
+                                            class="border-2 border-dashed border-slate-300 hover:border-brand-gold rounded-2xl p-6 text-center cursor-pointer transition-all bg-slate-50">
+                                            <i class="fa-solid fa-file-lines text-3xl text-slate-400 mb-3"></i>
+                                            <p class="text-sm font-bold text-brand-dark">Pitch Deck</p>
+                                            <p class="text-xs text-slate-400 mt-1">Glissez un fichier ou cliquez pour
+                                                uploader</p>
+                                            <p id="pitchDeckFileName" class="text-xs text-slate-500 mt-2">Aucun fichier sélectionné</p>
+                                        </div>
+                                        <div id="financialModelDropzone"
                                             class="border-2 border-dashed border-slate-300 hover:border-brand-gold rounded-2xl p-6 text-center cursor-pointer transition-all bg-slate-50">
                                             <i class="fa-solid fa-file-excel text-3xl text-slate-400 mb-3"></i>
                                             <p class="text-sm font-bold text-brand-dark">Modèle Financier (Excel)</p>
                                             <p class="text-xs text-slate-400 mt-1">Données prévisionnelles d'activité
                                             </p>
+                                            <p id="financialModelFileName" class="text-xs text-slate-500 mt-2">Aucun fichier sélectionné</p>
                                         </div>
                                     </div>
+
+                                    <input type="file" id="businessPlanInput" name="business_plan" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,image/*" style="display:none;">
+                                    <input type="file" id="pitchDeckInput" name="pitch_deck" accept=".pdf,.doc,.docx,.ppt,.pptx,image/*" style="display:none;">
+                                    <input type="file" id="financialModelInput" name="financial_model" accept=".pdf,.xls,.xlsx,.csv,image/*" style="display:none;">
                                 </div>
 
                                 <!-- STEP 4 -->
@@ -2274,6 +2288,114 @@
         window.onload = function () {
             // Check authentication status
             checkAuthStatus();
+            initializeProjectWizardFileInputs();
+        }
+
+        function initializeProjectWizardFileInputs() {
+            const businessPlanDropzone = document.getElementById('businessPlanDropzone');
+            const businessPlanInput = document.getElementById('businessPlanInput');
+            const businessPlanFileName = document.getElementById('businessPlanFileName');
+            const financialModelDropzone = document.getElementById('financialModelDropzone');
+            const financialModelInput = document.getElementById('financialModelInput');
+            const financialModelFileName = document.getElementById('financialModelFileName');
+
+            const assignFilesToInput = (input, file) => {
+                if (!input || !file) return;
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                input.files = dataTransfer.files;
+            };
+
+            if (businessPlanDropzone && businessPlanInput) {
+                businessPlanDropzone.addEventListener('click', () => businessPlanInput.click());
+                businessPlanDropzone.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    businessPlanDropzone.classList.add('border-brand-gold', 'bg-slate-100');
+                });
+                businessPlanDropzone.addEventListener('dragleave', () => {
+                    businessPlanDropzone.classList.remove('border-brand-gold', 'bg-slate-100');
+                });
+                businessPlanDropzone.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    businessPlanDropzone.classList.remove('border-brand-gold', 'bg-slate-100');
+                    if (event.dataTransfer.files.length > 0) {
+                        assignFilesToInput(businessPlanInput, event.dataTransfer.files[0]);
+                        const file = event.dataTransfer.files[0];
+                        if (businessPlanFileName) {
+                            businessPlanFileName.textContent = file.name;
+                        }
+                    }
+                });
+
+                businessPlanInput.addEventListener('change', () => {
+                    const file = businessPlanInput.files[0];
+                    if (file && businessPlanFileName) {
+                        businessPlanFileName.textContent = file.name;
+                    }
+                });
+            }
+
+            const pitchDeckDropzone = document.getElementById('pitchDeckDropzone');
+            const pitchDeckInput = document.getElementById('pitchDeckInput');
+            const pitchDeckFileName = document.getElementById('pitchDeckFileName');
+
+            if (financialModelDropzone && financialModelInput) {
+                financialModelDropzone.addEventListener('click', () => financialModelInput.click());
+                financialModelDropzone.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    financialModelDropzone.classList.add('border-brand-gold', 'bg-slate-100');
+                });
+                financialModelDropzone.addEventListener('dragleave', () => {
+                    financialModelDropzone.classList.remove('border-brand-gold', 'bg-slate-100');
+                });
+                financialModelDropzone.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    financialModelDropzone.classList.remove('border-brand-gold', 'bg-slate-100');
+                    if (event.dataTransfer.files.length > 0) {
+                        assignFilesToInput(financialModelInput, event.dataTransfer.files[0]);
+                        const file = event.dataTransfer.files[0];
+                        if (financialModelFileName) {
+                            financialModelFileName.textContent = file.name;
+                        }
+                    }
+                });
+
+                financialModelInput.addEventListener('change', () => {
+                    const file = financialModelInput.files[0];
+                    if (file && financialModelFileName) {
+                        financialModelFileName.textContent = file.name;
+                    }
+                });
+            }
+
+            if (pitchDeckDropzone && pitchDeckInput) {
+                pitchDeckDropzone.addEventListener('click', () => pitchDeckInput.click());
+                pitchDeckDropzone.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    pitchDeckDropzone.classList.add('border-brand-gold', 'bg-slate-100');
+                });
+                pitchDeckDropzone.addEventListener('dragleave', () => {
+                    pitchDeckDropzone.classList.remove('border-brand-gold', 'bg-slate-100');
+                });
+                pitchDeckDropzone.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    pitchDeckDropzone.classList.remove('border-brand-gold', 'bg-slate-100');
+                    if (event.dataTransfer.files.length > 0) {
+                        assignFilesToInput(pitchDeckInput, event.dataTransfer.files[0]);
+                        const file = event.dataTransfer.files[0];
+                        if (pitchDeckFileName) {
+                            pitchDeckFileName.textContent = file.name;
+                        }
+                    }
+                });
+
+                pitchDeckInput.addEventListener('change', () => {
+                    const file = pitchDeckInput.files[0];
+                    if (file && pitchDeckFileName) {
+                        pitchDeckFileName.textContent = file.name;
+                    }
+                });
+            }
         }
 
         // Check authentication status on load
@@ -3743,22 +3865,35 @@
             const target = parseInt(document.getElementById('projTarget').value);
             const roi = parseInt(document.getElementById('projRoi').value) || 20;
 
-            const projectData = {
-                name: name,
-                owner: owner,
-                location: loc,
-                sector: sector,
-                target: target,
-                roi: roi
-            };
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('owner', owner);
+            formData.append('location', loc);
+            formData.append('sector', sector);
+            formData.append('target', target);
+            formData.append('roi', roi);
+
+            const businessPlanInput = document.getElementById('businessPlanInput');
+            const pitchDeckInput = document.getElementById('pitchDeckInput');
+            const financialModelInput = document.getElementById('financialModelInput');
+            const description = document.getElementById('projDesc').value;
+
+            formData.append('description', description);
+
+            if (businessPlanInput && businessPlanInput.files.length > 0) {
+                formData.append('business_plan', businessPlanInput.files[0]);
+            }
+            if (pitchDeckInput && pitchDeckInput.files.length > 0) {
+                formData.append('pitch_deck', pitchDeckInput.files[0]);
+            }
+            if (financialModelInput && financialModelInput.files.length > 0) {
+                formData.append('financial_model', financialModelInput.files[0]);
+            }
 
             try {
                 const response = await fetch('api.php?action=submit-project', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(projectData)
+                    body: formData
                 });
 
                 const result = await response.json();

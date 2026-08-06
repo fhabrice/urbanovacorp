@@ -457,6 +457,39 @@ class ApiController extends SimpleController
             ]);
             
             $projectId = $this->db->lastInsertId();
+
+            $uploadPath = __DIR__ . '/../uploads/projects';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            $uploadMap = [
+                'business_plan' => 'business_plan_path',
+                'pitch_deck' => 'pitch_deck_path',
+                'financial_model' => 'financial_model_path'
+            ];
+            $updateColumns = [];
+            $updateParams = [];
+
+            foreach ($uploadMap as $field => $column) {
+                if (isset($_FILES[$field]) && $_FILES[$field]['error'] === UPLOAD_ERR_OK) {
+                    $file = $_FILES[$field];
+                    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                    $filename = uniqid($field . '_' . $projectId . '_', true) . '.' . $extension;
+                    $destination = $uploadPath . '/' . $filename;
+                    if (move_uploaded_file($file['tmp_name'], $destination)) {
+                        $updateColumns[] = "$column = ?";
+                        $updateParams[] = '/uploads/projects/' . $filename;
+                    }
+                }
+            }
+
+            if (!empty($updateColumns)) {
+                $updateSql = 'UPDATE projects SET ' . implode(', ', $updateColumns) . ' WHERE id = ?';
+                $updateParams[] = $projectId;
+                $updateStmt = $this->db->prepare($updateSql);
+                $updateStmt->execute($updateParams);
+            }
             
             echo json_encode([
                 'success' => true,

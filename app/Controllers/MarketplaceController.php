@@ -101,7 +101,7 @@ class MarketplaceController extends Controller
 
         // Get project promoter info
         $promoter = $db->fetchOne(
-            "SELECT u.first_name, u.last_name, u.email FROM users u WHERE u.id = ?",
+            "SELECT u.*, COALESCE(CONCAT(u.first_name, ' ', u.last_name), u.name) as full_name FROM users u WHERE u.id = ?",
             [$project['user_id']]
         );
 

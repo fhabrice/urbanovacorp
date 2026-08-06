@@ -37,9 +37,9 @@
     <label>Étude de faisabilité<input type="file" name="feasibility_study" accept="application/pdf,image/*"></label>
 
     <h3>Autres documents</h3>
-    <label>Business Plan<input type="file" name="business_plan" accept="application/pdf,image/*"></label>
-    <label>Pitch Deck<input type="file" name="pitch_deck" accept="application/pdf,image/*"></label>
-    <label>Modèle financier<input type="file" name="financial_model" accept="application/pdf,image/*"></label>
+    <label>Business Plan<input type="file" name="business_plan" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,image/*"></label>
+    <label>Pitch Deck<input type="file" name="pitch_deck" accept=".pdf,.ppt,.pptx,image/*"></label>
+    <label>Modèle financier<input type="file" name="financial_model" accept=".pdf,.xls,.xlsx,.csv,image/*"></label>
     <label>Photos<input type="file" id="photos" name="photos[]" accept="image/*" multiple></label>
     <div id="photosPreview" class="preview-grid"></div>
     <label>Rendus 3D<input type="file" id="renders" name="renders[]" accept="image/*" multiple></label>

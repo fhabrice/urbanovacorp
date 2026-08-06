@@ -99,7 +99,7 @@
                 <?php foreach ($recentInvestors as $investor): ?>
                     <div class="recent-item">
                         <div class="item-info">
-                            <h3><?php echo htmlspecialchars($investor['first_name'] . ' ' . $investor['last_name']); ?></h3>
+                            <h3><?php echo htmlspecialchars($investor['full_name'] ?? ($investor['first_name'] . ' ' . $investor['last_name'])); ?></h3>
                             <p><?php echo htmlspecialchars($investor['email']); ?></p>
                         </div>
                         <div class="item-status">

@@ -70,7 +70,8 @@ class AuthController extends Controller
         // Set session
         $session->set('user_id', $user['id']);
         $session->set('user_email', $user['email']);
-        $session->set('user_name', $user['first_name'] . ' ' . $user['last_name']);
+        $name = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')) ?: ($user['name'] ?? '');
+        $session->set('user_name', $name);
         $session->set('user_role', $user['role']);
 
         // Set investor status if applicable
@@ -190,10 +191,20 @@ class AuthController extends Controller
 
         // Create user
         $hashedPassword = Security::hashPassword($password);
-        
+
+        $hasNameColumns = $db->fetchOne("SHOW COLUMNS FROM users LIKE 'first_name'") && $db->fetchOne("SHOW COLUMNS FROM users LIKE 'last_name'");
+        if ($hasNameColumns) {
+            $columns = ['email', 'password', 'first_name', 'last_name', 'role', 'status'];
+            $values = [$email, $hashedPassword, $firstName, $lastName, $role, 'pending'];
+        } else {
+            $columns = ['email', 'password', 'name', 'role', 'status'];
+            $values = [$email, $hashedPassword, trim($firstName . ' ' . $lastName), $role, 'pending'];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($columns), '?'));
         $db->execute(
-            "INSERT INTO users (email, password, first_name, last_name, role, status) VALUES (?, ?, ?, ?, ?, 'pending')",
-            [$email, $hashedPassword, $firstName, $lastName, $role]
+            "INSERT INTO users (" . implode(', ', $columns) . ") VALUES ($placeholders)",
+            $values
         );
 
         $userId = $db->lastInsertId();

@@ -71,7 +71,7 @@ class ProjectController extends Controller
 
         // Get project promoter info
         $promoter = $db->fetchOne(
-            "SELECT u.first_name, u.last_name, u.email FROM users u WHERE u.id = ?",
+            "SELECT u.*, COALESCE(CONCAT(u.first_name, ' ', u.last_name), u.name) as full_name FROM users u WHERE u.id = ?",
             [$project['user_id']]
         );
 
@@ -202,7 +202,16 @@ class ProjectController extends Controller
         $uploadedFiles = $data['uploaded_files'] ?? [];
         $documentsJson = !empty($uploadedFiles) ? json_encode($uploadedFiles) : null;
 
-        // insert with expanded columns (migration should add these columns)
+        // insert with correct project document columns
+        $imagePath = null;
+        if (!empty($uploadedFiles['photos'])) {
+            if (is_array($uploadedFiles['photos'])) {
+                $imagePath = $uploadedFiles['photos'][0] ?? null;
+            } else {
+                $imagePath = $uploadedFiles['photos'];
+            }
+        }
+
         $sql = "INSERT INTO projects (
             user_id, reference, title, slug, promoter, promoter_name, promoter_id,
             contact_name, contact_phone, contact_email,
@@ -210,9 +219,9 @@ class ProjectController extends Controller
             description, project_status, estimated_delivery_date,
             total_cost, amount_invested, funding_sought, currency,
             units_for_sale, units_for_rent, sale_price, rental_price,
-            business_plan, financial_model, funding_raised, expected_roi, duration_months,
-            image, documents, status, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, 'submitted', NOW(), NOW())";
+            business_plan_path, pitch_deck_path, financial_model_path, funding_raised, expected_roi, duration_months,
+            image, status, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'submitted', NOW(), NOW())";
 
         $params = [
             $userId,
@@ -244,12 +253,12 @@ class ProjectController extends Controller
             $data['sale_price'] ?? null,
             $data['rental_price'] ?? null,
             $uploadedFiles['business_plan'] ?? null,
+            $uploadedFiles['pitch_deck'] ?? null,
             $uploadedFiles['financial_model'] ?? null,
             $data['funding_raised'] ?? 0,
             $data['roi'] ?? null,
             is_numeric($data['project_duration']) ? (int)$data['project_duration'] : null,
-            $uploadedFiles['photos'] ?? null,
-            $documentsJson
+            $imagePath
         ];
 
         $db->execute($sql, $params);

@@ -22,7 +22,7 @@ class AdminController extends Controller
 
         // Get recent projects
         $recentProjects = $db->fetchAll("
-            SELECT p.*, u.first_name, u.last_name 
+            SELECT p.*, COALESCE(CONCAT(u.first_name, ' ', u.last_name), u.name) AS full_name, u.email 
             FROM projects p 
             JOIN users u ON p.user_id = u.id 
             ORDER BY p.created_at DESC 
@@ -31,7 +31,7 @@ class AdminController extends Controller
 
         // Get recent investors
         $recentInvestors = $db->fetchAll("
-            SELECT i.*, u.first_name, u.last_name, u.email 
+            SELECT i.*, COALESCE(CONCAT(u.first_name, ' ', u.last_name), u.name) AS full_name, u.email 
             FROM investors i 
             JOIN users u ON i.user_id = u.id 
             ORDER BY i.created_at DESC 
@@ -116,7 +116,7 @@ class AdminController extends Controller
         $db = $this->getDb();
 
         $investors = $db->fetchAll("
-            SELECT i.*, u.first_name, u.last_name, u.email 
+            SELECT i.*, COALESCE(CONCAT(u.first_name, ' ', u.last_name), u.name) AS full_name, u.email 
             FROM investors i 
             JOIN users u ON i.user_id = u.id 
             ORDER BY i.created_at DESC

@@ -29,7 +29,7 @@
                         <td>
                             <strong><?php echo htmlspecialchars($project['title']); ?></strong>
                             <br>
-                            <small><?php echo htmlspecialchars($project['first_name'] . ' ' . $project['last_name']); ?></small>
+                            <small><?php echo htmlspecialchars($project['full_name'] ?? ($project['first_name'] . ' ' . $project['last_name'])); ?></small>
                         </td>
                         <td><?php echo __('project.type_' . $project['type']); ?></td>
                         <td><?php echo htmlspecialchars($project['city']); ?>, <?php echo htmlspecialchars($project['country']); ?></td>
