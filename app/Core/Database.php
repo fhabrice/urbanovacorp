@@ -23,14 +23,14 @@ class Database
                 "mysql:host=%s;port=%s;dbname=%s;charset=%s",
                 $this->config['host'],
                 $this->config['port'],
-                $this->config['name'],
+                $this->config['database'] ?? $this->config['name'],
                 $this->config['charset']
             );
 
             $this->connection = new PDO(
                 $dsn,
-                $this->config['user'],
-                $this->config['password'],
+                $this->config['username'] ?? $this->config['user'] ?? null,
+                $this->config['password'] ?? $this->config['pass'] ?? null,
                 [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

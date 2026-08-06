@@ -1500,74 +1500,34 @@
 
                     <!-- News Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- News 1 -->
-                        <div
-                            class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between">
-                            <div>
-                                <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80"
-                                    alt="News 1" class="h-48 w-full object-cover">
-                                <div class="p-6">
-                                    <span class="text-xs font-bold text-brand-gold block mb-2">15 Mai 2026</span>
-                                    <h3 class="font-bold text-brand-dark text-lg mb-3">URBANOVA lance un nouveau projet
-                                        de 100 logements à Goma</h3>
-                                    <p class="text-sm text-slate-600">Ce projet d'envergure intègre des infrastructures
-                                        de récupération d'eau et d'électricité solaire.</p>
+                        <?php if (!empty($newsItems)): ?>
+                            <?php foreach ($newsItems as $item): ?>
+                                <div class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between">
+                                    <div>
+                                        <?php if (!empty($item['image'])): ?>
+                                            <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" class="h-48 w-full object-cover">
+                                        <?php else: ?>
+                                            <div class="h-48 w-full bg-slate-200"></div>
+                                        <?php endif; ?>
+                                        <div class="p-6">
+                                            <span class="text-xs font-bold text-brand-gold block mb-2"><?php echo date('d F Y', strtotime($item['published_at'])); ?></span>
+                                            <h3 class="font-bold text-brand-dark text-lg mb-3"><?php echo htmlspecialchars($item['title']); ?></h3>
+                                            <p class="text-sm text-slate-600"><?php echo htmlspecialchars($item['excerpt']); ?></p>
+                                        </div>
+                                    </div>
+                                    <div class="p-6 pt-0">
+                                        <a href="?route=news/show-<?php echo urlencode($item['slug']); ?>" class="text-brand-navy font-bold text-sm hover:text-brand-gold flex items-center space-x-1">
+                                            <span>Lire la suite</span>
+                                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                                        </a>
+                                    </div>
                                 </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="col-span-1 md:col-span-3 bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center">
+                                <p class="text-slate-600">Aucune actualité publiée pour le moment.</p>
                             </div>
-                            <div class="p-6 pt-0">
-                                <button
-                                    class="text-brand-navy font-bold text-sm hover:text-brand-gold flex items-center space-x-1">
-                                    <span>Lire la suite</span>
-                                    <i class="fa-solid fa-arrow-right text-xs"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- News 2 -->
-                        <div
-                            class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between">
-                            <div>
-                                <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80"
-                                    alt="News 2" class="h-48 w-full object-cover">
-                                <div class="p-6">
-                                    <span class="text-xs font-bold text-brand-gold block mb-2">2 Mai 2026</span>
-                                    <h3 class="font-bold text-brand-dark text-lg mb-3">Partenariat stratégique avec la
-                                        BAD pour le développement urbain</h3>
-                                    <p class="text-sm text-slate-600">Un protocole d'entente a été signé pour appuyer la
-                                        levée de fonds des éco-quartiers.</p>
-                                </div>
-                            </div>
-                            <div class="p-6 pt-0">
-                                <button
-                                    class="text-brand-navy font-bold text-sm hover:text-brand-gold flex items-center space-x-1">
-                                    <span>Lire la suite</span>
-                                    <i class="fa-solid fa-arrow-right text-xs"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- News 3 -->
-                        <div
-                            class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between">
-                            <div>
-                                <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80"
-                                    alt="News 3" class="h-48 w-full object-cover">
-                                <div class="p-6">
-                                    <span class="text-xs font-bold text-brand-gold block mb-2">20 Avril 2026</span>
-                                    <h3 class="font-bold text-brand-dark text-lg mb-3">URBANOVA parmi les 100
-                                        entreprises qui transforment l'Afrique</h3>
-                                    <p class="text-sm text-slate-600">Notre modèle de financement collaboratif
-                                        d'ouvrages publics a été salué par l'Union Africaine.</p>
-                                </div>
-                            </div>
-                            <div class="p-6 pt-0">
-                                <button
-                                    class="text-brand-navy font-bold text-sm hover:text-brand-gold flex items-center space-x-1">
-                                    <span>Lire la suite</span>
-                                    <i class="fa-solid fa-arrow-right text-xs"></i>
-                                </button>
-                            </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </section>

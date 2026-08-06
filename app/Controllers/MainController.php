@@ -2,16 +2,28 @@
 
 namespace App\Controllers;
 
+use App\Core\Database;
+
 /**
  * Main Controller - Sert la nouvelle interface moderne
  */
 class MainController extends SimpleController
 {
+    private $db;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->db = new Database($this->config['database']);
+    }
     /**
      * Afficher la page d'accueil avec la nouvelle interface
      */
     public function index()
     {
+        $newsItems = $this->db->fetchAll(
+            "SELECT * FROM news WHERE status = 'published' ORDER BY published_at DESC LIMIT 3"
+        );
         // Charger la nouvelle interface HTML
         $viewPath = BASE_PATH . '/index.html';
         
