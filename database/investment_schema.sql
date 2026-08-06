@@ -100,6 +100,7 @@ CREATE TABLE news (
   image VARCHAR(512),
   author_id INT NULL,
   status ENUM('draft', 'published') DEFAULT 'draft',
+  deleted_at DATETIME NULL,
   published_at DATETIME NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,

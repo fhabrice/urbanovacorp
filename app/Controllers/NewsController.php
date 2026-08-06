@@ -17,7 +17,7 @@ class NewsController extends SimpleController
     public function index()
     {
         $news = $this->database->fetchAll(
-            "SELECT * FROM news WHERE status = 'published' ORDER BY published_at DESC"
+            "SELECT * FROM news WHERE status = 'published' AND deleted_at IS NULL ORDER BY published_at DESC"
         );
 
         return $this->view('news/index', [
@@ -28,9 +28,9 @@ class NewsController extends SimpleController
     public function show($identifier)
     {
         if (is_numeric($identifier)) {
-            $article = $this->database->fetchOne("SELECT * FROM news WHERE id = ? AND status = 'published'", [$identifier]);
+            $article = $this->database->fetchOne("SELECT * FROM news WHERE id = ? AND status = 'published' AND deleted_at IS NULL", [$identifier]);
         } else {
-            $article = $this->database->fetchOne("SELECT * FROM news WHERE slug = ? AND status = 'published'", [$identifier]);
+            $article = $this->database->fetchOne("SELECT * FROM news WHERE slug = ? AND status = 'published' AND deleted_at IS NULL", [$identifier]);
         }
 
         if (!$article) {

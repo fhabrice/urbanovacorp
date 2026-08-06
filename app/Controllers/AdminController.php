@@ -253,6 +253,7 @@ class AdminController extends Controller
         $slug = $this->slugify($title);
         $image = null;
 
+        // Server-side upload validation
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $uploadPath = PUBLIC_PATH . '/uploads/news';
             if (!is_dir($uploadPath)) {
@@ -263,12 +264,22 @@ class AdminController extends Controller
             $extension = strtolower(pathinfo($imageFile['name'], PATHINFO_EXTENSION));
             $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
+            // Size limit from config (fallback 5MB)
+            $maxSize = $this->config['upload']['max_size'] ?? 5242880;
+            if ($imageFile['size'] > $maxSize) {
+                $session->setFlashMessage('error', __('admin.image_too_large'));
+                return $this->redirect('/admin/news/create');
+            }
+
             if (in_array($extension, $allowed)) {
                 $filename = 'news_' . time() . '_' . rand(1000, 9999) . '.' . $extension;
                 $target = $uploadPath . '/' . $filename;
                 if (move_uploaded_file($imageFile['tmp_name'], $target)) {
                     $image = '/uploads/news/' . $filename;
                 }
+            } else {
+                $session->setFlashMessage('error', __('admin.image_type_not_allowed'));
+                return $this->redirect('/admin/news/create');
             }
         }
 
@@ -346,12 +357,26 @@ class AdminController extends Controller
             $extension = strtolower(pathinfo($imageFile['name'], PATHINFO_EXTENSION));
             $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
+            // Size limit from config (fallback 5MB)
+            $maxSize = $this->config['upload']['max_size'] ?? 5242880;
+            if ($imageFile['size'] > $maxSize) {
+                $session->setFlashMessage('error', __('admin.image_too_large'));
+                return $this->redirect('/admin/news/' . $id . '/edit');
+            }
+
             if (in_array($extension, $allowed)) {
                 $filename = 'news_' . time() . '_' . rand(1000, 9999) . '.' . $extension;
                 $target = $uploadPath . '/' . $filename;
                 if (move_uploaded_file($imageFile['tmp_name'], $target)) {
+                    // delete old image file if exists
+                    if (!empty($newsItem['image'])) {
+                        $this->deleteImageFile($newsItem['image']);
+                    }
                     $image = '/uploads/news/' . $filename;
                 }
+            } else {
+                $session->setFlashMessage('error', __('admin.image_type_not_allowed'));
+                return $this->redirect('/admin/news/' . $id . '/edit');
             }
         }
 
@@ -377,9 +402,26 @@ class AdminController extends Controller
             return $this->redirect('/admin/news');
         }
 
-        $db->execute("DELETE FROM news WHERE id = ?", [$id]);
+        // soft-delete: set deleted_at and remove image file
+        $db->execute("UPDATE news SET deleted_at = NOW() WHERE id = ?", [$id]);
+        if (!empty($newsItem['image'])) {
+            $this->deleteImageFile($newsItem['image']);
+        }
         $session->setFlashMessage('success', __('admin.news_deleted'));
         return $this->redirect('/admin/news');
+    }
+
+    /**
+     * Delete an uploaded image file given its public path (/uploads/...)
+     */
+    private function deleteImageFile($publicPath)
+    {
+        // Normalize leading slash
+        $relative = ltrim($publicPath, '/');
+        $full = BASE_PATH . '/' . $relative;
+        if (file_exists($full) && is_file($full)) {
+            @unlink($full);
+        }
     }
 
     public function deleteProject($id)

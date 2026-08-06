@@ -35,7 +35,7 @@
         <input type="file" id="image" name="image" accept="image/*">
         <?php if (!empty($newsItem['image'])): ?>
             <div class="preview">
-                <img src="<?php echo htmlspecialchars($newsItem['image']); ?>" alt="<?php echo htmlspecialchars($newsItem['title']); ?>">
+                <img id="imagePreview" src="<?php echo htmlspecialchars($newsItem['image']); ?>" alt="<?php echo htmlspecialchars($newsItem['title']); ?>">
             </div>
         <?php endif; ?>
     </div>
@@ -113,3 +113,32 @@
 </style>
 
 <?php $content = ob_get_clean(); require_once APP_PATH . '/Views/layouts/admin-layout.php'; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const input = document.getElementById('image');
+    const previewContainer = document.querySelector('.preview');
+    let previewImg = document.getElementById('imagePreview');
+
+    if (!previewContainer) {
+        // create preview container
+        const div = document.createElement('div');
+        div.className = 'preview';
+        input.parentNode.appendChild(div);
+        previewImg = document.createElement('img');
+        previewImg.id = 'imagePreview';
+        div.appendChild(previewImg);
+    }
+
+    input.addEventListener('change', function(e){
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function(ev){
+            document.getElementById('imagePreview').src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>

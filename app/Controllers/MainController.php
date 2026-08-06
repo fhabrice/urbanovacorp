@@ -22,7 +22,7 @@ class MainController extends SimpleController
     public function index()
     {
         $newsItems = $this->db->fetchAll(
-            "SELECT * FROM news WHERE status = 'published' ORDER BY published_at DESC LIMIT 3"
+            "SELECT * FROM news WHERE status = 'published' AND deleted_at IS NULL ORDER BY published_at DESC LIMIT 3"
         );
         // Charger la nouvelle interface HTML
         $viewPath = BASE_PATH . '/index.html';
