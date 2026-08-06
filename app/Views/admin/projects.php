@@ -41,7 +41,7 @@
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <?php if ($project['status'] === 'submitted'): ?>
+                                <?php if ($project['status'] === 'pending' || $project['status'] === 'submitted'): ?>
                                     <a href="/admin/projects/<?php echo $project['id']; ?>/approve" class="btn btn-sm btn-success" title="<?php echo __('admin.approve'); ?>">
                                         <i class="fas fa-check"></i>
                                     </a>

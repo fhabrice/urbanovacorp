@@ -434,54 +434,106 @@ class ApiController extends SimpleController
             // Get promoter_id from session if user is logged in
             $promoterId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
             
-            // Insert into database with validation_status
+            if (!$promoterId) {
+                echo json_encode(['success' => false, 'message' => 'Vous devez être connecté pour soumettre un projet.']);
+                exit;
+            }
+
+            $slugBase = preg_replace('/[^a-z0-9]+/i', '-', mb_strtolower(trim($data['name'])));
+            $slugBase = trim($slugBase, '-');
+            if (empty($slugBase)) {
+                $slugBase = 'projet-' . time();
+            }
+            $slug = $slugBase;
+            $counter = 1;
+            while (true) {
+                $checkStmt = $this->db->prepare('SELECT COUNT(*) FROM projects WHERE slug = ?');
+                $checkStmt->execute([$slug]);
+                if ($checkStmt->fetchColumn() == 0) {
+                    break;
+                }
+                $slug = $slugBase . '-' . $counter++;
+            }
+
+            // Insert into database with pending status and submitted validation status
             $stmt = $this->db->prepare("
                 INSERT INTO projects (
-                    title, promoter, promoter_id, city, country, sector, 
-                    description, funding_sought, funding_raised, 
-                    expected_roi, validation_status, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'submitted', NOW())
+                    user_id, title, slug, promoter, promoter_id, city, country, sector,
+                    description, funding_sought, funding_raised, expected_roi, status, validation_status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'submitted', NOW())
             ");
             
             $stmt->execute([
+                $promoterId,
                 $data['name'],
+                $slug,
                 $data['owner'],
                 $promoterId,
                 $city,
                 $country,
                 $data['sector'],
                 $data['description'] ?? '',
-                (int)$data['target'],
+                (float)$data['target'],
                 0,
-                (int)($data['roi'] ?? 20)
+                (float)($data['roi'] ?? 20)
             ]);
             
             $projectId = $this->db->lastInsertId();
 
-            $uploadPath = __DIR__ . '/../uploads/projects';
+            $uploadPath = __DIR__ . '/../../uploads/projects';
             if (!is_dir($uploadPath)) {
                 mkdir($uploadPath, 0755, true);
             }
 
-            $uploadMap = [
-                'business_plan' => 'business_plan_path',
-                'pitch_deck' => 'pitch_deck_path',
-                'financial_model' => 'financial_model_path'
-            ];
+            $uploadedDocumentPaths = [];
+            $documentsData = [];
+
+            if (isset($_FILES['business_plan']) && $_FILES['business_plan']['error'] === UPLOAD_ERR_OK) {
+                $file = $_FILES['business_plan'];
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = uniqid('business_plan_' . $projectId . '_', true) . '.' . $extension;
+                $destination = $uploadPath . '/' . $filename;
+                if (move_uploaded_file($file['tmp_name'], $destination)) {
+                    $uploadedDocumentPaths['business_plan'] = '/uploads/projects/' . $filename;
+                    $documentsData['business_plan'] = $uploadedDocumentPaths['business_plan'];
+                }
+            }
+
+            if (isset($_FILES['pitch_deck']) && $_FILES['pitch_deck']['error'] === UPLOAD_ERR_OK) {
+                $file = $_FILES['pitch_deck'];
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = uniqid('pitch_deck_' . $projectId . '_', true) . '.' . $extension;
+                $destination = $uploadPath . '/' . $filename;
+                if (move_uploaded_file($file['tmp_name'], $destination)) {
+                    $documentsData['pitch_deck'] = '/uploads/projects/' . $filename;
+                }
+            }
+
+            if (isset($_FILES['financial_model']) && $_FILES['financial_model']['error'] === UPLOAD_ERR_OK) {
+                $file = $_FILES['financial_model'];
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = uniqid('financial_model_' . $projectId . '_', true) . '.' . $extension;
+                $destination = $uploadPath . '/' . $filename;
+                if (move_uploaded_file($file['tmp_name'], $destination)) {
+                    $uploadedDocumentPaths['financial_model'] = '/uploads/projects/' . $filename;
+                    $documentsData['financial_model'] = $uploadedDocumentPaths['financial_model'];
+                }
+            }
+
             $updateColumns = [];
             $updateParams = [];
 
-            foreach ($uploadMap as $field => $column) {
-                if (isset($_FILES[$field]) && $_FILES[$field]['error'] === UPLOAD_ERR_OK) {
-                    $file = $_FILES[$field];
-                    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                    $filename = uniqid($field . '_' . $projectId . '_', true) . '.' . $extension;
-                    $destination = $uploadPath . '/' . $filename;
-                    if (move_uploaded_file($file['tmp_name'], $destination)) {
-                        $updateColumns[] = "$column = ?";
-                        $updateParams[] = '/uploads/projects/' . $filename;
-                    }
-                }
+            if (isset($uploadedDocumentPaths['business_plan'])) {
+                $updateColumns[] = 'business_plan = ?';
+                $updateParams[] = $uploadedDocumentPaths['business_plan'];
+            }
+            if (isset($uploadedDocumentPaths['financial_model'])) {
+                $updateColumns[] = 'financial_model = ?';
+                $updateParams[] = $uploadedDocumentPaths['financial_model'];
+            }
+            if (!empty($documentsData)) {
+                $updateColumns[] = 'documents = ?';
+                $updateParams[] = json_encode($documentsData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             }
 
             if (!empty($updateColumns)) {
@@ -887,7 +939,7 @@ class ApiController extends SimpleController
             // Generate unique filename
             $extension = pathinfo($image['name'], PATHINFO_EXTENSION);
             $filename = uniqid('project_', true) . '.' . $extension;
-            $uploadPath = __DIR__ . '/../uploads/projects/' . $filename;
+            $uploadPath = __DIR__ . '/../../uploads/projects/' . $filename;
 
             // Move file
             if (move_uploaded_file($image['tmp_name'], $uploadPath)) {

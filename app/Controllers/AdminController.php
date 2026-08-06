@@ -11,7 +11,7 @@ class AdminController extends Controller
         // Get statistics
         $stats = [
             'total_projects' => $db->fetchOne("SELECT COUNT(*) as count FROM projects")['count'],
-            'pending_projects' => $db->fetchOne("SELECT COUNT(*) as count FROM projects WHERE status = 'submitted'")['count'],
+            'pending_projects' => $db->fetchOne("SELECT COUNT(*) as count FROM projects WHERE status = 'pending'")['count'],
             'approved_projects' => $db->fetchOne("SELECT COUNT(*) as count FROM projects WHERE status = 'approved'")['count'],
             'total_investors' => $db->fetchOne("SELECT COUNT(*) as count FROM investors")['count'],
             'pending_investors' => $db->fetchOne("SELECT COUNT(*) as count FROM investors WHERE investor_status = 'pending'")['count'],
@@ -22,9 +22,9 @@ class AdminController extends Controller
 
         // Get recent projects
         $recentProjects = $db->fetchAll("
-            SELECT p.*, COALESCE(CONCAT(u.first_name, ' ', u.last_name), u.name) AS full_name, u.email 
+            SELECT p.*, COALESCE(CONCAT(u.first_name, ' ', u.last_name), u.name, 'Utilisateur inconnu') AS full_name, u.email 
             FROM projects p 
-            JOIN users u ON p.user_id = u.id 
+            LEFT JOIN users u ON p.user_id = u.id 
             ORDER BY p.created_at DESC 
             LIMIT 5
         ");
@@ -52,7 +52,7 @@ class AdminController extends Controller
         $projects = $db->fetchAll("
             SELECT p.*, u.first_name, u.last_name, u.email 
             FROM projects p 
-            JOIN users u ON p.user_id = u.id 
+            LEFT JOIN users u ON p.user_id = u.id 
             ORDER BY p.created_at DESC
         ");
 
@@ -78,9 +78,11 @@ class AdminController extends Controller
         }
 
         $db->execute(
-            "UPDATE projects SET status = 'approved', reviewed_at = NOW(), reviewed_by = ? WHERE id = ?",
+            "UPDATE projects SET status = 'approved', validation_status = 'approved', reviewed_at = NOW(), reviewed_by = ? WHERE id = ?",
             [$userId, $id]
         );
+
+        $this->notifyProjectOwner($id, 'approved');
 
         $session->setFlashMessage('success', __('admin.project_approved'));
         return $this->redirect('/admin/projects');
@@ -103,9 +105,11 @@ class AdminController extends Controller
         }
 
         $db->execute(
-            "UPDATE projects SET status = 'rejected', reviewed_at = NOW(), reviewed_by = ?, rejection_reason = 'Rejected by administrator' WHERE id = ?",
+            "UPDATE projects SET status = 'rejected', validation_status = 'rejected', reviewed_at = NOW(), reviewed_by = ?, rejection_reason = 'Rejected by administrator' WHERE id = ?",
             [$userId, $id]
         );
+
+        $this->notifyProjectOwner($id, 'rejected');
 
         $session->setFlashMessage('success', __('admin.project_rejected'));
         return $this->redirect('/admin/projects');
@@ -125,6 +129,33 @@ class AdminController extends Controller
         return $this->view('admin/investors', [
             'investors' => $investors,
         ]);
+    }
+
+    private function notifyProjectOwner($projectId, $action)
+    {
+        $db = $this->getDb();
+
+        $project = $db->fetchOne("SELECT p.id, p.title, p.user_id, u.email, u.name FROM projects p LEFT JOIN users u ON p.user_id = u.id WHERE p.id = ?", [$projectId]);
+        if (!$project || empty($project['email'])) {
+            return;
+        }
+
+        if (function_exists('send_mail')) {
+            $subject = '';
+            $message = '';
+
+            if ($action === 'approved') {
+                $subject = 'Votre projet a été approuvé';
+                $message = "Bonjour {$project['name']},\n\nVotre projet '{$project['title']}' a été approuvé par l'administration. Il est désormais visible sur la plateforme.\n\nCordialement,\nL'équipe Urbanova";
+            } elseif ($action === 'rejected') {
+                $subject = 'Votre projet a été rejeté';
+                $message = "Bonjour {$project['name']},\n\nVotre projet '{$project['title']}' a été rejeté par l'administration. Veuillez contacter le support pour plus d'informations.\n\nCordialement,\nL'équipe Urbanova";
+            }
+
+            if ($subject && $message) {
+                send_mail($project['email'], $subject, $message);
+            }
+        }
     }
 
     public function approveInvestor($id)

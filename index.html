@@ -2607,6 +2607,7 @@
                 // Register user
                 const registerResponse = await fetch('api.php?action=register', {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -2628,6 +2629,7 @@
                 if (projectData) {
                     const projectResponse = await fetch('api.php?action=submit-project', {
                         method: 'POST',
+                        credentials: 'same-origin',
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -3893,6 +3895,7 @@
             try {
                 const response = await fetch('api.php?action=submit-project', {
                     method: 'POST',
+                    credentials: 'same-origin',
                     body: formData
                 });
 
