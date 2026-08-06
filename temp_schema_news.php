@@ -1,0 +1,1 @@
+<?php try { $pdo = new PDO("mysql:host=localhost;dbname=urbanova_db;charset=utf8mb4","root","", [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]); foreach (["projects","news"] as $t) { echo "--- $t ---\n"; $stmt=$pdo->query("SHOW CREATE TABLE $t"); $row=$stmt->fetch(PDO::FETCH_ASSOC); echo $row["Create Table"] . "\n\n"; } } catch (PDOException $e) { echo $e->getMessage(); } ?>
