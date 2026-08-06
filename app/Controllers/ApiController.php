@@ -45,11 +45,15 @@ class ApiController extends SimpleController
                         p.funding_sought as target,
                         p.funding_raised as raised,
                         p.expected_roi as roi,
-                        p.status,
+                        p.validation_status as status,
+                        p.project_type,
+                        p.operation_type,
+                        p.coordinates_lat,
+                        p.coordinates_lng,
                         p.image,
                         CONCAT(p.city, ', ', p.country) as location
                     FROM projects p
-                    WHERE p.status IN ('approved', 'funding', 'completed')
+                    WHERE p.validation_status IS NOT NULL
                     ORDER BY p.created_at DESC
                 ");
                 
@@ -74,6 +78,12 @@ class ApiController extends SimpleController
                         'roi' => (int)$p['roi'],
                         'progress' => $progress,
                         'status' => $this->translateStatus($p['status']),
+                        'project_type' => $p['project_type'] ?? 'residential',
+                        'operation_type' => $p['operation_type'] ?? 'sale',
+                        'coordinates' => [
+                            'lat' => $p['coordinates_lat'] ?? null,
+                            'lng' => $p['coordinates_lng'] ?? null
+                        ],
                         'image' => $p['image'] ?: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'
                     ];
                 }
@@ -101,19 +111,46 @@ class ApiController extends SimpleController
     }
 
     /**
-     * Traduire le statut de la base de données vers le frontend
+     * Récupérer les projets du porteur connecté
      */
-    private function translateStatus($status)
+    public function getPromoterProjects()
     {
-        $translations = [
-            'pending' => 'En attente',
-            'approved' => 'Approuvé',
-            'funding' => 'En cours',
-            'completed' => 'Finalisé',
-            'rejected' => 'Rejeté'
-        ];
+        header('Content-Type: application/json');
         
-        return $translations[$status] ?? $status;
+        if ($this->db) {
+            try {
+                $promoterId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 1; // Use 1 for test
+                
+                $stmt = $this->db->prepare("
+                    SELECT p.*, 
+                           (SELECT COUNT(*) FROM reservations r WHERE r.project_id = p.id) as reservation_count,
+                           (SELECT COUNT(*) FROM visit_requests v WHERE v.project_id = p.id) as visit_count
+                    FROM projects p 
+                    WHERE p.promoter_id = ? 
+                    ORDER BY p.created_at DESC
+                ");
+                $stmt->execute([$promoterId]);
+                $projects = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                
+                echo json_encode([
+                    'success' => true,
+                    'data' => $projects
+                ]);
+                exit;
+            } catch (\PDOException $e) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Erreur de base de données: ' . $e->getMessage()
+                ]);
+                exit;
+            }
+        }
+        
+        // No database connection
+        echo json_encode([
+            'success' => false,
+            'message' => 'Base de données non disponible'
+        ]);
     }
 
     /**
@@ -397,13 +434,13 @@ class ApiController extends SimpleController
             // Get promoter_id from session if user is logged in
             $promoterId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
             
-            // Insert into database
+            // Insert into database with validation_status
             $stmt = $this->db->prepare("
                 INSERT INTO projects (
                     title, promoter, promoter_id, city, country, sector, 
                     description, funding_sought, funding_raised, 
-                    expected_roi, status, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
+                    expected_roi, validation_status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'submitted', NOW())
             ");
             
             $stmt->execute([
@@ -566,14 +603,31 @@ class ApiController extends SimpleController
         }
 
         try {
-            $status = $data['action'] === 'approve' ? 'approved' : 'rejected';
+            // Mapping des actions vers les statuts
+            $statusMap = [
+                'approve' => 'approved',
+                'reject' => 'rejected',
+                'publish' => 'published',
+                'suspend' => 'suspended',
+                'archive' => 'archived',
+                'request_info' => 'additional_info'
+            ];
             
-            $stmt = $this->db->prepare("UPDATE projects SET status = ? WHERE id = ?");
-            $stmt->execute([$status, $data['id']]);
+            $status = $statusMap[$data['action']] ?? $data['action'];
+            
+            $stmt = $this->db->prepare("UPDATE projects SET validation_status = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id = ?");
+            $reviewerId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+            $stmt->execute([$status, $reviewerId, $data['id']]);
+            
+            // Ajouter les notes si fournies
+            if (!empty($data['notes'])) {
+                $stmt = $this->db->prepare("UPDATE projects SET review_notes = ? WHERE id = ?");
+                $stmt->execute([$data['notes'], $data['id']]);
+            }
             
             echo json_encode([
                 'success' => true,
-                'message' => $status === 'approved' ? 'Projet approuvé' : 'Projet rejeté'
+                'message' => $this->translateStatus($status)
             ]);
             exit;
         } catch (\PDOException $e) {
@@ -680,21 +734,6 @@ class ApiController extends SimpleController
     }
 
     /**
-     * Translate project status to French
-     */
-    private function translateStatus($status)
-    {
-        $translations = [
-            'pending' => 'En attente',
-            'approved' => 'Approuvé',
-            'rejected' => 'Rejeté',
-            'active' => 'En cours',
-            'completed' => 'Terminé'
-        ];
-        return $translations[$status] ?? $status;
-    }
-
-    /**
      * Invest in a project
      */
     public function investInProject()
@@ -773,6 +812,502 @@ class ApiController extends SimpleController
                 'success' => false,
                 'message' => 'Erreur de base de données: ' . $e->getMessage()
             ]);
+            exit;
+        }
+    }
+
+    /**
+     * Upload project image
+     */
+    public function uploadProjectImage()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!isset($_FILES['image'])) {
+            echo json_encode(['success' => false, 'message' => 'Aucune image fournie']);
+            exit;
+        }
+
+        $image = $_FILES['image'];
+        $projectId = $_POST['project_id'] ?? null;
+
+        // Validation
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!in_array($image['type'], $allowedTypes)) {
+            echo json_encode(['success' => false, 'message' => 'Type de fichier non autorisé']);
+            exit;
+        }
+
+        if ($image['size'] > $maxSize) {
+            echo json_encode(['success' => false, 'message' => 'Fichier trop volumineux (max 5MB)']);
+            exit;
+        }
+
+        try {
+            // Generate unique filename
+            $extension = pathinfo($image['name'], PATHINFO_EXTENSION);
+            $filename = uniqid('project_', true) . '.' . $extension;
+            $uploadPath = __DIR__ . '/../uploads/projects/' . $filename;
+
+            // Move file
+            if (move_uploaded_file($image['tmp_name'], $uploadPath)) {
+                $imageUrl = '/uploads/projects/' . $filename;
+                
+                // If project ID provided, update database
+                if ($projectId && $this->db) {
+                    $stmt = $this->db->prepare("UPDATE projects SET image = ? WHERE id = ?");
+                    $stmt->execute([$imageUrl, $projectId]);
+                }
+                
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Image uploadée avec succès',
+                    'image_url' => $imageUrl
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'upload']);
+            }
+            exit;
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Request a visit
+     */
+    public function requestVisit()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        $required = ['project_id', 'name', 'email', 'phone', 'preferred_date'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                echo json_encode(['success' => false, 'message' => "Le champ $field est requis"]);
+                exit;
+            }
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO visit_requests (
+                    project_id, name, email, phone, preferred_date, 
+                    message, status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())
+            ");
+            
+            $stmt->execute([
+                $data['project_id'],
+                $data['name'],
+                $data['email'],
+                $data['phone'],
+                $data['preferred_date'],
+                $data['message'] ?? ''
+            ]);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Demande de visite envoyée avec succès'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Make a reservation
+     */
+    public function makeReservation()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        $required = ['project_id', 'name', 'email', 'phone'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                echo json_encode(['success' => false, 'message' => "Le champ $field est requis"]);
+                exit;
+            }
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO reservations (
+                    project_id, name, email, phone, 
+                    property_type, budget, message, status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
+            ");
+            
+            $stmt->execute([
+                $data['project_id'],
+                $data['name'],
+                $data['email'],
+                $data['phone'],
+                $data['property_type'] ?? 'purchase',
+                $data['budget'] ?? 0,
+                $data['message'] ?? ''
+            ]);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Réservation effectuée avec succès'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Update project coordinates (GPS)
+     */
+    public function updateProjectCoordinates()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (empty($data['project_id']) || empty($data['lat']) || empty($data['lng'])) {
+            echo json_encode(['success' => false, 'message' => 'project_id, lat et lng requis']);
+            exit;
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE projects 
+                SET coordinates_lat = ?, coordinates_lng = ? 
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([$data['lat'], $data['lng'], $data['project_id']]);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Coordonnées mises à jour avec succès'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Create a new project
+     */
+    public function createProject()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        try {
+            $locationParts = explode(',', $data['location']);
+            $city = trim($locationParts[0]);
+            $country = isset($locationParts[1]) ? trim($locationParts[1]) : 'RDC';
+            
+            $promoterId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+            
+            $stmt = $this->db->prepare("
+                INSERT INTO projects (
+                    title, promoter, promoter_id, city, country, sector, 
+                    description, funding_sought, funding_raised, 
+                    expected_roi, validation_status, project_type, operation_type,
+                    coordinates_lat, coordinates_lng, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'submitted', ?, ?, ?, ?, NOW())
+            ");
+            
+            $stmt->execute([
+                $data['name'],
+                isset($_SESSION['name']) ? $_SESSION['name'] : 'Porteur',
+                $promoterId,
+                $city,
+                $country,
+                $data['sector'],
+                $data['description'] ?? '',
+                $data['target'],
+                0,
+                $data['roi'] ?? 0,
+                $data['project_type'] ?? 'residential',
+                $data['operation_type'] ?? 'sale',
+                $data['coordinates_lat'] ?? null,
+                $data['coordinates_lng'] ?? null
+            ]);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Projet créé avec succès',
+                'project_id' => $this->db->lastInsertId()
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Update an existing project
+     */
+    public function updateProject()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (empty($data['id'])) {
+            echo json_encode(['success' => false, 'message' => 'ID du projet requis']);
+            exit;
+        }
+
+        try {
+            $locationParts = explode(',', $data['location']);
+            $city = trim($locationParts[0]);
+            $country = isset($locationParts[1]) ? trim($locationParts[1]) : 'RDC';
+            
+            $stmt = $this->db->prepare("
+                UPDATE projects SET
+                    title = ?,
+                    city = ?,
+                    country = ?,
+                    sector = ?,
+                    description = ?,
+                    funding_sought = ?,
+                    expected_roi = ?,
+                    project_type = ?,
+                    operation_type = ?,
+                    coordinates_lat = ?,
+                    coordinates_lng = ?,
+                    validation_status = 'submitted'
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([
+                $data['name'],
+                $city,
+                $country,
+                $data['sector'],
+                $data['description'] ?? '',
+                $data['target'],
+                $data['roi'] ?? 0,
+                $data['project_type'] ?? 'residential',
+                $data['operation_type'] ?? 'sale',
+                $data['coordinates_lat'] ?? null,
+                $data['coordinates_lng'] ?? null,
+                $data['id']
+            ]);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Projet mis à jour avec succès'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Delete a project
+     */
+    public function deleteProject()
+    {
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (empty($data['id'])) {
+            echo json_encode(['success' => false, 'message' => 'ID du projet requis']);
+            exit;
+        }
+
+        try {
+            $stmt = $this->db->prepare("DELETE FROM projects WHERE id = ?");
+            $stmt->execute([$data['id']]);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Projet supprimé avec succès'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Get project details
+     */
+    public function getProjectDetails()
+    {
+        header('Content-Type: application/json');
+        
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $projectId = $_GET['id'] ?? null;
+        
+        if (empty($projectId)) {
+            echo json_encode(['success' => false, 'message' => 'ID du projet requis']);
+            exit;
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                SELECT 
+                    p.id,
+                    p.title,
+                    p.city,
+                    p.country,
+                    p.sector,
+                    p.funding_sought as target,
+                    p.funding_raised as raised,
+                    p.expected_roi as roi,
+                    p.validation_status as status,
+                    p.project_type,
+                    p.operation_type,
+                    p.coordinates_lat,
+                    p.coordinates_lng,
+                    p.description,
+                    CONCAT(p.city, ', ', p.country) as location
+                FROM projects p
+                WHERE p.id = ?
+            ");
+            
+            $stmt->execute([$projectId]);
+            $project = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            if ($project) {
+                echo json_encode([
+                    'success' => true,
+                    'data' => [
+                        'id' => $project['id'],
+                        'title' => $project['title'],
+                        'location' => $project['location'],
+                        'country' => $project['country'],
+                        'city' => $project['city'],
+                        'sector' => $project['sector'],
+                        'target' => (int)$project['target'],
+                        'raised' => (int)$project['raised'],
+                        'roi' => (int)$project['roi'],
+                        'status' => $this->translateStatus($project['status']),
+                        'project_type' => $project['project_type'] ?? 'residential',
+                        'operation_type' => $project['operation_type'] ?? 'sale',
+                        'coordinates' => [
+                            'lat' => $project['coordinates_lat'] ?? null,
+                            'lng' => $project['coordinates_lng'] ?? null
+                        ],
+                        'description' => $project['description']
+                    ]
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Projet non trouvé']);
+            }
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
             exit;
         }
     }

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace Immobilière - URBANOVA SOLUTIONS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .project-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .project-info {
+            padding: 20px;
+        }
+
+        .project-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .project-location {
+            color: #666;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-published {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-approved {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #dde2e6;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            z-index: 1001;
+            display: none;
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .notification.active {
+            display: block;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .filters h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Marketplace Immobilière Urbanova</h1>
+            <p>Découvrez nos projets immobiliers validés et sécurisés</p>
+        </div>
+
+        <div class="filters">
+            <h3>🔍 Filtres</h3>
+            <div class="filter-row">
+                <div class="form-group">
+                    <label>Type de projet</label>
+                    <select id="filterType">
+                        <option value="">Tous les types</option>
+                        <option value="residential">Résidentiel</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="mixed">Mixte</option>
+                        <option value="industrial">Industriel</option>
+                        <option value="hotel">Hôtel</option>
+                        <option value="office">Bureau</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Type d'opération</label>
+                    <select id="filterOperation">
+                        <option value="">Toutes les opérations</option>
+                        <option value="sale">Vente</option>
+                        <option value="rental">Location</option>
+                        <option value="fundraising">Levée de fonds</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ville</label>
+                    <input type="text" id="filterCity" placeholder="Ex: Kinshasa">
+                </div>
+                <div class="form-group">
+                    <label>Pays</label>
+                    <input type="text" id="filterCountry" placeholder="Ex: RDC">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="applyFilters()">Appliquer les filtres</button>
+                <button class="btn btn-secondary" onclick="resetFilters()">Réinitialiser</button>
+            </div>
+        </div>
+
+        <div id="projectsGrid" class="projects-grid">
+            <div class="loading">Chargement des projets...</div>
+        </div>
+    </div>
+
+    <!-- Modal de réservation -->
+    <div id="reservationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📞 Faire une réservation</h2>
+                <button class="close-btn" onclick="closeModal('reservationModal')">&times;</button>
+            </div>
+            <form id="reservationForm">
+                <input type="hidden" id="reservationProjectId">
+                <div class="form-group">
+                    <label>Type de propriété</label>
+                    <select id="propertyType" required>
+                        <option value="purchase">Achat</option>
+                        <option value="rent">Location</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nom complet *</label>
+                    <input type="text" id="reservationName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="reservationEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Téléphone *</label>
+                    <input type="tel" id="reservationPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Budget estimé (USD)</label>
+                    <input type="number" id="reservationBudget" placeholder="Ex: 50000">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="reservationMessage" placeholder="Dites-nous en plus sur votre recherche..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Envoyer la réservation</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('reservationModal')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de demande de visite -->
+    <div id="visitModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🗓 Demander une visite</h2>
+                <button class="close-btn" onclick="closeModal('visitModal')">&times;</button>
+            </div>
+            <form id="visitForm">
+                <input type="hidden" id="visitProjectId">
+                <div class="form-group">
+                    <label>Nom complet *</label>
+                    <input type="text" id="visitName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="visitEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Téléphone *</label>
+                    <input type="tel" id="visitPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Date préférée *</label>
+                    <input type="date" id="visitDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Heure préférée</label>
+                    <input type="time" id="visitTime">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="visitMessage" placeholder="Avez-vous des questions spécifiques ?"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Envoyer la demande</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('visitModal')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        let allProjects = [];
+
+        // Charger les projets au démarrage
+        window.onload = function() {
+            loadProjects();
+        };
+
+        function loadProjects() {
+            const grid = document.getElementById('projectsGrid');
+            grid.innerHTML = '<div class="loading">Chargement des projets...</div>';
+
+            fetch('api.php?action=get-projects')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        allProjects = data.data;
+                        displayProjects(allProjects);
+                    } else {
+                        grid.innerHTML = '<div class="loading">Erreur lors du chargement des projets</div>';
+                    }
+                })
+                .catch(error => {
+                    grid.innerHTML = '<div class="loading">Erreur de connexion</div>';
+                });
+        }
+
+        function displayProjects(projects) {
+            const grid = document.getElementById('projectsGrid');
+            
+            if (projects.length === 0) {
+                grid.innerHTML = '<div class="loading">Aucun projet trouvé</div>';
+                return;
+            }
+
+            grid.innerHTML = projects.map(project => `
+                <div class="project-card">
+                    <img src="${project.image}" alt="${project.title}" class="project-image">
+                    <div class="project-info">
+                        <h3 class="project-title">${project.title}</h3>
+                        <div class="project-location">
+                            📍 ${project.location}
+                        </div>
+                        <span class="project-status status-${project.status.toLowerCase()}">${project.status}</span>
+                        <p><strong>Type:</strong> ${translateType(project.project_type)}</p>
+                        <p><strong>Opération:</strong> ${translateOperation(project.operation_type)}</p>
+                        ${project.coordinates.lat && project.coordinates.lng ? `
+                            <p><strong>📍 GPS:</strong> ${project.coordinates.lat.toFixed(4)}, ${project.coordinates.lng.toFixed(4)}</p>
+                        ` : ''}
+                        <div class="project-actions">
+                            <button class="btn btn-primary" onclick="openReservationModal('${project.id}')">Réserver</button>
+                            <button class="btn btn-secondary" onclick="openVisitModal('${project.id}')">Visiter</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function translateType(type) {
+            const types = {
+                'residential': 'Résidentiel',
+                'commercial': 'Commercial',
+                'mixed': 'Mixte',
+                'industrial': 'Industriel',
+                'hotel': 'Hôtel',
+                'office': 'Bureau',
+                'subdivision': 'Lotissement'
+            };
+            return types[type] || type;
+        }
+
+        function translateOperation(operation) {
+            const operations = {
+                'sale': 'Vente',
+                'rental': 'Location',
+                'fundraising': 'Levée de fonds',
+                'sale_fundraising': 'Vente + Levée de fonds'
+            };
+            return operations[operation] || operation;
+        }
+
+        function applyFilters() {
+            const type = document.getElementById('filterType').value;
+            const operation = document.getElementById('filterOperation').value;
+            const city = document.getElementById('filterCity').value.toLowerCase();
+            const country = document.getElementById('filterCountry').value.toLowerCase();
+
+            const filtered = allProjects.filter(project => {
+                if (type && project.project_type !== type) return false;
+                if (operation && project.operation_type !== operation) return false;
+                if (city && !project.city.toLowerCase().includes(city)) return false;
+                if (country && !project.country.toLowerCase().includes(country)) return false;
+                return true;
+            });
+
+            displayProjects(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterOperation').value = '';
+            document.getElementById('filterCity').value = '';
+            document.getElementById('filterCountry').value = '';
+            displayProjects(allProjects);
+        }
+
+        function openReservationModal(projectId) {
+            document.getElementById('reservationProjectId').value = projectId;
+            document.getElementById('reservationModal').classList.add('active');
+        }
+
+        function openVisitModal(projectId) {
+            document.getElementById('visitProjectId').value = projectId;
+            document.getElementById('visitModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Formulaire de réservation
+        document.getElementById('reservationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                project_id: document.getElementById('reservationProjectId').value,
+                name: document.getElementById('reservationName').value,
+                email: document.getElementById('reservationEmail').value,
+                phone: document.getElementById('reservationPhone').value,
+                property_type: document.getElementById('propertyType').value,
+                budget: document.getElementById('reservationBudget').value,
+                message: document.getElementById('reservationMessage').value
+            };
+
+            fetch('api.php?action=make-reservation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Réservation envoyée avec succès!', 'success');
+                    closeModal('reservationModal');
+                    this.reset();
+                } else {
+                    showNotification('Erreur: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Erreur de connexion', 'error');
+            });
+        });
+
+        // Formulaire de visite
+        document.getElementById('visitForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                project_id: document.getElementById('visitProjectId').value,
+                name: document.getElementById('visitName').value,
+                email: document.getElementById('visitEmail').value,
+                phone: document.getElementById('visitPhone').value,
+                preferred_date: document.getElementById('visitDate').value,
+                preferred_time: document.getElementById('visitTime').value,
+                message: document.getElementById('visitMessage').value
+            };
+
+            fetch('api.php?action=request-visit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Demande de visite envoyée avec succès!', 'success');
+                    closeModal('visitModal');
+                    this.reset();
+                } else {
+                    showNotification('Erreur: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Erreur de connexion', 'error');
+            });
+        });
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ' + type + ' active';
+            
+            setTimeout(() => {
+                notification.classList.remove('active');
+            }, 3000);
+        }
+
+        // Fermer les modals en cliquant à l'extérieur
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

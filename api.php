@@ -70,6 +70,18 @@ try {
             $api->getProjects();
             break;
             
+        case 'get-projects':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->getProjects();
+            break;
+            
+        case 'get-promoter-projects':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->getPromoterProjects();
+            break;
+            
         case 'submit-project':
             require_once APP_PATH . '/Controllers/ApiController.php';
             $api = new App\Controllers\ApiController();
@@ -92,6 +104,54 @@ try {
             require_once APP_PATH . '/Controllers/ApiController.php';
             $api = new App\Controllers\ApiController();
             $api->investInProject();
+            break;
+            
+        case 'upload-project-image':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->uploadProjectImage();
+            break;
+            
+        case 'request-visit':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->requestVisit();
+            break;
+            
+        case 'make-reservation':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->makeReservation();
+            break;
+            
+        case 'update-project-coordinates':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->updateProjectCoordinates();
+            break;
+            
+        case 'create-project':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->createProject();
+            break;
+            
+        case 'update-project':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->updateProject();
+            break;
+            
+        case 'delete-project':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->deleteProject();
+            break;
+            
+        case 'get-project-details':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->getProjectDetails();
             break;
             
         default:

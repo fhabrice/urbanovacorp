@@ -56,6 +56,21 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #F3E5AB;
         }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .status-draft { background: #e9ecef; color: #495057; }
+        .status-submitted { background: #fff3cd; color: #856404; }
+        .status-under_review { background: #cce5ff; color: #004085; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-published { background: #28a745; color: white; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-suspended { background: #6c757d; color: white; }
     </style>
 </head>
 
@@ -86,12 +101,12 @@
                     <button onclick="switchTab('apropos')"
                         class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
                         id="nav-apropos">À propos</button>
-                    <button onclick="switchTab('marketplace')"
+                    <button onclick="goToMarketplace()"
                         class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
                         id="nav-marketplace">Marketplace</button>
-                    <button onclick="switchTab('levee')"
+                    <button onclick="switchTab('promoteur')"
                         class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
-                        id="nav-levee">Levée de fonds</button>
+                        id="nav-promoteur">Tableau de bord</button>
                     <button onclick="switchTab('investisseur')"
                         class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
                         id="nav-investisseur">Espace Investisseur <span class="text-xs ml-1 opacity-75">(réservé)</span></button>
@@ -131,10 +146,10 @@
                 class="block w-full text-left px-3 py-2.5 rounded-md text-brand-gold font-medium">Accueil</button>
             <button onclick="switchTab('apropos'); toggleMobileMenu()"
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">À propos</button>
-            <button onclick="switchTab('marketplace'); toggleMobileMenu()"
+            <button onclick="goToMarketplace(); toggleMobileMenu()"
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Marketplace</button>
-            <button onclick="switchTab('levee'); toggleMobileMenu()"
-                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Levée de fonds</button>
+            <button onclick="goToPromoterDashboard(); toggleMobileMenu()"
+                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Tableau de bord</button>
             <button onclick="switchTab('investisseur'); toggleMobileMenu()"
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Espace Investisseur <span class="text-xs opacity-75">(réservé)</span></button>
             <button onclick="switchTab('admin'); toggleMobileMenu()"
@@ -184,10 +199,10 @@
                         <button onclick="switchTab('contact')"
                             class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold px-8 py-4 rounded-xl shadow-xl shadow-brand-gold/20 transition-all hover:-translate-y-1">Demander
                             un devis</button>
-                        <button onclick="switchTab('levee')"
+                        <button onclick="goToPromoterDashboard()"
                             class="border-2 border-slate-400 hover:border-brand-gold text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/5 transition-all hover:-translate-y-1">Soumettre
                             un projet</button>
-                        <button onclick="switchTab('marketplace')"
+                        <button onclick="goToMarketplace()"
                             class="border-2 border-slate-400 hover:border-brand-gold text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/5 transition-all hover:-translate-y-1">Investir
                             avec nous</button>
                         <button onclick="switchTab('contact')"
@@ -312,7 +327,7 @@
                             <p class="text-slate-600 max-w-2xl">Découvrez nos réalisations majeures en cours d'exécution
                                 ou livrées avec succès sur le continent.</p>
                         </div>
-                        <button onclick="switchTab('marketplace')"
+                        <button onclick="goToMarketplace()"
                             class="mt-4 md:mt-0 text-brand-gold font-bold hover:text-yellow-600 flex items-center space-x-2 transition-all">
                             <span>Voir tous les projets</span>
                             <i class="fa-solid fa-arrow-right"></i>
@@ -426,7 +441,7 @@
                                     notre réseau international d'investisseurs certifiés.
                                 </p>
                             </div>
-                            <button onclick="switchTab('levee')"
+                            <button onclick="goToPromoterDashboard()"
                                 class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-3.5 px-6 rounded-xl transition-all self-start flex items-center space-x-2 shadow-lg shadow-brand-gold/15">
                                 <span>Soumettre un projet</span>
                                 <i class="fa-solid fa-plus"></i>
@@ -630,6 +645,7 @@
                         <span class="text-brand-gold font-medium">Marketplace</span>
                     </div>
                     <h1 class="text-3xl md:text-4xl font-extrabold">Marketplace des opportunités</h1>
+                    <p class="text-slate-400 mt-2">Projets immobiliers validés et sécurisés par Urbanova</p>
                 </div>
             </section>
 
@@ -652,10 +668,75 @@
                                         class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Pays</label>
                                     <select id="filterCountry"
                                         class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
-                                        <option value="all">Tous les pays</option>
-                                        <option value="RDC">Congo (RDC)</option>
-                                        <option value="Rwanda">Rwanda</option>
-                                        <option value="Burundi">Burundi</option>
+                                        <option value="">Tous les pays</option>
+                                        <optgroup label="Afrique Centrale">
+                                            <option value="RDC">Congo (RDC)</option>
+                                            <option value="Rwanda">Rwanda</option>
+                                            <option value="Burundi">Burundi</option>
+                                            <option value="Ouganda">Ouganda</option>
+                                            <option value="Angola">Angola</option>
+                                            <option value="Congo">Congo (Brazzaville)</option>
+                                            <option value="Cameroun">Cameroun</option>
+                                            <option value="Gabon">Gabon</option>
+                                            <option value="Centrafrique">République Centrafricaine</option>
+                                            <option value="Tchad">Tchad</option>
+                                        </optgroup>
+                                        <optgroup label="Afrique de l'Est">
+                                            <option value="Kenya">Kenya</option>
+                                            <option value="Tanzanie">Tanzanie</option>
+                                            <option value="Éthiopie">Éthiopie</option>
+                                            <option value="Soudan">Soudan</option>
+                                            <option value="Somalie">Somalie</option>
+                                            <option value="Djibouti">Djibouti</option>
+                                            <option value="Érythrée">Érythrée</option>
+                                        </optgroup>
+                                        <optgroup label="Afrique de l'Ouest">
+                                            <option value="Nigeria">Nigeria</option>
+                                            <option value="Ghana">Ghana</option>
+                                            <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                                            <option value="Sénégal">Sénégal</option>
+                                            <option value="Mali">Mali</option>
+                                            <option value="Burkina Faso">Burkina Faso</option>
+                                            <option value="Niger">Niger</option>
+                                            <option value="Bénin">Bénin</option>
+                                            <option value="Togo">Togo</option>
+                                            <option value="Guinée">Guinée</option>
+                                            <option value="Sierra Leone">Sierra Leone</option>
+                                            <option value="Libéria">Libéria</option>
+                                        </optgroup>
+                                        <optgroup label="Afrique Australe">
+                                            <option value="Afrique du Sud">Afrique du Sud</option>
+                                            <option value="Namibie">Namibie</option>
+                                            <option value="Botswana">Botswana</option>
+                                            <option value="Zimbabwe">Zimbabwe</option>
+                                            <option value="Zambie">Zambie</option>
+                                            <option value="Mozambique">Mozambique</option>
+                                            <option value="Malawi">Malawi</option>
+                                            <option value="Angola">Angola</option>
+                                            <option value="Madagascar">Madagascar</option>
+                                            <option value="Maurice">Maurice</option>
+                                        </optgroup>
+                                        <optgroup label="Afrique du Nord">
+                                            <option value="Maroc">Maroc</option>
+                                            <option value="Algérie">Algérie</option>
+                                            <option value="Tunisie">Tunisie</option>
+                                            <option value="Libye">Libye</option>
+                                            <option value="Égypte">Égypte</option>
+                                        </optgroup>
+                                        <optgroup label="Autres pays">
+                                            <option value="France">France</option>
+                                            <option value="Belgique">Belgique</option>
+                                            <option value="Suisse">Suisse</option>
+                                            <option value="Allemagne">Allemagne</option>
+                                            <option value="Royaume-Uni">Royaume-Uni</option>
+                                            <option value="États-Unis">États-Unis</option>
+                                            <option value="Canada">Canada</option>
+                                            <option value="Chine">Chine</option>
+                                            <option value="Inde">Inde</option>
+                                            <option value="Brésil">Brésil</option>
+                                            <option value="Émirats Arabes Unis">Émirats Arabes Unis</option>
+                                            <option value="Arabie Saoudite">Arabie Saoudite</option>
+                                        </optgroup>
                                     </select>
                                 </div>
 
@@ -663,13 +744,39 @@
                                 <div>
                                     <label
                                         class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Ville</label>
-                                    <select id="filterCity"
+                                    <input type="text" id="filterCity"
+                                        class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                                        placeholder="Ex: Kinshasa">
+                                </div>
+
+                                <!-- Project Type Filter -->
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Type de projet</label>
+                                    <select id="filterProjectType"
                                         class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
-                                        <option value="all">Toutes les villes</option>
-                                        <option value="Goma">Goma</option>
-                                        <option value="Kinshasa">Kinshasa</option>
-                                        <option value="Kigali">Kigali</option>
-                                        <option value="Butembo">Butembo</option>
+                                        <option value="">Tous les types</option>
+                                        <option value="residential">Résidentiel</option>
+                                        <option value="commercial">Commercial</option>
+                                        <option value="mixed">Mixte</option>
+                                        <option value="industrial">Industriel</option>
+                                        <option value="hotel">Hôtel</option>
+                                        <option value="office">Bureau</option>
+                                        <option value="subdivision">Lotissement</option>
+                                    </select>
+                                </div>
+
+                                <!-- Operation Type Filter -->
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Type d'opération</label>
+                                    <select id="filterOperationType"
+                                        class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                        <option value="">Toutes les opérations</option>
+                                        <option value="sale">Vente</option>
+                                        <option value="rental">Location</option>
+                                        <option value="fundraising">Levée de fonds</option>
+                                        <option value="sale_fundraising">Vente + Levée de fonds</option>
                                     </select>
                                 </div>
 
@@ -677,13 +784,9 @@
                                 <div>
                                     <label
                                         class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Secteur</label>
-                                    <select id="filterSector"
-                                        class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
-                                        <option value="all">Tous les secteurs</option>
-                                        <option value="Résidentiel">Résidentiel</option>
-                                        <option value="Commercial">Commercial</option>
-                                        <option value="Bureaux">Bureaux</option>
-                                    </select>
+                                    <input type="text" id="filterSector"
+                                        class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                                        placeholder="Ex: Immobilier">
                                 </div>
 
                                 <!-- ROI expected filter slider -->
@@ -713,18 +816,17 @@
                         <!-- Right Area: Projects Grid -->
                         <div class="lg:col-span-3">
                             <div class="flex justify-between items-center mb-6">
-                                <span class="text-slate-600 font-medium" id="resultsCount">3 opportunités
-                                    disponibles</span>
-                                <select
+                                <span class="text-slate-600 font-medium" id="resultsCount">Chargement...</span>
+                                <select id="sortOrder"
                                     class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium focus:ring-2 focus:ring-brand-gold focus:outline-none">
-                                    <option>Plus récentes</option>
-                                    <option>Rentabilité (Élevé)</option>
-                                    <option>Financement recherché (Bas)</option>
+                                    <option value="recent">Plus récentes</option>
+                                    <option value="roi_high">Rentabilité (Élevé)</option>
+                                    <option value="funding_low">Financement recherché (Bas)</option>
                                 </select>
                             </div>
 
                             <!-- Dynamic Cards Container -->
-                            <div id="marketplaceGrid" class="space-y-6">
+                            <div id="marketplaceGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Cards will be loaded dynamically by script -->
                             </div>
                         </div>
@@ -977,7 +1079,7 @@
                                     <span
                                         class="bg-brand-gold/20 text-brand-gold text-[10px] px-2 py-0.5 rounded-full font-bold">PRO</span>
                                 </button>
-                                <button onclick="switchTab('marketplace')"
+                                <button onclick="goToMarketplace()"
                                     class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50">
                                     <i class="fa-solid fa-magnifying-glass-chart"></i>
                                     <span>Opportunités</span>
@@ -1600,6 +1702,247 @@
                 </div>
             </section>
         </div>
+
+
+        <!-- ================= PAGE 8: TABLEAU DE BORD PORTEUR ================= -->
+        <div id="page-promoteur" class="tab-content hidden">
+            <!-- Header Section -->
+            <section class="bg-brand-dark text-white py-12 border-b border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-xs text-slate-400 space-x-2 mb-3">
+                        <span class="hover:text-white cursor-pointer" onclick="switchTab('accueil')">Accueil</span>
+                        <span>/</span>
+                        <span class="text-brand-gold font-medium">Tableau de bord porteur</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold">Tableau de bord porteur</h1>
+                    <p class="text-slate-400 mt-2">Gérez vos projets immobiliers et soumettez de nouvelles opportunités</p>
+                </div>
+            </section>
+
+            <!-- Main Content Area -->
+            <section class="py-12 bg-slate-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col lg:flex-row gap-8">
+                        <!-- Left Sidebar - Stats & Projects List -->
+                        <div class="lg:w-1/3 space-y-6">
+                            <!-- Stats Grid -->
+                            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+                                <h2 class="text-xl font-bold text-brand-dark mb-4">📊 Statistiques</h2>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
+                                        <div class="text-3xl font-bold text-brand-gold mb-1" id="promoteurTotalProjects">0</div>
+                                        <div class="text-xs text-slate-600">Projets</div>
+                                    </div>
+                                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
+                                        <div class="text-3xl font-bold text-brand-gold mb-1" id="promoteurTotalReservations">0</div>
+                                        <div class="text-xs text-slate-600">Réservations</div>
+                                    </div>
+                                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
+                                        <div class="text-3xl font-bold text-brand-gold mb-1" id="promoteurTotalVisits">0</div>
+                                        <div class="text-xs text-slate-600">Visites</div>
+                                    </div>
+                                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
+                                        <div class="text-3xl font-bold text-brand-gold mb-1" id="promoteurPublishedProjects">0</div>
+                                        <div class="text-xs text-slate-600">Publiés</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Projects List -->
+                            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                                <div class="p-4 border-b border-slate-200 flex justify-between items-center">
+                                    <h2 class="text-lg font-bold text-brand-dark">Vos projets</h2>
+                                    <button onclick="showPromoteurForm()" class="bg-brand-gold hover:bg-yellow-500 text-brand-dark text-xs font-bold py-2 px-4 rounded-lg transition-all">
+                                        <i class="fa-solid fa-plus mr-1"></i>Nouveau
+                                    </button>
+                                </div>
+                                
+                                <div id="promoteurProjectsList" class="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                                    <div class="text-center py-8 px-4">
+                                        <i class="fa-solid fa-folder-open text-3xl text-slate-400 mb-3"></i>
+                                        <p class="text-sm text-slate-500">Chargement des projets...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side - Form -->
+                        <div class="lg:w-2/3">
+                            <!-- Create Project Form (Multi-step Wizard) -->
+                            <div id="promoteurFormContainer" class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden hidden">
+                                <!-- Steps Indicator -->
+                                <div class="bg-brand-navy text-white px-6 py-6 md:px-12 flex justify-between items-center border-b border-slate-800">
+                                    <div class="flex items-center space-x-3">
+                                        <div id="promoteurStepIndicator-1" class="w-8 h-8 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold text-sm">1</div>
+                                        <span id="promoteurStepText-1" class="hidden md:inline text-xs font-bold uppercase tracking-wider text-brand-gold">Infos générales</span>
+                                    </div>
+                                    <div class="h-0.5 w-8 bg-slate-700"></div>
+                                    <div class="flex items-center space-x-3">
+                                        <div id="promoteurStepIndicator-2" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center justify-center font-bold text-sm">2</div>
+                                        <span id="promoteurStepText-2" class="hidden md:inline text-xs font-bold uppercase tracking-wider text-slate-400">Financement</span>
+                                    </div>
+                                    <div class="h-0.5 w-8 bg-slate-700"></div>
+                                    <div class="flex items-center space-x-3">
+                                        <div id="promoteurStepIndicator-3" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center justify-center font-bold text-sm">3</div>
+                                        <span id="promoteurStepText-3" class="hidden md:inline text-xs font-bold uppercase tracking-wider text-slate-400">Détails</span>
+                                    </div>
+                                    <div class="h-0.5 w-8 bg-slate-700"></div>
+                                    <div class="flex items-center space-x-3">
+                                        <div id="promoteurStepIndicator-4" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center justify-center font-bold text-sm">4</div>
+                                        <span id="promoteurStepText-4" class="hidden md:inline text-xs font-bold uppercase tracking-wider text-slate-400">Vérification</span>
+                                    </div>
+                                </div>
+
+                                <!-- Form Steps -->
+                                <div class="p-8 md:p-12">
+                                    <!-- Step 1: General Information -->
+                                    <div id="promoteurFormStep-1" class="promoteur-form-step">
+                                        <h2 class="text-2xl font-bold text-brand-dark mb-6">Informations générales</h2>
+                                        <div class="space-y-6">
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Nom du projet *</label>
+                                                <input type="text" id="promoteurProjName" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="Ex: Résidence Horizon">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Promoteur / Société *</label>
+                                                <input type="text" id="promoteurProjOwner" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="Ex: SARL Horizon">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Localisation *</label>
+                                                <input type="text" id="promoteurProjLoc" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="Ex: Goma, RDC">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Secteur *</label>
+                                                <select id="promoteurProjSector" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                                    <option value="">Sélectionnez un secteur</option>
+                                                    <option value="Résidentiel">Résidentiel</option>
+                                                    <option value="Commercial">Commercial</option>
+                                                    <option value="Bureaux">Bureaux</option>
+                                                    <option value="Hôtel">Hôtel</option>
+                                                    <option value="Industriel">Industriel</option>
+                                                    <option value="Mixte">Mixte</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Description du projet *</label>
+                                                <textarea id="promoteurProjDesc" rows="4" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="Décrivez votre projet immobilier en détail..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 2: Financial Data -->
+                                    <div id="promoteurFormStep-2" class="promoteur-form-step hidden">
+                                        <h2 class="text-2xl font-bold text-brand-dark mb-6">Données financières</h2>
+                                        <div class="space-y-6">
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Coût du projet (USD) *</label>
+                                                <input type="number" id="promoteurProjCost" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="Ex: 500000">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Financement recherché (USD) *</label>
+                                                <input type="number" id="promoteurProjTarget" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="Ex: 300000">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">ROI attendu (%)</label>
+                                                <input type="number" id="promoteurProjRoi" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="Ex: 15" value="15">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Type de projet</label>
+                                                <select id="promoteurProjType" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                                    <option value="residential">Résidentiel</option>
+                                                    <option value="commercial">Commercial</option>
+                                                    <option value="mixed">Mixte</option>
+                                                    <option value="industrial">Industriel</option>
+                                                    <option value="hotel">Hôtel</option>
+                                                    <option value="office">Bureau</option>
+                                                    <option value="subdivision">Lotissement</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Type d'opération</label>
+                                                <select id="promoteurProjOperation" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                                    <option value="sale">Vente</option>
+                                                    <option value="rental">Location</option>
+                                                    <option value="fundraising">Levée de fonds</option>
+                                                    <option value="sale_fundraising">Vente + Levée de fonds</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 3: Additional Details -->
+                                    <div id="promoteurFormStep-3" class="promoteur-form-step hidden">
+                                        <h2 class="text-2xl font-bold text-brand-dark mb-6">Détails supplémentaires</h2>
+                                        <div class="space-y-6">
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Latitude (optionnel)</label>
+                                                <input type="text" id="promoteurProjLat" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="Ex: -4.4419">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Longitude (optionnel)</label>
+                                                <input type="text" id="promoteurProjLng" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="Ex: 15.2663">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-600 mb-2">Image URL (optionnel)</label>
+                                                <input type="text" id="promoteurProjImage" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="URL de l'image du projet">
+                                            </div>
+                                            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                                                <p class="text-sm text-slate-600 mb-2"><i class="fa-solid fa-info-circle text-brand-gold mr-2"></i>Conseil:</p>
+                                                <p class="text-xs text-slate-500">Ajoutez les coordonnées GPS pour permettre aux investisseurs de localiser votre projet sur une carte.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 4: Verification -->
+                                    <div id="promoteurFormStep-4" class="promoteur-form-step hidden">
+                                        <h2 class="text-2xl font-bold text-brand-dark mb-6">Vérification</h2>
+                                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 space-y-4">
+                                            <div class="flex justify-between items-start">
+                                                <span class="text-sm font-semibold text-slate-600">Nom du projet:</span>
+                                                <span id="promoteurReviewName" class="text-sm font-bold text-brand-dark">-</span>
+                                            </div>
+                                            <div class="flex justify-between items-start">
+                                                <span class="text-sm font-semibold text-slate-600">Promoteur:</span>
+                                                <span id="promoteurReviewOwner" class="text-sm font-bold text-brand-dark">-</span>
+                                            </div>
+                                            <div class="flex justify-between items-start">
+                                                <span class="text-sm font-semibold text-slate-600">Localisation:</span>
+                                                <span id="promoteurReviewLoc" class="text-sm font-bold text-brand-dark">-</span>
+                                            </div>
+                                            <div class="flex justify-between items-start">
+                                                <span class="text-sm font-semibold text-slate-600">Secteur:</span>
+                                                <span id="promoteurReviewSector" class="text-sm font-bold text-brand-dark">-</span>
+                                            </div>
+                                            <div class="flex justify-between items-start">
+                                                <span class="text-sm font-semibold text-slate-600">Financement recherché:</span>
+                                                <span id="promoteurReviewTarget" class="text-sm font-bold text-brand-dark">-</span>
+                                            </div>
+                                            <div class="flex justify-between items-start">
+                                                <span class="text-sm font-semibold text-slate-600">ROI attendu:</span>
+                                                <span id="promoteurReviewRoi" class="text-sm font-bold text-brand-dark">-</span>
+                                            </div>
+                                        </div>
+                                        <div class="mt-6 bg-amber-50 border border-amber-200 p-4 rounded-xl">
+                                            <p class="text-sm text-amber-800"><i class="fa-solid fa-exclamation-triangle mr-2"></i>En soumettant ce projet, vous confirmez que toutes les informations sont exactes et complètes.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Navigation Buttons -->
+                                    <div class="flex justify-between mt-8">
+                                        <button id="promoteurPrevStepBtn" onclick="navigatePromoteurForm(-1)" class="invisible bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-8 py-3.5 rounded-xl text-sm transition-all">
+                                            Précédent
+                                        </button>
+                                        <button id="promoteurNextStepBtn" onclick="navigatePromoteurForm(1)" class="bg-brand-navy hover:bg-slate-800 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-md">
+                                            Suivant
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
     <!-- Footer Section -->
@@ -1639,8 +1982,8 @@
                                 propos</button></li>
                         <li><button onclick="switchTab('marketplace')"
                                 class="hover:text-brand-gold transition-all">Marketplace</button></li>
-                        <li><button onclick="switchTab('levee')" class="hover:text-brand-gold transition-all">Levée de
-                                fonds</button></li>
+                        <li><button onclick="goToPromoterDashboard()" class="hover:text-brand-gold transition-all">Tableau de
+                                bord</button></li>
                     </ul>
                 </div>
 
@@ -1969,8 +2312,6 @@
 
         // On Load initialization
         window.onload = function () {
-            // Load projects from API
-            loadProjectsFromAPI();
             // Check authentication status
             checkAuthStatus();
         }
@@ -1978,7 +2319,7 @@
         // Check authentication status on load
         async function checkAuthStatus() {
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=check-auth');
+                const response = await fetch('api.php?action=check-auth');
                 const result = await response.json();
                 
                 if (result.authenticated && result.user) {
@@ -2083,7 +2424,7 @@
             console.log('Attempting login with:', { email });
             
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=login', {
+                const response = await fetch('api.php?action=login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2182,7 +2523,7 @@
                 console.log('Attempting registration with:', { name, email, phone, country, city });
                 
                 // Register user
-                const registerResponse = await fetch('/urbanovacorp/api.php?action=register', {
+                const registerResponse = await fetch('api.php?action=register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2203,7 +2544,7 @@
 
                 // Submit project if provided
                 if (projectData) {
-                    const projectResponse = await fetch('/urbanovacorp/api.php?action=submit-project', {
+                    const projectResponse = await fetch('api.php?action=submit-project', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -2318,7 +2659,7 @@
         // Handle logout
         async function handleLogout() {
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=logout');
+                const response = await fetch('api.php?action=logout');
                 const result = await response.json();
 
                 if (result.success) {
@@ -2335,7 +2676,7 @@
         // Load projects from PHP API
         async function loadProjectsFromAPI() {
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=projects');
+                const response = await fetch('api.php?action=projects');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -2353,13 +2694,269 @@
             }
         }
 
+        // Go to Promoter Dashboard
+        function goToPromoterDashboard() {
+            if (!currentUser) {
+                showToast("Authentification requise", "Veuillez vous connecter pour accéder au tableau de bord porteur", "warning");
+                openLoginModal();
+                return;
+            }
+            switchTab('promoteur');
+        }
+
+        function goToMarketplace() {
+            if (!currentUser) {
+                showToast("Authentification requise", "Veuillez vous connecter pour accéder à la Marketplace", "warning");
+                openLoginModal();
+                return;
+            }
+            switchTab('marketplace');
+        }
+
+        // Promoter Dashboard Functions
+        let promoteurWizardStep = 1;
+
+        function showPromoteurForm() {
+            document.getElementById('promoteurFormContainer').classList.remove('hidden');
+            resetPromoteurForm();
+        }
+
+        function resetPromoteurForm() {
+            promoteurWizardStep = 1;
+            document.querySelectorAll('.promoteur-form-step').forEach(step => step.classList.add('hidden'));
+            document.getElementById('promoteurFormStep-1').classList.remove('hidden');
+            updatePromoteurStepIndicators();
+            document.getElementById('promoteurPrevStepBtn').classList.add('invisible');
+            document.getElementById('promoteurNextStepBtn').innerText = 'Suivant';
+            document.getElementById('promoteurNextStepBtn').className = 'bg-brand-navy hover:bg-slate-800 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-md';
+        }
+
+        function navigatePromoteurForm(direction) {
+            const currentForm = document.getElementById(`promoteurFormStep-${promoteurWizardStep}`);
+            
+            // Validation
+            if (direction === 1) {
+                if (promoteurWizardStep === 1) {
+                    const name = document.getElementById('promoteurProjName').value;
+                    const owner = document.getElementById('promoteurProjOwner').value;
+                    const loc = document.getElementById('promoteurProjLoc').value;
+                    const sector = document.getElementById('promoteurProjSector').value;
+                    const desc = document.getElementById('promoteurProjDesc').value;
+                    if (!name || !owner || !loc || !sector || !desc) {
+                        showToast('Champs requis', 'Veuillez remplir tous les champs obligatoires (*)', 'warning');
+                        return;
+                    }
+                }
+                if (promoteurWizardStep === 2) {
+                    const cost = document.getElementById('promoteurProjCost').value;
+                    const target = document.getElementById('promoteurProjTarget').value;
+                    if (!cost || !target) {
+                        showToast('Données financières', 'Veuillez renseigner le coût et le financement cible.', 'warning');
+                        return;
+                    }
+                }
+                if (promoteurWizardStep === 3) {
+                    // Populate review
+                    document.getElementById('promoteurReviewName').textContent = document.getElementById('promoteurProjName').value;
+                    document.getElementById('promoteurReviewOwner').textContent = document.getElementById('promoteurProjOwner').value;
+                    document.getElementById('promoteurReviewLoc').textContent = document.getElementById('promoteurProjLoc').value;
+                    document.getElementById('promoteurReviewSector').textContent = document.getElementById('promoteurProjSector').value;
+                    document.getElementById('promoteurReviewTarget').textContent = parseInt(document.getElementById('promoteurProjTarget').value).toLocaleString() + ' $';
+                    document.getElementById('promoteurReviewRoi').textContent = document.getElementById('promoteurProjRoi').value + '%';
+                }
+            }
+
+            currentForm.classList.add('hidden');
+            promoteurWizardStep += direction;
+
+            if (promoteurWizardStep > 4) {
+                submitPromoteurProject();
+                return;
+            }
+
+            if (promoteurWizardStep < 1) {
+                promoteurWizardStep = 1;
+            }
+
+            const nextForm = document.getElementById(`promoteurFormStep-${promoteurWizardStep}`);
+            nextForm.classList.remove('hidden');
+
+            updatePromoteurStepIndicators();
+        }
+
+        function updatePromoteurStepIndicators() {
+            const prevBtn = document.getElementById('promoteurPrevStepBtn');
+            if (promoteurWizardStep > 1) {
+                prevBtn.classList.remove('invisible');
+            } else {
+                prevBtn.classList.add('invisible');
+            }
+
+            const nextBtn = document.getElementById('promoteurNextStepBtn');
+            if (promoteurWizardStep === 4) {
+                nextBtn.innerText = 'Finaliser la soumission';
+                nextBtn.className = 'bg-brand-success hover:bg-emerald-600 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-md';
+            } else {
+                nextBtn.innerText = 'Suivant';
+                nextBtn.className = 'bg-brand-navy hover:bg-slate-800 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-md';
+            }
+
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`promoteurStepIndicator-${i}`);
+                const text = document.getElementById(`promoteurStepText-${i}`);
+
+                if (i === promoteurWizardStep) {
+                    indicator.className = 'w-8 h-8 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold text-sm';
+                    if (text) text.className = 'hidden md:inline text-xs font-bold uppercase tracking-wider text-brand-gold';
+                } else if (i < promoteurWizardStep) {
+                    indicator.className = 'w-8 h-8 rounded-full bg-brand-success text-white flex items-center justify-center font-bold text-sm';
+                    if (text) text.className = 'hidden md:inline text-xs font-bold uppercase tracking-wider text-brand-success';
+                } else {
+                    indicator.className = 'w-8 h-8 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center justify-center font-bold text-sm';
+                    if (text) text.className = 'hidden md:inline text-xs font-bold uppercase tracking-wider text-slate-400';
+                }
+            }
+        }
+
+        async function submitPromoteurProject() {
+            const projectData = {
+                name: document.getElementById('promoteurProjName').value,
+                owner: document.getElementById('promoteurProjOwner').value,
+                location: document.getElementById('promoteurProjLoc').value,
+                sector: document.getElementById('promoteurProjSector').value,
+                description: document.getElementById('promoteurProjDesc').value,
+                cost: document.getElementById('promoteurProjCost').value,
+                target: document.getElementById('promoteurProjTarget').value,
+                roi: document.getElementById('promoteurProjRoi').value,
+                project_type: document.getElementById('promoteurProjType').value,
+                operation_type: document.getElementById('promoteurProjOperation').value,
+                coordinates_lat: document.getElementById('promoteurProjLat').value,
+                coordinates_lng: document.getElementById('promoteurProjLng').value,
+                image: document.getElementById('promoteurProjImage').value
+            };
+
+            try {
+                const response = await fetch('api.php?action=submit-project', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(projectData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('Succès', 'Projet soumis avec succès !', 'success');
+                    resetPromoteurForm();
+                    loadPromoteurProjects();
+                } else {
+                    showToast('Erreur', result.message, 'warning');
+                }
+            } catch (error) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        function loadPromoteurProjects() {
+            const container = document.getElementById('promoteurProjectsList');
+            
+            if (container) {
+                container.innerHTML = '<div class="text-center py-8 px-4"><i class="fa-solid fa-spinner fa-spin text-2xl text-brand-gold"></i><p class="text-slate-500 mt-2">Chargement des projets...</p></div>';
+            }
+
+            fetch('api.php?action=get-promoter-projects')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        renderPromoteurProjects(data.data);
+                        updatePromoteurStats(data.data);
+                    } else {
+                        if (container) {
+                            container.innerHTML = '<div class="text-center py-8 px-4 text-red-500">Erreur lors du chargement des projets</div>';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading promoter projects:', error);
+                    if (container) {
+                        container.innerHTML = '<div class="text-center py-8 px-4 text-red-500">Erreur de connexion</div>';
+                    }
+                });
+        }
+
+        function renderPromoteurProjects(projects) {
+            const container = document.getElementById('promoteurProjectsList');
+            
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (projects.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 px-4">
+                        <i class="fa-solid fa-folder-open text-3xl text-slate-400 mb-3"></i>
+                        <p class="text-sm text-slate-500">Aucun projet pour le moment</p>
+                    </div>
+                `;
+                return;
+            }
+
+            projects.forEach(p => {
+                const statusTranslations = {
+                    'draft': 'Brouillon',
+                    'submitted': 'Soumis',
+                    'under_review': 'En analyse',
+                    'approved': 'Approuvé',
+                    'published': 'Publié',
+                    'rejected': 'Rejeté'
+                };
+                const translatedStatus = statusTranslations[p.validation_status] || p.validation_status;
+
+                const item = document.createElement('div');
+                item.className = 'p-4 hover:bg-slate-50 cursor-pointer';
+                item.innerHTML = `
+                    <div class="font-bold text-brand-dark text-sm">${p.title}</div>
+                    <div class="text-xs text-slate-500 mb-2">${p.city}</div>
+                    <span class="status-badge status-${p.validation_status} text-xs">
+                        ${translatedStatus}
+                    </span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updatePromoteurStats(projects) {
+            document.getElementById('promoteurTotalProjects').textContent = projects.length;
+            document.getElementById('promoteurTotalReservations').textContent = projects.reduce((sum, p) => sum + (p.reservation_count || 0), 0);
+            document.getElementById('promoteurTotalVisits').textContent = projects.reduce((sum, p) => sum + (p.visit_count || 0), 0);
+            document.getElementById('promoteurPublishedProjects').textContent = projects.filter(p => p.validation_status === 'published').length;
+        }
+
         // Tab Switcher between Pages
         async function switchTab(tabId) {
             // Hide all tab contents first
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(el => el.classList.add('hidden'));
 
-            // Check auth for investor tab
+            // Check auth for promoter tab
+            if (tabId === 'promoteur') {
+                if (!currentUser) {
+                    showToast("Authentification requise", "Veuillez vous connecter pour accéder au tableau de bord porteur", "warning");
+                    openLoginModal();
+                    return;
+                }
+                loadPromoteurProjects();
+            }
+
+            // Check auth for marketplace tab
+            if (tabId === 'marketplace') {
+                if (!currentUser) {
+                    showToast("Authentification requise", "Veuillez vous connecter pour accéder à la Marketplace", "warning");
+                    openLoginModal();
+                    return;
+                }
+                loadMarketplaceProjects();
+            }
+
+            // Load marketplace projects when switching to marketplace tab
             if (tabId === 'investisseur') {
                 try {
                     console.log('Checking auth for investor space...');
@@ -2419,7 +3016,7 @@
         // Load investor data from API
         async function loadInvestorData() {
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=investor-data');
+                const response = await fetch('api.php?action=investor-data');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -2543,7 +3140,7 @@
         async function loadAdminData() {
             try {
                 // Load projects
-                const projectsResponse = await fetch('/urbanovacorp/api.php?action=projects');
+                const projectsResponse = await fetch('api.php?action=projects');
                 const projectsResult = await projectsResponse.json();
                 
                 if (projectsResult.success) {
@@ -2645,7 +3242,7 @@
         // Approve Project
         async function approveProject(projectId) {
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=approve-project', {
+                const response = await fetch('api.php?action=approve-project', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: projectId, action: 'approve' })
@@ -2668,7 +3265,7 @@
         // Reject Project
         async function rejectProject(projectId) {
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=approve-project', {
+                const response = await fetch('api.php?action=approve-project', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: projectId, action: 'reject' })
@@ -2738,12 +3335,12 @@
 
             if (projects.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-                        <i class="fa-solid fa-folder-open text-4xl text-slate-400 mb-3"></i>
-                        <h4 class="font-bold text-slate-700">Aucun projet disponible pour le moment</h4>
-                        <p class="text-xs text-slate-400 mt-1">Soyez le premier à soumettre un projet sur notre plateforme !</p>
-                        <button onclick="switchTab('levee')" class="mt-4 bg-brand-navy hover:bg-slate-800 text-white font-bold py-2 px-6 rounded-xl text-sm transition-all">
-                            Soumettre un projet
+                    <div class="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-300 col-span-2">
+                        <i class="fa-solid fa-plus-circle text-4xl text-brand-gold mb-3"></i>
+                        <h4 class="font-bold text-brand-dark">Soyez le premier à publier un projet</h4>
+                        <p class="text-xs text-slate-400 mt-1">Soumettez votre projet immobilier pour le faire découvrir par notre communauté d'investisseurs</p>
+                        <button onclick="goToPromoterDashboard()" class="mt-4 bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-2 px-6 rounded-xl text-sm transition-all">
+                            <i class="fa-solid fa-rocket mr-2"></i>Soumettre un projet
                         </button>
                     </div>
                 `;
@@ -2752,25 +3349,65 @@
 
             projects.forEach(p => {
                 const card = document.createElement('div');
-                card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col md:flex-row";
+                card.className = "bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col";
+
+                // Translate status
+                const statusTranslations = {
+                    'published': 'Publié',
+                    'approved': 'Approuvé',
+                    'pending': 'En attente',
+                    'rejected': 'Rejeté',
+                    'draft': 'Brouillon'
+                };
+                const translatedStatus = statusTranslations[p.status] || p.status;
+                
+                // Translate project type
+                const typeTranslations = {
+                    'residential': 'Résidentiel',
+                    'commercial': 'Commercial',
+                    'mixed': 'Mixte',
+                    'industrial': 'Industriel',
+                    'hotel': 'Hôtel',
+                    'office': 'Bureau',
+                    'subdivision': 'Lotissement'
+                };
+                const translatedType = typeTranslations[p.project_type] || p.project_type || 'N/A';
+                
+                // Translate operation type
+                const operationTranslations = {
+                    'sale': 'Vente',
+                    'rental': 'Location',
+                    'fundraising': 'Levée de fonds',
+                    'sale_fundraising': 'Vente + Levée de fonds'
+                };
+                const translatedOperation = operationTranslations[p.operation_type] || p.operation_type || 'N/A';
 
                 card.innerHTML = `
-                    <!-- Left Image -->
-                    <div class="relative w-full md:w-1/3 h-52 md:h-auto overflow-hidden">
+                    <!-- Image -->
+                    <div class="relative h-48 overflow-hidden">
                         <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover">
-                        <span class="absolute top-4 left-4 bg-brand-navy/90 backdrop-blur-md text-brand-gold text-xs font-bold px-3 py-1 rounded-full">
-                            ${p.sector}
+                        <div class="absolute top-4 left-4 flex space-x-2">
+                            <span class="bg-brand-navy/90 backdrop-blur-md text-brand-gold text-xs font-bold px-3 py-1 rounded-full">
+                                ${translatedType}
+                            </span>
+                            <span class="bg-brand-gold/90 backdrop-blur-md text-brand-dark text-xs font-bold px-3 py-1 rounded-full">
+                                ${translatedOperation}
+                            </span>
+                        </div>
+                        <span class="absolute top-4 right-4 bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                            ${translatedStatus}
                         </span>
                     </div>
 
-                    <!-- Right Details -->
-                    <div class="p-6 flex-grow flex flex-col justify-between">
+                    <!-- Details -->
+                    <div class="p-6 flex-grow flex flex-col">
                         <div>
-                            <div class="flex justify-between items-start">
-                                <h3 class="text-xl font-extrabold text-brand-dark">${p.title}</h3>
-                                <span class="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">${p.status}</span>
-                            </div>
-                            <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-brand-gold mr-1.5"></i>${p.location}</p>
+                            <h3 class="text-lg font-extrabold text-brand-dark mb-2">${p.title}</h3>
+                            <p class="text-sm text-slate-500 mb-4"><i class="fa-solid fa-location-dot text-brand-gold mr-1.5"></i>${p.location}</p>
+                            
+                            ${p.coordinates && p.coordinates.lat ? `
+                                <p class="text-xs text-slate-400 mb-4"><i class="fa-solid fa-map-pin text-brand-gold mr-1"></i>GPS: ${p.coordinates.lat.toFixed(4)}, ${p.coordinates.lng.toFixed(4)}</p>
+                            ` : ''}
                             
                             <!-- Financial Progress info -->
                             <div class="mt-4 space-y-2">
@@ -2788,16 +3425,14 @@
                             </div>
                         </div>
 
-                        <!-- Action Button -->
-                        <div class="mt-6 flex justify-end space-x-2">
-                            <button onclick="investigateProject('${p.id}')" class="bg-brand-navy hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl text-xs transition-all shadow-sm">
-                                Voir le dossier
+                        <!-- Action Buttons -->
+                        <div class="mt-6 grid grid-cols-2 gap-2">
+                            <button onclick="openReservationModal('${p.id}', '${p.title.replace(/'/g, "\\'")}')" class="bg-brand-navy hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all shadow-sm">
+                                <i class="fa-solid fa-phone mr-1"></i> Réserver
                             </button>
-                            ${p.status === 'approved' ? `
-                                <button onclick="openInvestModal('${p.id}', '${p.title}', ${p.target}, ${p.raised})" class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-2.5 px-6 rounded-xl text-xs transition-all shadow-sm">
-                                    Investir
-                                </button>
-                            ` : ''}
+                            <button onclick="openVisitModal('${p.id}', '${p.title.replace(/'/g, "\\'")}')" class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-2.5 px-4 rounded-xl text-xs transition-all shadow-sm">
+                                <i class="fa-solid fa-calendar mr-1"></i> Visiter
+                            </button>
                         </div>
                     </div>
                 `;
@@ -2805,23 +3440,242 @@
             });
         }
 
+        // Load projects from API
+        function loadMarketplaceProjects() {
+            const container = document.getElementById('marketplaceGrid');
+            const counter = document.getElementById('resultsCount');
+            
+            if (container) {
+                container.innerHTML = '<div class="col-span-2 text-center py-8"><i class="fa-solid fa-spinner fa-spin text-2xl text-brand-gold"></i><p class="text-slate-500 mt-2">Chargement des projets...</p></div>';
+            }
+
+            fetch('api.php?action=get-projects')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        projectDatabase = data.data; // Store for filtering
+                        renderMarketplace(data.data);
+                    } else {
+                        if (container) {
+                            container.innerHTML = '<div class="col-span-2 text-center py-8 text-red-500">Erreur lors du chargement des projets</div>';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading projects:', error);
+                    if (container) {
+                        container.innerHTML = `
+                            <div class="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-300 col-span-2">
+                                <i class="fa-solid fa-plus-circle text-4xl text-brand-gold mb-3"></i>
+                                <h4 class="font-bold text-brand-dark">Soyez le premier à publier un projet</h4>
+                                <p class="text-xs text-slate-400 mt-1">Soumettez votre projet immobilier pour le faire découvrir par notre communauté d'investisseurs</p>
+                                <button onclick="switchTab('levee')" class="mt-4 bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-2 px-6 rounded-xl text-sm transition-all">
+                                    <i class="fa-solid fa-rocket mr-2"></i>Soumettre un projet
+                                </button>
+                            </div>
+                        `;
+                    }
+                });
+        }
+
         // Apply filters
         function applyMarketplaceFilters() {
             const country = document.getElementById('filterCountry').value;
-            const city = document.getElementById('filterCity').value;
-            const sector = document.getElementById('filterSector').value;
+            const city = document.getElementById('filterCity').value.toLowerCase();
+            const projectType = document.getElementById('filterProjectType').value;
+            const operationType = document.getElementById('filterOperationType').value;
+            const sector = document.getElementById('filterSector').value.toLowerCase();
             const roi = parseInt(document.getElementById('filterROI').value);
 
             const filtered = projectDatabase.filter(p => {
-                if (country !== 'all' && p.country !== country) return false;
-                if (city !== 'all' && p.city !== city) return false;
-                if (sector !== 'all' && p.sector !== sector) return false;
+                if (country && p.country !== country) return false;
+                if (city && !p.city.toLowerCase().includes(city)) return false;
+                if (projectType && p.project_type !== projectType) return false;
+                if (operationType && p.operation_type !== operationType) return false;
+                if (sector && !p.sector.toLowerCase().includes(sector)) return false;
                 if (p.roi < roi) return false;
                 return true;
             });
 
             renderMarketplace(filtered);
             showToast("Filtres appliqués", `${filtered.length} opportunité(s) filtrée(s).`);
+        }
+
+        // Reset filters
+        function resetMarketplaceFilters() {
+            document.getElementById('filterCountry').value = '';
+            document.getElementById('filterCity').value = '';
+            document.getElementById('filterProjectType').value = '';
+            document.getElementById('filterOperationType').value = '';
+            document.getElementById('filterSector').value = '';
+            document.getElementById('filterROI').value = 0;
+            document.getElementById('roiVal').innerText = '0% +';
+            
+            renderMarketplace(projectDatabase);
+            showToast("Filtres réinitialisés", "Tous les projets sont affichés.");
+        }
+
+        // Open reservation modal
+        function openReservationModal(projectId, projectTitle) {
+            const modalHtml = `
+                <div id="reservationModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl max-w-md w-full p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-brand-dark">📞 Réservation</h3>
+                            <button onclick="document.getElementById('reservationModal').remove()" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">Projet: <strong>${projectTitle}</strong></p>
+                        <form onsubmit="submitReservation(event, '${projectId}')">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Type de propriété</label>
+                                    <select id="resPropertyType" class="w-full border border-slate-300 rounded-lg p-2" required>
+                                        <option value="purchase">Achat</option>
+                                        <option value="rent">Location</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nom complet *</label>
+                                    <input type="text" id="resName" class="w-full border border-slate-300 rounded-lg p-2" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Email *</label>
+                                    <input type="email" id="resEmail" class="w-full border border-slate-300 rounded-lg p-2" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Téléphone *</label>
+                                    <input type="tel" id="resPhone" class="w-full border border-slate-300 rounded-lg p-2" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Budget (USD)</label>
+                                    <input type="number" id="resBudget" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Ex: 50000">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Message</label>
+                                    <textarea id="resMessage" class="w-full border border-slate-300 rounded-lg p-2" rows="2"></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-brand-navy hover:bg-slate-800 text-white font-bold py-3 rounded-xl">Envoyer la réservation</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        // Submit reservation
+        function submitReservation(event, projectId) {
+            event.preventDefault();
+            
+            const formData = {
+                project_id: projectId,
+                name: document.getElementById('resName').value,
+                email: document.getElementById('resEmail').value,
+                phone: document.getElementById('resPhone').value,
+                property_type: document.getElementById('resPropertyType').value,
+                budget: document.getElementById('resBudget').value,
+                message: document.getElementById('resMessage').value
+            };
+
+            fetch('api.php?action=make-reservation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast("Succès", "Réservation envoyée avec succès !");
+                    document.getElementById('reservationModal').remove();
+                } else {
+                    showToast("Erreur", data.message);
+                }
+            })
+            .catch(error => {
+                showToast("Erreur", "Erreur de connexion");
+            });
+        }
+
+        // Open visit modal
+        function openVisitModal(projectId, projectTitle) {
+            const modalHtml = `
+                <div id="visitModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl max-w-md w-full p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-brand-dark">🗓 Demande de visite</h3>
+                            <button onclick="document.getElementById('visitModal').remove()" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">Projet: <strong>${projectTitle}</strong></p>
+                        <form onsubmit="submitVisit(event, '${projectId}')">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nom complet *</label>
+                                    <input type="text" id="visitName" class="w-full border border-slate-300 rounded-lg p-2" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Email *</label>
+                                    <input type="email" id="visitEmail" class="w-full border border-slate-300 rounded-lg p-2" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Téléphone *</label>
+                                    <input type="tel" id="visitPhone" class="w-full border border-slate-300 rounded-lg p-2" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Date préférée *</label>
+                                    <input type="date" id="visitDate" class="w-full border border-slate-300 rounded-lg p-2" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Heure préférée</label>
+                                    <input type="time" id="visitTime" class="w-full border border-slate-300 rounded-lg p-2">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Message</label>
+                                    <textarea id="visitMessage" class="w-full border border-slate-300 rounded-lg p-2" rows="2"></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-3 rounded-xl">Envoyer la demande</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        // Submit visit request
+        function submitVisit(event, projectId) {
+            event.preventDefault();
+            
+            const formData = {
+                project_id: projectId,
+                name: document.getElementById('visitName').value,
+                email: document.getElementById('visitEmail').value,
+                phone: document.getElementById('visitPhone').value,
+                preferred_date: document.getElementById('visitDate').value,
+                preferred_time: document.getElementById('visitTime').value,
+                message: document.getElementById('visitMessage').value
+            };
+
+            fetch('api.php?action=request-visit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast("Succès", "Demande de visite envoyée avec succès !");
+                    document.getElementById('visitModal').remove();
+                } else {
+                    showToast("Erreur", data.message);
+                }
+            })
+            .catch(error => {
+                showToast("Erreur", "Erreur de connexion");
+            });
         }
 
         // Reset Filters
@@ -2939,7 +3793,7 @@
             };
 
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=submit-project', {
+                const response = await fetch('api.php?action=submit-project', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3029,7 +3883,7 @@
             };
 
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=submit-contact', {
+                const response = await fetch('api.php?action=submit-contact', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3114,7 +3968,7 @@
             }
 
             try {
-                const response = await fetch('/urbanovacorp/api.php?action=invest-project', {
+                const response = await fetch('api.php?action=invest-project', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

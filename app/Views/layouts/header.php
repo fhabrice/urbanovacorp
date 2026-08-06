@@ -14,16 +14,24 @@
                 <a href="/urbanovacorp/?route=/">URBANOVA SOLUTIONS</a>
             </div>
             <div class="nav-menu">
-                <a href="/urbanovacorp/?route=/">Accueil</a>
-                <a href="/urbanovacorp/?route=about">À propos</a>
-                <a href="/urbanovacorp/?route=services">Services</a>
-                <a href="/urbanovacorp/?route=contact">Contact</a>
+                <a href="/urbanovacorp/?route=/"><?php echo __('nav.home'); ?></a>
+                <a href="/urbanovacorp/?route=about"><?php echo __('nav.about'); ?></a>
+                <a href="/urbanovacorp/?route=services"><?php echo __('nav.services'); ?></a>
+                <a href="/urbanovacorp/?route=marketplace"><?php echo __('nav.marketplace'); ?></a>
+                <a href="/urbanovacorp/?route=contact"><?php echo __('nav.contact'); ?></a>
             </div>
             <div class="nav-actions">
                 <div class="lang-switch">
                     <a href="/urbanovacorp/?route=lang&lang=fr" class="<?php echo ($session['language'] ?? 'fr') === 'fr' ? 'active' : ''; ?>">FR</a>
                     <a href="/urbanovacorp/?route=lang&lang=en" class="<?php echo ($session['language'] ?? 'fr') === 'en' ? 'active' : ''; ?>">EN</a>
                 </div>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="<?php echo $_SESSION['user_role'] === 'investor' ? '/investor' : ($_SESSION['user_role'] === 'admin' ? '/admin' : '/'); ?>" class="btn btn-secondary"><?php echo __('nav.my_account'); ?></a>
+                    <a href="/logout" class="btn btn-secondary"><?php echo __('nav.logout'); ?></a>
+                <?php else: ?>
+                    <a href="/login" class="btn btn-secondary"><?php echo __('nav.login'); ?></a>
+                    <a href="/register" class="btn btn-secondary"><?php echo __('nav.register'); ?></a>
+                <?php endif; ?>
             </div>
         </div>
     </nav>
