@@ -159,9 +159,14 @@ try {
             $controller = new App\Controllers\ContactController();
             $controller->index();
             break;
-            
+        
+        case 'news':
+            require_once APP_PATH . '/Controllers/NewsController.php';
+            $controller = new App\Controllers\NewsController();
+            $controller->index();
+            break;
+
         case 'lang':
-            // Language switch
             $lang = $_GET['lang'] ?? 'fr';
             if (in_array($lang, ['fr', 'en'])) {
                 $_SESSION['language'] = $lang;
@@ -169,7 +174,7 @@ try {
             header('Location: /urbanovacorp/?route=/');
             exit;
             break;
-            
+
         case 'simple':
             require __DIR__ . '/simple.php';
             break;
@@ -177,9 +182,16 @@ try {
         case 'test':
             require __DIR__ . '/test.php';
             break;
-            
+
         default:
-            // 404 error
+            if (str_starts_with($route, 'news/show-')) {
+                require_once APP_PATH . '/Controllers/NewsController.php';
+                $controller = new App\Controllers\NewsController();
+                $slug = substr($route, strlen('news/show-'));
+                $controller->show($slug);
+                break;
+            }
+
             http_response_code(404);
             require APP_PATH . '/Views/errors/404.php';
             break;

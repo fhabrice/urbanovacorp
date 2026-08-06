@@ -348,8 +348,15 @@ return [
         'delete' => 'Delete',
         'confirm_delete_project' => 'Are you sure you want to delete this project?',
     ],
+    'news' => [
+        'title' => 'News',
+        'subtitle' => 'Latest updates and stories',
+        'no_items' => 'No news items at the moment.',
+        'read_more' => 'Read more',
+    ],
     'nav' => [
         'logout' => 'Logout',
+        'news' => 'News',
     ],
     'security' => [
         'csrf_error' => 'Security error. Please try again.',

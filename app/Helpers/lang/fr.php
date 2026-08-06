@@ -348,8 +348,15 @@ return [
         'delete' => 'Supprimer',
         'confirm_delete_project' => 'Voulez-vous vraiment supprimer ce projet ?',
     ],
+    'news' => [
+        'title' => 'Actualités',
+        'subtitle' => 'Dernières nouvelles et mises à jour',
+        'no_items' => 'Aucune actualité pour le moment.',
+        'read_more' => 'Lire la suite',
+    ],
     'nav' => [
         'logout' => 'Déconnexion',
+        'news' => 'Actualités',
     ],
     'security' => [
         'csrf_error' => 'Erreur de sécurité. Veuillez réessayer.',

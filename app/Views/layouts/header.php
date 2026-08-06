@@ -18,6 +18,7 @@
                 <a href="/urbanovacorp/?route=about"><?php echo __('nav.about'); ?></a>
                 <a href="/urbanovacorp/?route=services"><?php echo __('nav.services'); ?></a>
                 <a href="/urbanovacorp/?route=marketplace"><?php echo __('nav.marketplace'); ?></a>
+                <a href="/urbanovacorp/?route=news"><?php echo __('nav.news'); ?></a>
                 <a href="/urbanovacorp/?route=contact"><?php echo __('nav.contact'); ?></a>
             </div>
             <div class="nav-actions">
