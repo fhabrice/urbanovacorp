@@ -29,6 +29,15 @@
                     <option value="investor"><?php echo __('auth.role_investor'); ?></option>
                 </select>
             </div>
+
+            <div class="form-group" id="investorTypeGroup" style="display:none;">
+                <label for="investor_type">Type d'investisseur</label>
+                <select id="investor_type" name="investor_type">
+                    <?php $types = ['business_angel','individual','family_office','investment_fund','bank','investment_company','dfi','corporate_venture','other']; foreach($types as $t): ?>
+                        <option value="<?php echo $t; ?>"><?php echo __('investor.type_' . $t); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             
             <div class="form-group">
                 <label for="password"><?php echo __('auth.password'); ?></label>
@@ -50,3 +59,10 @@
 </div>
 
 <?php require_once APP_PATH . '/Views/layouts/footer.php'; ?>
+
+<script>
+document.getElementById('role').addEventListener('change', function(e){
+    const g = document.getElementById('investorTypeGroup');
+    if (e.target.value === 'investor') g.style.display = 'block'; else g.style.display = 'none';
+});
+</script>

@@ -21,6 +21,7 @@
 
             <nav class="investor-nav">
                 <a href="/investor"><?php echo __('investor.dashboard'); ?></a>
+                <a href="/investor/profile"><?php echo __('investor.profile_title'); ?></a>
                 <a href="/investor/kyc"><?php echo __('investor.kyc_title'); ?></a>
                 <a href="/marketplace"><?php echo __('nav.marketplace'); ?></a>
                 <a href="/logout"><?php echo __('nav.logout'); ?></a>

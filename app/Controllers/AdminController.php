@@ -158,6 +158,50 @@ class AdminController extends Controller
         return $this->redirect('/admin/investors');
     }
 
+    public function requestInvestorInfo($id)
+    {
+        $db = $this->getDb();
+        $session = $this->getSession();
+
+        $investor = $db->fetchOne("SELECT i.*, u.email FROM investors i JOIN users u ON i.user_id = u.id WHERE i.id = ?", [$id]);
+        if (!$investor) {
+            $session->setFlashMessage('error', __('admin.investor_not_found'));
+            return $this->redirect('/admin/investors');
+        }
+
+        // Mark status as additional_info and record a note
+        $db->execute("UPDATE investors SET investor_status = 'additional_info', kyc_reviewed_at = NOW() WHERE id = ?", [$id]);
+
+        // Optionally send email to investor (if mail helper exists)
+        if (function_exists('send_mail')) {
+            send_mail($investor['email'], __('admin.request_more_info_subject'), __('admin.request_more_info_body'));
+        }
+
+        $session->setFlashMessage('success', __('admin.investor_requested_more_info'));
+        return $this->redirect('/admin/investors');
+    }
+
+    public function rejectInvestor($id)
+    {
+        $db = $this->getDb();
+        $session = $this->getSession();
+        $userId = $session->get('user_id');
+
+        $investor = $db->fetchOne("SELECT * FROM investors WHERE id = ?", [$id]);
+        if (!$investor) {
+            $session->setFlashMessage('error', __('admin.investor_not_found'));
+            return $this->redirect('/admin/investors');
+        }
+
+        $db->execute("UPDATE investors SET investor_status = 'rejected', kyc_reviewed_at = NOW(), kyc_reviewed_by = ?, rejection_reason = 'Rejected by administrator' WHERE id = ?", [$userId, $id]);
+
+        // Update user status
+        $db->execute("UPDATE users SET status = 'suspended' WHERE id = ?", [$investor['user_id']]);
+
+        $session->setFlashMessage('success', __('admin.investor_rejected'));
+        return $this->redirect('/admin/investors');
+    }
+
     public function statistics()
     {
         $db = $this->getDb();
@@ -408,6 +452,22 @@ class AdminController extends Controller
             $this->deleteImageFile($newsItem['image']);
         }
         $session->setFlashMessage('success', __('admin.news_deleted'));
+        return $this->redirect('/admin/news');
+    }
+
+    public function restoreNews($id)
+    {
+        $db = $this->getDb();
+        $session = $this->getSession();
+
+        $newsItem = $db->fetchOne("SELECT * FROM news WHERE id = ?", [$id]);
+        if (!$newsItem) {
+            $session->setFlashMessage('error', __('admin.news_not_found'));
+            return $this->redirect('/admin/news');
+        }
+
+        $db->execute("UPDATE news SET deleted_at = NULL WHERE id = ?", [$id]);
+        $session->setFlashMessage('success', __('admin.news_restored'));
         return $this->redirect('/admin/news');
     }
 

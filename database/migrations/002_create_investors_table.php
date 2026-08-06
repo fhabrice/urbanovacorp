@@ -11,7 +11,8 @@ return [
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 user_id INT NOT NULL,
                 type ENUM('individual', 'corporate') NOT NULL,
-                investor_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+                investor_type ENUM('business_angel', 'individual', 'family_office', 'investment_fund', 'bank', 'investment_company', 'dfi', 'corporate_venture', 'other') NOT NULL DEFAULT 'individual',
+                investor_status ENUM('pending', 'approved', 'rejected', 'additional_info') NOT NULL DEFAULT 'pending',
                 nationality VARCHAR(100),
                 phone VARCHAR(50),
                 address TEXT,
@@ -37,7 +38,8 @@ return [
                 FOREIGN KEY (kyc_reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
                 INDEX idx_user_id (user_id),
                 INDEX idx_investor_status (investor_status),
-                INDEX idx_type (type)
+                INDEX idx_type (type),
+                INDEX idx_investor_type (investor_type)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ";
         $db->execute($sql);

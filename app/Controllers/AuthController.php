@@ -121,6 +121,7 @@ class AuthController extends Controller
         $firstName = Security::sanitize($request->getBodyParam('first_name'));
         $lastName = Security::sanitize($request->getBodyParam('last_name'));
         $role = Security::sanitize($request->getBodyParam('role', 'promoter'));
+        $investorType = Security::sanitize($request->getBodyParam('investor_type', 'individual'));
 
         // Validate input
         if (empty($email) || empty($password) || empty($firstName) || empty($lastName)) {
@@ -168,8 +169,8 @@ class AuthController extends Controller
         // Create investor record if role is investor
         if ($role === 'investor') {
             $db->execute(
-                "INSERT INTO investors (user_id, type, investor_status) VALUES (?, 'individual', 'pending')",
-                [$userId]
+                "INSERT INTO investors (user_id, type, investor_status, investor_type) VALUES (?, 'individual', 'pending', ?)",
+                [$userId, $investorType]
             );
         }
 

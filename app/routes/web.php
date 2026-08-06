@@ -34,6 +34,8 @@ return [
     ['method' => 'GET', 'path' => '/investor', 'handler' => 'InvestorController@index', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
     ['method' => 'GET', 'path' => '/investor/kyc', 'handler' => 'InvestorController@kycForm', 'middleware' => ['AuthMiddleware']],
     ['method' => 'POST', 'path' => '/investor/kyc', 'handler' => 'InvestorController@kycSubmit', 'middleware' => ['AuthMiddleware']],
+    ['method' => 'GET', 'path' => '/investor/profile', 'handler' => 'InvestorController@profileForm', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
+    ['method' => 'POST', 'path' => '/investor/profile', 'handler' => 'InvestorController@profileSubmit', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
     ['method' => 'GET', 'path' => '/investor/data-room/{id}', 'handler' => 'InvestorController@dataRoom', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
     ['method' => 'POST', 'path' => '/investor/interest/{id}', 'handler' => 'InvestorController@expressInterest', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
 
@@ -45,6 +47,8 @@ return [
     ['method' => 'GET', 'path' => '/admin/projects/{id}/delete', 'handler' => 'AdminController@deleteProject', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/investors', 'handler' => 'AdminController@investors', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/investors/{id}/approve', 'handler' => 'AdminController@approveInvestor', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'GET', 'path' => '/admin/investors/{id}/request-info', 'handler' => 'AdminController@requestInvestorInfo', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'POST', 'path' => '/admin/investors/{id}/reject', 'handler' => 'AdminController@rejectInvestor', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/news', 'handler' => 'AdminController@news', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/news/create', 'handler' => 'AdminController@createNews', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'POST', 'path' => '/admin/news/create', 'handler' => 'AdminController@storeNews', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],

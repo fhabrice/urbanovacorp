@@ -4,8 +4,18 @@ namespace App\Controllers;
 
 class InvestorController extends Controller
 {
+    private function ensureInvestorRole()
+    {
+        $session = $this->getSession();
+        if ($session->get('user_role') !== 'investor') {
+            $session->setFlashMessage('error', __('auth.must_be_investor'));
+            return $this->redirect('/');
+        }
+    }
+
     public function index()
     {
+        $this->ensureInvestorRole();
         $db = $this->getDb();
         $session = $this->getSession();
         $userId = $session->get('user_id');
@@ -33,6 +43,7 @@ class InvestorController extends Controller
 
     public function kycForm()
     {
+        $this->ensureInvestorRole();
         $db = $this->getDb();
         $session = $this->getSession();
         $userId = $session->get('user_id');
@@ -210,6 +221,83 @@ class InvestorController extends Controller
             'interest' => $interest,
             'documents' => $documents,
         ]);
+    }
+
+    public function profileForm()
+    {
+        $this->ensureInvestorRole();
+        $db = $this->getDb();
+        $session = $this->getSession();
+        $userId = $session->get('user_id');
+
+        $profile = $db->fetchOne("SELECT * FROM investor_profiles WHERE user_id = ?", [$userId]);
+        $preferences = $db->fetchOne("SELECT * FROM investor_preferences WHERE user_id = ?", [$userId]);
+
+        return $this->view('investor/profile', [
+            'profile' => $profile,
+            'preferences' => $preferences,
+        ]);
+    }
+
+    public function profileSubmit()
+    {
+        $this->ensureInvestorRole();
+        $request = $this->getRequest();
+        $db = $this->getDb();
+        $session = $this->getSession();
+        $userId = $session->get('user_id');
+
+        $years = $request->getBodyParam('years_experience');
+        $projectsFinanced = $request->getBodyParam('projects_financed');
+        $presentation = $request->getBodyParam('presentation');
+        $references = $request->getBodyParam('references');
+        $investmentMin = $request->getBodyParam('investment_min');
+        $investmentMax = $request->getBodyParam('investment_max');
+        $horizon = $request->getBodyParam('investment_horizon');
+        $expectedRoi = $request->getBodyParam('expected_roi');
+
+        $preferredSectors = $request->getBodyParam('preferred_sectors');
+        $preferredCountries = $request->getBodyParam('preferred_countries');
+        $investmentTypes = $request->getBodyParam('investment_types');
+
+        if (is_string($preferredCountries)) {
+            $preferredCountries = array_filter(array_map('trim', explode(',', $preferredCountries)));
+        }
+
+        if (!is_array($preferredSectors)) {
+            $preferredSectors = [];
+        }
+
+        if (!is_array($investmentTypes)) {
+            $investmentTypes = [];
+        }
+
+        // upsert profile
+        $exists = $db->fetchOne("SELECT id FROM investor_profiles WHERE user_id = ?", [$userId]);
+        if ($exists) {
+            $db->execute("UPDATE investor_profiles SET years_experience = ?, projects_financed = ?, presentation = ?, references_portfolio = ?, investment_min = ?, investment_max = ?, investment_horizon = ?, expected_roi = ?, updated_at = NOW() WHERE user_id = ?", [
+                $years, $projectsFinanced, $presentation, $references, $investmentMin, $investmentMax, $horizon, $expectedRoi, $userId
+            ]);
+        } else {
+            $db->execute("INSERT INTO investor_profiles (user_id, years_experience, projects_financed, presentation, references_portfolio, investment_min, investment_max, investment_horizon, expected_roi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+                $userId, $years, $projectsFinanced, $presentation, $references, $investmentMin, $investmentMax, $horizon, $expectedRoi
+            ]);
+        }
+
+        // upsert preferences
+        $prefsExist = $db->fetchOne("SELECT id FROM investor_preferences WHERE user_id = ?", [$userId]);
+        $ps = !empty($preferredSectors) ? json_encode(array_values($preferredSectors)) : null;
+        $pc = !empty($preferredCountries) ? json_encode(array_values($preferredCountries)) : null;
+        $it = !empty($investmentTypes) ? json_encode(array_values($investmentTypes)) : null;
+
+        if ($prefsExist) {
+            $db->execute("UPDATE investor_preferences SET preferred_sectors = ?, preferred_countries = ?, investment_types = ?, updated_at = NOW() WHERE user_id = ?", [$ps, $pc, $it, $userId]);
+        } else {
+            $db->execute("INSERT INTO investor_preferences (user_id, preferred_sectors, preferred_countries, investment_types) VALUES (?, ?, ?, ?)", [$userId, $ps, $pc, $it]);
+        }
+
+        $session->setFlashMessage('success', __('investor.profile_saved'));
+        return $this->redirect('/investor');
     }
 
     public function expressInterest($projectId)

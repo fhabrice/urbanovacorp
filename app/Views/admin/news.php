@@ -39,9 +39,15 @@
                                 <a href="/admin/news/<?php echo $item['id']; ?>/edit" class="btn btn-sm btn-secondary">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="/admin/news/<?php echo $item['id']; ?>/delete" class="btn btn-sm btn-danger" onclick="return confirm('<?php echo __('admin.confirm_delete_news'); ?>');">
-                                    <i class="fas fa-trash"></i>
-                                </a>
+                                <?php if (!empty($item['deleted_at'])): ?>
+                                    <a href="/admin/news/<?php echo $item['id']; ?>/restore" class="btn btn-sm btn-success">
+                                        <i class="fas fa-undo"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="/admin/news/<?php echo $item['id']; ?>/delete" class="btn btn-sm btn-danger" onclick="return confirm('<?php echo __('admin.confirm_delete_news'); ?>');">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
