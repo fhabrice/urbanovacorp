@@ -3,6 +3,17 @@
  * Database Migration Runner
  */
 
+// Define paths required by config
+if (!defined('APP_PATH')) {
+    define('APP_PATH', realpath(__DIR__ . '/../app'));
+}
+if (!defined('PUBLIC_PATH')) {
+    define('PUBLIC_PATH', realpath(__DIR__ . '/../public'));
+}
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', realpath(__DIR__ . '/..'));
+}
+
 // Load configuration
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../app/Core/Database.php';
@@ -12,7 +23,7 @@ $config = require __DIR__ . '/../config/config.php';
 
 // Create database connection
 try {
-    $db = new Database($config['database']);
+    $db = new \App\Core\Database($config['database']);
     echo "Database connection established.\n";
 } catch (Exception $e) {
     echo "Error connecting to database: " . $e->getMessage() . "\n";

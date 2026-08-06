@@ -74,17 +74,36 @@ class AuthController extends Controller
         $session->set('user_role', $user['role']);
 
         // Set investor status if applicable
+        $redirectUrl = $session->get('redirect_after_login', '/');
+        $session->remove('redirect_after_login');
+
         if ($user['role'] === 'investor') {
             $investor = $db->fetchOne(
-                "SELECT investor_status FROM investors WHERE user_id = ?",
+                "SELECT investor_status, kyc_submitted_at FROM investors WHERE user_id = ?",
                 [$user['id']]
             );
             $session->set('investor_status', $investor['investor_status'] ?? 'pending');
+
+            $profileExists = $db->fetchOne(
+                "SELECT COUNT(*) as count FROM investor_profiles WHERE user_id = ?",
+                [$user['id']]
+            );
+
+            if (empty($profileExists['count']) || $profileExists['count'] === 0) {
+                $redirectUrl = '/investor/profile';
+            } elseif (empty($investor['kyc_submitted_at'])) {
+                $redirectUrl = '/investor/kyc';
+            } else {
+                $redirectUrl = '/investor';
+            }
         }
 
         // Redirect based on role
-        $redirectUrl = $session->get('redirect_after_login', '/');
-        $session->remove('redirect_after_login');
+        if ($user['role'] === 'admin') {
+            return $this->redirect('/admin');
+        } elseif ($user['role'] === 'investor') {
+            return $this->redirect($redirectUrl);
+        }
 
         if ($user['role'] === 'admin') {
             return $this->redirect('/admin');
@@ -122,10 +141,23 @@ class AuthController extends Controller
         $lastName = Security::sanitize($request->getBodyParam('last_name'));
         $role = Security::sanitize($request->getBodyParam('role', 'promoter'));
         $investorType = Security::sanitize($request->getBodyParam('investor_type', 'individual'));
+        $companyName = Security::sanitize($request->getBodyParam('company_name'));
+        $representativeName = Security::sanitize($request->getBodyParam('representative_name'));
+        $position = Security::sanitize($request->getBodyParam('position'));
+        $country = Security::sanitize($request->getBodyParam('country'));
+        $city = Security::sanitize($request->getBodyParam('city'));
+        $address = Security::sanitize($request->getBodyParam('address'));
+        $phone = Security::sanitize($request->getBodyParam('phone'));
+        $website = Security::sanitize($request->getBodyParam('website'));
 
         // Validate input
         if (empty($email) || empty($password) || empty($firstName) || empty($lastName)) {
             $session->setFlashMessage('error', __('auth.all_fields_required'));
+            return $this->redirect('/register');
+        }
+
+        if ($role === 'investor' && (empty($companyName) || empty($representativeName) || empty($position) || empty($country) || empty($city) || empty($address) || empty($phone))) {
+            $session->setFlashMessage('error', __('auth.investor_required_fields'));
             return $this->redirect('/register');
         }
 
@@ -168,9 +200,10 @@ class AuthController extends Controller
 
         // Create investor record if role is investor
         if ($role === 'investor') {
+            $investorCategoryType = $investorType === 'individual' ? 'individual' : 'corporate';
             $db->execute(
-                "INSERT INTO investors (user_id, type, investor_status, investor_type) VALUES (?, 'individual', 'pending', ?)",
-                [$userId, $investorType]
+                "INSERT INTO investors (user_id, type, investor_type, investor_status, company_name, representative_name, position, country, city, address, phone, website) VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?)",
+                [$userId, $investorCategoryType, $investorType, $companyName, $representativeName, $position, $country, $city, $address, $phone, $website]
             );
         }
 

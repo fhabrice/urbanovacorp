@@ -30,13 +30,47 @@
                 </select>
             </div>
 
-            <div class="form-group" id="investorTypeGroup" style="display:none;">
-                <label for="investor_type">Type d'investisseur</label>
-                <select id="investor_type" name="investor_type">
-                    <?php $types = ['business_angel','individual','family_office','investment_fund','bank','investment_company','dfi','corporate_venture','other']; foreach($types as $t): ?>
-                        <option value="<?php echo $t; ?>"><?php echo __('investor.type_' . $t); ?></option>
-                    <?php endforeach; ?>
-                </select>
+            <div id="investorFields" style="display:none;">
+                <div class="form-group" id="investorTypeGroup">
+                    <label for="investor_type"><?php echo __('investor.investor_type'); ?></label>
+                    <select id="investor_type" name="investor_type">
+                        <?php $types = ['business_angel','individual','family_office','investment_fund','bank','investment_company','dfi','corporate_venture','other']; foreach($types as $t): ?>
+                            <option value="<?php echo $t; ?>"><?php echo __('investor.type_' . $t); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="company_name"><?php echo __('auth.company_name'); ?></label>
+                    <input type="text" id="company_name" name="company_name">
+                </div>
+                <div class="form-group">
+                    <label for="representative_name"><?php echo __('auth.representative_name'); ?></label>
+                    <input type="text" id="representative_name" name="representative_name">
+                </div>
+                <div class="form-group">
+                    <label for="position"><?php echo __('auth.position'); ?></label>
+                    <input type="text" id="position" name="position">
+                </div>
+                <div class="form-group">
+                    <label for="country"><?php echo __('auth.country'); ?></label>
+                    <input type="text" id="country" name="country">
+                </div>
+                <div class="form-group">
+                    <label for="city"><?php echo __('auth.city'); ?></label>
+                    <input type="text" id="city" name="city">
+                </div>
+                <div class="form-group">
+                    <label for="address"><?php echo __('auth.address'); ?></label>
+                    <textarea id="address" name="address"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="phone"><?php echo __('auth.phone'); ?></label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+                <div class="form-group">
+                    <label for="website"><?php echo __('auth.website'); ?> <small>(<?php echo __('auth.optional'); ?>)</small></label>
+                    <input type="url" id="website" name="website">
+                </div>
             </div>
             
             <div class="form-group">
@@ -61,8 +95,13 @@
 <?php require_once APP_PATH . '/Views/layouts/footer.php'; ?>
 
 <script>
-document.getElementById('role').addEventListener('change', function(e){
-    const g = document.getElementById('investorTypeGroup');
-    if (e.target.value === 'investor') g.style.display = 'block'; else g.style.display = 'none';
-});
+const roleSelect = document.getElementById('role');
+const investorFields = document.getElementById('investorFields');
+
+function toggleInvestorFields() {
+    const show = roleSelect.value === 'investor';
+    investorFields.style.display = show ? 'block' : 'none';
+}
+roleSelect.addEventListener('change', toggleInvestorFields);
+toggleInvestorFields();
 </script>
