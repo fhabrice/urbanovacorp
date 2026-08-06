@@ -13,6 +13,11 @@
             <div class="nav-brand">
                 <a href="/urbanovacorp/?route=/">URBANOVA SOLUTIONS</a>
             </div>
+            <button class="nav-toggle" type="button" aria-label="Menu toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <div class="nav-menu">
                 <a href="/urbanovacorp/?route=/"><?php echo __('nav.home'); ?></a>
                 <a href="/urbanovacorp/?route=about"><?php echo __('nav.about'); ?></a>
