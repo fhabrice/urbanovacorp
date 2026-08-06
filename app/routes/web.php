@@ -42,8 +42,15 @@ return [
     ['method' => 'GET', 'path' => '/admin/projects', 'handler' => 'AdminController@projects', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/projects/{id}/approve', 'handler' => 'AdminController@approveProject', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/projects/{id}/reject', 'handler' => 'AdminController@rejectProject', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'GET', 'path' => '/admin/projects/{id}/delete', 'handler' => 'AdminController@deleteProject', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/investors', 'handler' => 'AdminController@investors', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/investors/{id}/approve', 'handler' => 'AdminController@approveInvestor', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'GET', 'path' => '/admin/news', 'handler' => 'AdminController@news', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'GET', 'path' => '/admin/news/create', 'handler' => 'AdminController@createNews', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'POST', 'path' => '/admin/news/create', 'handler' => 'AdminController@storeNews', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'GET', 'path' => '/admin/news/{id}/edit', 'handler' => 'AdminController@editNews', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'POST', 'path' => '/admin/news/{id}/edit', 'handler' => 'AdminController@updateNews', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'GET', 'path' => '/admin/news/{id}/delete', 'handler' => 'AdminController@deleteNews', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/statistics', 'handler' => 'AdminController@statistics', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
 
     // Language switch

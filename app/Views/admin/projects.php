@@ -42,15 +42,18 @@
                         <td>
                             <div class="action-buttons">
                                 <?php if ($project['status'] === 'submitted'): ?>
-                                    <a href="/admin/projects/<?php echo $project['id']; ?>/approve" class="btn btn-sm btn-success">
+                                    <a href="/admin/projects/<?php echo $project['id']; ?>/approve" class="btn btn-sm btn-success" title="<?php echo __('admin.approve'); ?>">
                                         <i class="fas fa-check"></i>
                                     </a>
-                                    <a href="/admin/projects/<?php echo $project['id']; ?>/reject" class="btn btn-sm btn-danger">
+                                    <a href="/admin/projects/<?php echo $project['id']; ?>/reject" class="btn btn-sm btn-danger" title="<?php echo __('admin.reject'); ?>">
                                         <i class="fas fa-times"></i>
                                     </a>
                                 <?php endif; ?>
-                                <a href="/marketplace/<?php echo $project['id']; ?>" class="btn btn-sm btn-primary">
+                                <a href="/marketplace/<?php echo $project['id']; ?>" class="btn btn-sm btn-primary" title="<?php echo __('admin.view'); ?>">
                                     <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/admin/projects/<?php echo $project['id']; ?>/delete" class="btn btn-sm btn-danger" title="<?php echo __('admin.delete'); ?>" onclick="return confirm('<?php echo __('admin.confirm_delete_project'); ?>');">
+                                    <i class="fas fa-trash"></i>
                                 </a>
                             </div>
                         </td>

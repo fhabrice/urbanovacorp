@@ -93,6 +93,9 @@
                 <a href="/admin/projects" class="nav-link">
                     <i class="fas fa-building"></i> <?php echo __('admin.projects'); ?>
                 </a>
+                <a href="/admin/news" class="nav-link">
+                    <i class="fas fa-newspaper"></i> <?php echo __('admin.news'); ?>
+                </a>
                 <a href="/admin/investors" class="nav-link">
                     <i class="fas fa-users"></i> <?php echo __('admin.investors'); ?>
                 </a>
