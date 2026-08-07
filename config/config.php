@@ -7,20 +7,20 @@ return [
     // Application
     'app' => [
         'name' => 'URBANOVA SOLUTIONS',
-        'env' => getenv('APP_ENV') ?: 'development',
-        'debug' => getenv('APP_DEBUG') ?: true,
-        'url' => getenv('APP_URL') ?: 'http://localhost',
+        'env' => getenv('APP_ENV') ?: 'production',
+        'debug' => getenv('APP_DEBUG') ?: false,
+        'url' => getenv('APP_URL') ?: 'https://urbanovacorp.com',
         'timezone' => 'Africa/Kinshasa',
     ],
 
     // Database
     'database' => [
-        'host' => getenv('DB_HOST') ?: 'localhost',  // Remplacez par votre hébergeur (ex: mysql.votre-hébergeur.com)
-        'port' => getenv('DB_PORT') ?: '3306',
-        'database' => getenv('DB_NAME') ?: 'urbanova_db',  // Nom de votre base de données en ligne
-        'username' => getenv('DB_USER') ?: 'root',  // Votre nom d'utilisateur hébergeur
-        'password' => getenv('DB_PASSWORD') ?: '',  // Votre mot de passe hébergeur
-        'charset' => 'utf8mb4',
+        'host'      => getenv('DB_HOST') ?: 'localhost',
+        'port'      => getenv('DB_PORT') ?: '3306',
+        'database'  => getenv('DB_NAME') ?: 'wqmetrvw_urbanova',
+        'username'  => getenv('DB_USER') ?: 'wqmetrvw_urbanova',
+        'password'  => getenv('DB_PASSWORD') ?: 'Goma@2019',
+        'charset'   => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
     ],
 
