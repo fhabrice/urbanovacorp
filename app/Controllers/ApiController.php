@@ -13,16 +13,48 @@ class ApiController extends SimpleController
     {
         parent::__construct();
         
-        // Connect to database
-        try {
-            $config = $this->config['database'];
-            $dsn = "mysql:host={$config['host']};dbname={$config['database']};charset=utf8mb4";
-            $this->db = new \PDO($dsn, $config['username'], $config['password']);
-            $this->db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        } catch (\PDOException $e) {
-            // Fallback to static data if database not available
-            error_log("Database connection failed: " . $e->getMessage());
-            $this->db = null;
+        // Connect to database with robust fallback for host & local environments
+        $config = $this->config['database'] ?? [];
+        $candidates = [
+            [
+                'host' => $config['host'] ?? 'localhost',
+                'db'   => $config['database'] ?? 'wqmetrvw_urbanova',
+                'user' => $config['username'] ?? 'wqmetrvw_urbanova',
+                'pass' => $config['password'] ?? 'Goma@2019'
+            ],
+            [
+                'host' => 'localhost',
+                'db'   => 'wqmetrvw_urbanova',
+                'user' => 'wqmetrvw_urbanova',
+                'pass' => 'Goma@2019'
+            ],
+            [
+                'host' => 'localhost',
+                'db'   => 'urbanova_db',
+                'user' => 'root',
+                'pass' => ''
+            ],
+            [
+                'host' => '127.0.0.1',
+                'db'   => 'urbanova_db',
+                'user' => 'root',
+                'pass' => ''
+            ]
+        ];
+
+        $this->db = null;
+        foreach ($candidates as $c) {
+            try {
+                $dsn = "mysql:host={$c['host']};dbname={$c['db']};charset=utf8mb4";
+                $pdo = new \PDO($dsn, $c['user'], $c['pass'], [
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+                ]);
+                $this->db = $pdo;
+                break;
+            } catch (\PDOException $e) {
+                error_log("DB candidate failed ({$c['host']}/{$c['db']}): " . $e->getMessage());
+            }
         }
     }
 
@@ -257,16 +289,30 @@ class ApiController extends SimpleController
             $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT, ['cost' => 12]);
             error_log('Register API: Password hashed successfully');
 
-            // Insérer l'utilisateur
+            $name = trim($data['name'] ?? '');
+            if (empty($name) && (!empty($data['first_name']) || !empty($data['last_name']))) {
+                $name = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
+            }
+            
+            $nameParts = explode(' ', $name, 2);
+            $firstName = $data['first_name'] ?? ($nameParts[0] ?? '');
+            $lastName = $data['last_name'] ?? ($nameParts[1] ?? '');
+            $role = in_array($data['role'] ?? '', ['admin', 'investor', 'promoter', 'project_owner']) ? $data['role'] : 'investor';
+            $investorType = $data['investor_type'] ?? 'individual';
+
+            // Insérer l'utilisateur avec toutes les colonnes compatibles
             $stmt = $this->db->prepare("
-                INSERT INTO users (name, email, password, role, status, phone, country, city, created_at)
-                VALUES (?, ?, ?, 'investor', 'active', ?, ?, ?, NOW())
+                INSERT INTO users (name, first_name, last_name, email, password, role, status, phone, country, city, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, NOW())
             ");
             
             $result = $stmt->execute([
-                $data['name'],
+                $name,
+                $firstName,
+                $lastName,
                 $data['email'],
                 $passwordHash,
+                $role,
                 $data['phone'] ?? '',
                 $data['country'] ?? '',
                 $data['city'] ?? ''
@@ -281,11 +327,40 @@ class ApiController extends SimpleController
             $userId = $this->db->lastInsertId();
             error_log('Register API: User created with ID ' . $userId);
 
+            // Si c'est un investisseur, insérer dans la table investors
+            if ($role === 'investor' || $role === 'promoter') {
+                try {
+                    $invStmt = $this->db->prepare("
+                        INSERT INTO investors (
+                            user_id, type, investor_type, investor_status, company_name, 
+                            representative_name, position, country, city, address, phone, website
+                        ) VALUES (
+                            ?, 'individual', ?, 'approved', ?, 
+                            ?, ?, ?, ?, ?, ?, ?
+                        )
+                    ");
+                    $invStmt->execute([
+                        $userId,
+                        $investorType,
+                        $data['company_name'] ?? '',
+                        $data['representative_name'] ?? $name,
+                        $data['position'] ?? '',
+                        $data['country'] ?? '',
+                        $data['city'] ?? '',
+                        $data['address'] ?? '',
+                        $data['phone'] ?? '',
+                        $data['website'] ?? ''
+                    ]);
+                } catch (\PDOException $invEx) {
+                    error_log('Register API: Failed to insert into investors table: ' . $invEx->getMessage());
+                }
+            }
+
             // Connecter automatiquement l'utilisateur
             $_SESSION['user_id'] = $userId;
-            $_SESSION['user_name'] = $data['name'];
+            $_SESSION['user_name'] = $name;
             $_SESSION['user_email'] = $data['email'];
-            $_SESSION['user_role'] = 'investor';
+            $_SESSION['user_role'] = $role;
             
             error_log('Register API: Session created');
 
@@ -294,9 +369,9 @@ class ApiController extends SimpleController
                 'message' => 'Inscription réussie ! Vous êtes maintenant connecté.',
                 'user' => [
                     'id' => $userId,
-                    'name' => $data['name'],
+                    'name' => $name,
                     'email' => $data['email'],
-                    'role' => 'investor'
+                    'role' => $role
                 ]
             ]);
             exit;

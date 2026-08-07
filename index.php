@@ -4388,6 +4388,181 @@
                 showToast("Erreur", "Erreur de connexion au serveur", "warning");
             }
         }
+
+        // Modals d'authentification (Connexion & Inscription)
+        function openLoginModal() {
+            closeAuthModal();
+            const modalHtml = `
+                <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAuthModal()"></div>
+                    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 z-10">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-extrabold text-brand-dark">Connexion</h2>
+                            <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark text-xl"></i>
+                            </button>
+                        </div>
+                        <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">Adresse Email</label>
+                                <input type="email" id="loginEmail" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">Mot de passe</label>
+                                <input type="password" id="loginPassword" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                            </div>
+                            <button type="submit" class="w-full bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-3.5 rounded-xl text-sm transition-all shadow-md">
+                                Se connecter
+                            </button>
+                            <p class="text-center text-xs text-slate-500 mt-4">
+                                Pas encore de compte ? <a href="javascript:void(0)" onclick="openRegisterModal()" class="text-brand-gold font-bold hover:underline">S'inscrire</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function openRegisterModal() {
+            closeAuthModal();
+            const modalHtml = `
+                <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAuthModal()"></div>
+                    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 z-10 max-h-[90vh] overflow-y-auto">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-extrabold text-brand-dark">Créer un compte</h2>
+                            <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark text-xl"></i>
+                            </button>
+                        </div>
+                        <form onsubmit="handleRegisterSubmit(event)" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Prénom *</label>
+                                    <input type="text" id="regFirstName" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Nom *</label>
+                                    <input type="text" id="regLastName" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Email *</label>
+                                <input type="email" id="regEmail" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Mot de passe (min. 8 caractères) *</label>
+                                <input type="password" id="regPassword" required minlength="8" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Type de profil *</label>
+                                <select id="regRole" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                    <option value="investor">Investisseur</option>
+                                    <option value="promoter">Porteur de projet</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Pays</label>
+                                    <input type="text" id="regCountry" placeholder="RDC" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Ville</label>
+                                    <input type="text" id="regCity" placeholder="Kinshasa" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Téléphone</label>
+                                <input type="tel" id="regPhone" placeholder="+243..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+                            </div>
+                            <button type="submit" class="w-full bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-3.5 rounded-xl text-sm transition-all shadow-md mt-2">
+                                Valider l'inscription
+                            </button>
+                            <p class="text-center text-xs text-slate-500 mt-4">
+                                Déjà inscrit ? <a href="javascript:void(0)" onclick="openLoginModal()" class="text-brand-gold font-bold hover:underline">Se connecter</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('authModal');
+            if (modal) modal.remove();
+        }
+
+        async function handleLoginSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const res = await fetch('api.php?action=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeAuthModal();
+                    alert("✅ CONNEXION RÉUSSIE !\n\nBienvenue, " + (data.user.name || data.user.email) + " !");
+                    showToast("Connexion réussie", "Bienvenue " + (data.user.name || data.user.email));
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    alert("❌ ÉCHEC DE CONNEXION\n\n" + (data.message || "Email ou mot de passe incorrect."));
+                    showToast("Erreur", data.message || "Identifiants incorrects", "warning");
+                }
+            } catch (err) {
+                alert("⚠️ ERREUR DE CONNEXION AU SERVEUR");
+                showToast("Erreur", "Erreur de connexion au serveur", "warning");
+            }
+        }
+
+        async function handleRegisterSubmit(e) {
+            e.preventDefault();
+            const firstName = document.getElementById('regFirstName').value;
+            const lastName = document.getElementById('regLastName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('regRole').value;
+            const country = document.getElementById('regCountry').value;
+            const city = document.getElementById('regCity').value;
+            const phone = document.getElementById('regPhone').value;
+
+            try {
+                const res = await fetch('api.php?action=register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: `${firstName} ${lastName}`.trim(),
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: email,
+                        password: password,
+                        role: role,
+                        country: country,
+                        city: city,
+                        phone: phone
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeAuthModal();
+                    alert("🎉 INSCRIPTION RÉUSSIE !\n\nVotre compte a été créé et activé avec succès.\nVous êtes désormais connecté !");
+                    showToast("Inscription réussie !", "Votre compte a été créé avec succès.");
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert("⚠️ ÉCHEC DE L'INSCRIPTION\n\n" + (data.message || "Impossible de créer le compte."));
+                    showToast("Erreur d'inscription", data.message || "Impossible de vous inscrire", "warning");
+                }
+            } catch (err) {
+                alert("⚠️ ERREUR DE CONNEXION AU SERVEUR");
+                showToast("Erreur", "Erreur de connexion au serveur", "warning");
+            }
+        }
     </script>
 </body>
 
