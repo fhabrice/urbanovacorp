@@ -2,7 +2,13 @@
 // Simple migration runner for SQL files in database/migrations
 // Usage: php database/run_migrations.php
 
-require __DIR__ . '/../config/config.php';
+if (!defined('PUBLIC_PATH')) {
+    define('PUBLIC_PATH', realpath(__DIR__ . '/../public'));
+}
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', realpath(__DIR__ . '/..'));
+}
+
 $config = require __DIR__ . '/../config/config.php';
 $dbConf = $config['database'];
 
@@ -18,14 +24,14 @@ try {
 }
 
 // ensure migrations table
-$pdo->exec("CREATE TABLE IF NOT EXISTS migrations (id INT AUTO_INCREMENT PRIMARY KEY, filename VARCHAR(255) NOT NULL, applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+$pdo->exec("CREATE TABLE IF NOT EXISTS migrations (id INT AUTO_INCREMENT PRIMARY KEY, migration VARCHAR(255) NOT NULL, ran_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE KEY unique_migration (migration)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
 $files = glob(__DIR__ . '/migrations/*.sql');
 sort($files);
 
 foreach ($files as $file) {
     $filename = basename($file);
-    $stmt = $pdo->prepare('SELECT COUNT(*) as c FROM migrations WHERE filename = ?');
+    $stmt = $pdo->prepare('SELECT COUNT(*) as c FROM migrations WHERE migration = ?');
     $stmt->execute([$filename]);
     $row = $stmt->fetch();
     if ($row && $row['c'] > 0) {
@@ -38,7 +44,7 @@ foreach ($files as $file) {
     try {
         $pdo->beginTransaction();
         $pdo->exec($sql);
-        $stmt = $pdo->prepare('INSERT INTO migrations (filename) VALUES (?)');
+        $stmt = $pdo->prepare('INSERT INTO migrations (migration) VALUES (?)');
         $stmt->execute([$filename]);
         $pdo->commit();
         echo "Applied: $filename" . PHP_EOL;

@@ -48,6 +48,7 @@ return [
     ['method' => 'GET', 'path' => '/admin/investors', 'handler' => 'AdminController@investors', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/investors/{id}/approve', 'handler' => 'AdminController@approveInvestor', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/investors/{id}/request-info', 'handler' => 'AdminController@requestInvestorInfo', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
+    ['method' => 'GET', 'path' => '/admin/investors/{id}/reject', 'handler' => 'AdminController@rejectInvestor', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'POST', 'path' => '/admin/investors/{id}/reject', 'handler' => 'AdminController@rejectInvestor', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/news', 'handler' => 'AdminController@news', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],
     ['method' => 'GET', 'path' => '/admin/news/create', 'handler' => 'AdminController@createNews', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],

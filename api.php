@@ -13,7 +13,7 @@ define('CONFIG_PATH', BASE_PATH . '/config');
 session_start();
 
 // Charger les dépendances
-require_once CONFIG_PATH . '/config.php';
+// Config est chargée par SimpleController via require (pas require_once) pour obtenir le tableau
 
 // Simple autoloader
 spl_autoload_register(function ($class) {
@@ -152,6 +152,42 @@ try {
             require_once APP_PATH . '/Controllers/ApiController.php';
             $api = new App\Controllers\ApiController();
             $api->getProjectDetails();
+            break;
+
+        case 'get-users':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->getUsers();
+            break;
+
+        case 'update-user-status':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->updateUserStatus();
+            break;
+
+        case 'delete-user':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->deleteUser();
+            break;
+
+        case 'get-investments':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->getAllInvestments();
+            break;
+
+        case 'update-investment-status':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->updateInvestmentStatus();
+            break;
+
+        case 'delete-investment':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->deleteInvestment();
             break;
             
         default:

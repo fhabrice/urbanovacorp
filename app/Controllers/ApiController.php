@@ -27,6 +27,31 @@ class ApiController extends SimpleController
     }
 
     /**
+     * Traduit un statut en français
+     */
+    private function translateStatus($status)
+    {
+        $translations = [
+            'draft'           => 'Brouillon',
+            'submitted'       => 'Soumis',
+            'under_review'    => 'En analyse',
+            'additional_info' => 'Infos complémentaires',
+            'approved'        => 'Approuvé',
+            'rejected'        => 'Rejeté',
+            'published'       => 'Publié',
+            'suspended'       => 'Suspendu',
+            'sold'            => 'Vendu',
+            'rented'          => 'Loué',
+            'archived'        => 'Archivé',
+            'pending'         => 'En attente',
+            'active'          => 'Actif',
+            'funding'         => 'En financement',
+            'completed'       => 'Terminé',
+        ];
+        return $translations[$status] ?? $status;
+    }
+
+    /**
      * Récupérer tous les projets pour la marketplace
      */
     public function getProjects()
@@ -50,6 +75,8 @@ class ApiController extends SimpleController
                         p.operation_type,
                         p.coordinates_lat,
                         p.coordinates_lng,
+                        p.promoter,
+                        p.description,
                         p.image,
                         CONCAT(p.city, ', ', p.country) as location
                     FROM projects p
@@ -68,6 +95,7 @@ class ApiController extends SimpleController
                     
                     $formattedProjects[] = [
                         'id' => 'proj-' . $p['id'],
+                        'numeric_id' => (int)$p['id'],
                         'title' => $p['title'],
                         'location' => $p['location'],
                         'country' => $p['country'],
@@ -77,6 +105,11 @@ class ApiController extends SimpleController
                         'raised' => $raised,
                         'roi' => (int)$p['roi'],
                         'progress' => $progress,
+                        'raw_status' => $p['status'],
+                        'promoter' => $p['promoter'] ?? 'Non spécifié',
+                        'funding_sought' => $target,
+                        'expected_roi' => (int)$p['roi'],
+                        'description' => $p['description'] ?? '',
                         'status' => $this->translateStatus($p['status']),
                         'project_type' => $p['project_type'] ?? 'residential',
                         'operation_type' => $p['operation_type'] ?? 'sale',
@@ -1393,6 +1426,225 @@ class ApiController extends SimpleController
             exit;
         } catch (\PDOException $e) {
             echo json_encode(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Récupérer tous les utilisateurs (pour l'administration)
+     */
+    public function getUsers()
+    {
+        header('Content-Type: application/json');
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        try {
+            $stmt = $this->db->query("
+                SELECT id, name, email, role, phone, created_at, status
+                FROM users
+                ORDER BY created_at DESC
+            ");
+            $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'success' => true,
+                'data' => $users
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Modifier le statut d'un utilisateur (activer/bloquer)
+     */
+    public function updateUserStatus()
+    {
+        header('Content-Type: application/json');
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $userId = $data['user_id'] ?? null;
+        $status = $data['status'] ?? null;
+
+        if (!$userId || !$status) {
+            echo json_encode(['success' => false, 'message' => 'ID utilisateur et statut requis']);
+            exit;
+        }
+
+        try {
+            $stmt = $this->db->prepare("UPDATE users SET status = ? WHERE id = ?");
+            $stmt->execute([$status, $userId]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Statut de l\'utilisateur mis à jour'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Supprimer un utilisateur
+     */
+    public function deleteUser()
+    {
+        header('Content-Type: application/json');
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $userId = $data['user_id'] ?? null;
+
+        if (!$userId) {
+            echo json_encode(['success' => false, 'message' => 'ID utilisateur requis']);
+            exit;
+        }
+
+        try {
+            $stmt = $this->db->prepare("DELETE FROM users WHERE id = ?");
+            $stmt->execute([$userId]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Utilisateur supprimé avec succès'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Récupérer tous les investissements pour le Dashboard Admin
+     */
+    public function getAllInvestments()
+    {
+        header('Content-Type: application/json');
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        try {
+            $stmt = $this->db->query("
+                SELECT 
+                    inv.id,
+                    inv.amount,
+                    inv.created_at,
+                    inv.status,
+                    p.title as project_title,
+                    p.id as project_id,
+                    u.name as investor_name,
+                    u.email as investor_email
+                FROM investments inv
+                LEFT JOIN projects p ON inv.project_id = p.id
+                LEFT JOIN users u ON inv.investor_id = u.id
+                ORDER BY inv.created_at DESC
+            ");
+            $investments = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            // Somme totale investie
+            $totalStmt = $this->db->query("SELECT COALESCE(SUM(amount), 0) as total FROM investments");
+            $totalAmount = (int)($totalStmt->fetch(\PDO::FETCH_ASSOC)['total'] ?? 0);
+
+            echo json_encode([
+                'success' => true,
+                'total_amount' => $totalAmount,
+                'data' => $investments
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Mettre à jour le statut d'un investissement (ex: confirmé / en attente / annulé)
+     */
+    public function updateInvestmentStatus()
+    {
+        header('Content-Type: application/json');
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $invId = $data['investment_id'] ?? null;
+        $status = $data['status'] ?? null;
+
+        if (!$invId || !$status) {
+            echo json_encode(['success' => false, 'message' => 'ID investissement et statut requis']);
+            exit;
+        }
+
+        try {
+            $stmt = $this->db->prepare("UPDATE investments SET status = ? WHERE id = ?");
+            $stmt->execute([$status, $invId]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Statut de l\'investissement mis à jour'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Supprimer un investissement
+     */
+    public function deleteInvestment()
+    {
+        header('Content-Type: application/json');
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $invId = $data['investment_id'] ?? null;
+
+        if (!$invId) {
+            echo json_encode(['success' => false, 'message' => 'ID investissement requis']);
+            exit;
+        }
+
+        try {
+            $stmt = $this->db->prepare("DELETE FROM investments WHERE id = ?");
+            $stmt->execute([$invId]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Investissement supprimé avec succès'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
             exit;
         }
     }

@@ -24,13 +24,16 @@ class MainController extends SimpleController
         $newsItems = $this->db->fetchAll(
             "SELECT * FROM news WHERE status = 'published' AND deleted_at IS NULL ORDER BY published_at DESC LIMIT 3"
         );
-        // Charger la nouvelle interface HTML
-        $viewPath = BASE_PATH . '/index.html';
+        // Charger la nouvelle interface
+        $viewPath = BASE_PATH . '/index.php';
+        if (!file_exists($viewPath)) {
+            $viewPath = BASE_PATH . '/index.html';
+        }
         
         if (file_exists($viewPath)) {
             require $viewPath;
         } else {
-            echo "Erreur: index.html non trouvé";
+            echo "Erreur: Interface non trouvée";
         }
     }
 
