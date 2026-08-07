@@ -189,6 +189,18 @@ try {
             $api = new App\Controllers\ApiController();
             $api->deleteInvestment();
             break;
+
+        case 'approve-investor':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->approveInvestorUser();
+            break;
+
+        case 'reject-investor':
+            require_once APP_PATH . '/Controllers/ApiController.php';
+            $api = new App\Controllers\ApiController();
+            $api->rejectInvestorUser();
+            break;
             
         default:
             echo json_encode(['success' => false, 'message' => 'Action non reconnue']);

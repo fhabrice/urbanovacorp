@@ -3273,6 +3273,8 @@
         function renderAdminUsers(users) {
             const container = document.getElementById('adminUsersList');
             if (!container) return;
+            // Cache for viewUserDetailsAdmin
+            window._adminUsersCache = users || [];
 
             if (!users || users.length === 0) {
                 container.innerHTML = '<p class="text-slate-500 text-center py-8">Aucun utilisateur inscrit</p>';

@@ -758,6 +758,96 @@ class ApiController extends SimpleController
     }
 
     /**
+     * Approve an investor (from admin dashboard)
+     */
+    public function approveInvestorUser()
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!$data) $data = $_POST;
+
+        if (empty($data['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'user_id requis']);
+            exit;
+        }
+
+        $userId = (int)$data['user_id'];
+        $reviewerId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+
+        try {
+            // Update investor record if it exists
+            $stmt = $this->db->prepare("UPDATE investors SET investor_status = 'approved', kyc_reviewed_at = NOW(), kyc_reviewed_by = ? WHERE user_id = ?");
+            $stmt->execute([$reviewerId, $userId]);
+
+            // Activate user account
+            $stmt2 = $this->db->prepare("UPDATE users SET status = 'active' WHERE id = ?");
+            $stmt2->execute([$userId]);
+
+            echo json_encode(['success' => true, 'message' => 'Investisseur approuvé avec succès']);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur DB: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
+     * Reject an investor (from admin dashboard)
+     */
+    public function rejectInvestorUser()
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        if (!$this->db) {
+            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!$data) $data = $_POST;
+
+        if (empty($data['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'user_id requis']);
+            exit;
+        }
+
+        $userId = (int)$data['user_id'];
+        $reviewerId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+
+        try {
+            // Update investor record if it exists
+            $stmt = $this->db->prepare("UPDATE investors SET investor_status = 'rejected', kyc_reviewed_at = NOW(), kyc_reviewed_by = ?, rejection_reason = 'Rejected by administrator' WHERE user_id = ?");
+            $stmt->execute([$reviewerId, $userId]);
+
+            // Suspend user account
+            $stmt2 = $this->db->prepare("UPDATE users SET status = 'suspended' WHERE id = ?");
+            $stmt2->execute([$userId]);
+
+            echo json_encode(['success' => true, 'message' => 'Investisseur rejeté']);
+            exit;
+        } catch (\PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur DB: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    /**
      * Récupérer les données de l'investisseur connecté
      */
     public function getInvestorData()
@@ -1444,9 +1534,11 @@ class ApiController extends SimpleController
 
         try {
             $stmt = $this->db->query("
-                SELECT id, name, email, role, phone, created_at, status
-                FROM users
-                ORDER BY created_at DESC
+                SELECT u.id, u.name, u.email, u.role, u.phone, u.created_at, u.status,
+                       i.investor_status, i.id as investor_record_id
+                FROM users u
+                LEFT JOIN investors i ON i.user_id = u.id
+                ORDER BY u.created_at DESC
             ");
             $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
