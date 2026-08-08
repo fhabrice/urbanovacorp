@@ -35,9 +35,19 @@ class InvestorController extends Controller
             ORDER BY i.created_at DESC
         ", [$investor['id']]);
 
+        // Get investor's favorite projects
+        $favorites = $db->fetchAll("
+            SELECT f.*, p.title, p.city, p.country, p.funding_sought, p.roi
+            FROM investor_favorites f
+            JOIN projects p ON f.project_id = p.id
+            WHERE f.investor_id = ?
+            ORDER BY f.created_at DESC
+        ", [$investor['id']]);
+
         return $this->view('investor/index', [
             'investor' => $investor,
             'interests' => $interests,
+            'favorites' => $favorites,
         ]);
     }
 
@@ -76,6 +86,16 @@ class InvestorController extends Controller
         $investmentSectors = $request->getBodyParam('investment_sectors');
         $riskProfile = $request->getBodyParam('risk_profile');
 
+        // Validate required declarations
+        $declarations = $request->getBodyParam('declarations', []);
+        $requiredDeclarations = ['accuracy', 'terms', 'privacy', 'verification'];
+        foreach ($requiredDeclarations as $required) {
+            if (!in_array($required, $declarations)) {
+                $session->setFlashMessage('error', __('investor.declarations_required'));
+                return $this->redirect('/investor/kyc');
+            }
+        }
+
         // Handle file uploads
         $kycDocuments = [];
         $allowedTypes = ['jpg', 'jpeg', 'png', 'pdf'];
@@ -85,7 +105,7 @@ class InvestorController extends Controller
             mkdir($uploadPath, 0755, true);
         }
 
-        // Upload ID document
+        // Upload ID document (individual)
         if (isset($_FILES['id_document']) && $_FILES['id_document']['error'] === UPLOAD_ERR_OK) {
             $file = $_FILES['id_document'];
             $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -97,8 +117,35 @@ class InvestorController extends Controller
             }
         }
 
+        // Upload profile photo (individual, optional)
+        if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['profile_photo'];
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            
+            if (in_array($ext, $allowedTypes)) {
+                $filename = 'profile_' . $userId . '_' . time() . '.' . $ext;
+                move_uploaded_file($file['tmp_name'], $uploadPath . '/' . $filename);
+                $kycDocuments['profile_photo'] = $filename;
+            }
+        }
+
+        // Upload corporate documents
+        $corporateDocs = ['company_registration_doc', 'company_statutes', 'representative_id', 'power_of_attorney'];
+        foreach ($corporateDocs as $docType) {
+            if (isset($_FILES[$docType]) && $_FILES[$docType]['error'] === UPLOAD_ERR_OK) {
+                $file = $_FILES[$docType];
+                $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+                
+                if (in_array($ext, $allowedTypes)) {
+                    $filename = $docType . '_' . $userId . '_' . time() . '.' . $ext;
+                    move_uploaded_file($file['tmp_name'], $uploadPath . '/' . $filename);
+                    $kycDocuments[$docType] = $filename;
+                }
+            }
+        }
+
         // Upload additional documents
-        foreach (['proof_address', 'company_docs', 'financial_docs'] as $docType) {
+        foreach (['proof_address', 'financial_docs'] as $docType) {
             if (isset($_FILES[$docType]) && $_FILES[$docType]['error'] === UPLOAD_ERR_OK) {
                 $file = $_FILES[$docType];
                 $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -349,5 +396,133 @@ class InvestorController extends Controller
 
         $session->setFlashMessage('success', __('investor.interest_submitted'));
         return $this->redirect('/investor/data-room/' . $projectId);
+    }
+
+    public function addFavorite($projectId)
+    {
+        $this->ensureInvestorRole();
+        $db = $this->getDb();
+        $session = $this->getSession();
+        $userId = $session->get('user_id');
+
+        // Get investor data
+        $investor = $db->fetchOne(
+            "SELECT * FROM investors WHERE user_id = ?",
+            [$userId]
+        );
+
+        // Check if project exists
+        $project = $db->fetchOne(
+            "SELECT * FROM projects WHERE id = ? AND status = 'approved'",
+            [$projectId]
+        );
+
+        if (!$project) {
+            $session->setFlashMessage('error', __('investor.project_not_found'));
+            return $this->redirect('/marketplace');
+        }
+
+        // Check if already favorited
+        $existing = $db->fetchOne(
+            "SELECT id FROM investor_favorites WHERE investor_id = ? AND project_id = ?",
+            [$investor['id'], $projectId]
+        );
+
+        if ($existing) {
+            $session->setFlashMessage('info', __('investor.already_favorited'));
+            return $this->redirect('/marketplace');
+        }
+
+        // Add to favorites
+        $db->execute(
+            "INSERT INTO investor_favorites (investor_id, project_id) VALUES (?, ?)",
+            [$investor['id'], $projectId]
+        );
+
+        $session->setFlashMessage('success', __('investor.added_to_favorites'));
+        return $this->redirect('/marketplace');
+    }
+
+    public function removeFavorite($projectId)
+    {
+        $this->ensureInvestorRole();
+        $db = $this->getDb();
+        $session = $this->getSession();
+        $userId = $session->get('user_id');
+
+        // Get investor data
+        $investor = $db->fetchOne(
+            "SELECT * FROM investors WHERE user_id = ?",
+            [$userId]
+        );
+
+        // Remove from favorites
+        $db->execute(
+            "DELETE FROM investor_favorites WHERE investor_id = ? AND project_id = ?",
+            [$investor['id'], $projectId]
+        );
+
+        $session->setFlashMessage('success', __('investor.removed_from_favorites'));
+        return $this->redirect('/investor');
+    }
+
+    public function messages()
+    {
+        $this->ensureInvestorRole();
+        $db = $this->getDb();
+        $session = $this->getSession();
+        $userId = $session->get('user_id');
+
+        // Get investor data
+        $investor = $db->fetchOne(
+            "SELECT * FROM investors WHERE user_id = ?",
+            [$userId]
+        );
+
+        // Get investor's messages
+        $messages = $db->fetchAll("
+            SELECT m.*, u.first_name as admin_first_name, u.last_name as admin_last_name
+            FROM investor_messages m
+            LEFT JOIN users u ON m.admin_replied_by = u.id
+            WHERE m.investor_id = ?
+            ORDER BY m.created_at DESC
+        ", [$investor['id']]);
+
+        return $this->view('investor/messages', [
+            'investor' => $investor,
+            'messages' => $messages,
+        ]);
+    }
+
+    public function sendMessage()
+    {
+        $this->ensureInvestorRole();
+        $request = $this->getRequest();
+        $db = $this->getDb();
+        $session = $this->getSession();
+        $userId = $session->get('user_id');
+
+        // Get investor data
+        $investor = $db->fetchOne(
+            "SELECT * FROM investors WHERE user_id = ?",
+            [$userId]
+        );
+
+        $subject = trim($request->getBodyParam('subject'));
+        $message = trim($request->getBodyParam('message'));
+
+        if (empty($subject) || empty($message)) {
+            $session->setFlashMessage('error', __('investor.message_required_fields'));
+            return $this->redirect('/investor/messages');
+        }
+
+        // Insert message
+        $db->execute(
+            "INSERT INTO investor_messages (investor_id, subject, message) VALUES (?, ?, ?)",
+            [$investor['id'], $subject, $message]
+        );
+
+        $session->setFlashMessage('success', __('investor.message_sent'));
+        return $this->redirect('/investor/messages');
     }
 }

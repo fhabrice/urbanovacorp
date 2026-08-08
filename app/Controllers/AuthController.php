@@ -213,8 +213,8 @@ class AuthController extends Controller
         if ($role === 'investor') {
             $investorCategoryType = $investorType === 'individual' ? 'individual' : 'corporate';
             $db->execute(
-                "INSERT INTO investors (user_id, type, investor_type, investor_status, company_name, representative_name, position, country, city, address, phone, website) VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?)",
-                [$userId, $investorCategoryType, $investorType, $companyName, $representativeName, $position, $country, $city, $address, $phone, $website]
+                "INSERT INTO investors (user_id, type, investor_type, investor_status, company_name, country, city, address, phone) VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?)",
+                [$userId, $investorCategoryType, $investorType, $companyName, $country, $city, $address, $phone]
             );
         }
 

@@ -332,24 +332,21 @@ class ApiController extends SimpleController
                 try {
                     $invStmt = $this->db->prepare("
                         INSERT INTO investors (
-                            user_id, type, investor_type, investor_status, company_name, 
-                            representative_name, position, country, city, address, phone, website
+                            user_id, type, investor_type, investor_status, 
+                            company_name, country, city, address, phone
                         ) VALUES (
                             ?, 'individual', ?, 'approved', ?, 
-                            ?, ?, ?, ?, ?, ?, ?
+                            ?, ?, ?, ?
                         )
                     ");
                     $invStmt->execute([
                         $userId,
                         $investorType,
                         $data['company_name'] ?? '',
-                        $data['representative_name'] ?? $name,
-                        $data['position'] ?? '',
                         $data['country'] ?? '',
                         $data['city'] ?? '',
                         $data['address'] ?? '',
-                        $data['phone'] ?? '',
-                        $data['website'] ?? ''
+                        $data['phone'] ?? ''
                     ]);
                 } catch (\PDOException $invEx) {
                     error_log('Register API: Failed to insert into investors table: ' . $invEx->getMessage());

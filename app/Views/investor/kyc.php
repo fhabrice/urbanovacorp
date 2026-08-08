@@ -68,6 +68,10 @@
                     <label>Document (PDF, JPG, PNG)</label>
                     <input type="file" name="id_document" accept=".pdf,.jpg,.jpeg,.png">
                 </div>
+                <div class="form-group">
+                    <label>Photo de profil (JPG, PNG) - Optionnel</label>
+                    <input type="file" name="profile_photo" accept=".jpg,.jpeg,.png">
+                </div>
             </div>
 
             <div class="form-section corporate-only" style="display: none;">
@@ -77,16 +81,32 @@
                     <input type="text" name="company_name" value="<?php echo htmlspecialchars($investor['company_name'] ?? ''); ?>">
                 </div>
                 <div class="form-group">
-                    <label>Numéro d'enregistrement</label>
+                    <label>Numéro d'enregistrement (RCCM)</label>
                     <input type="text" name="company_registration_number" value="<?php echo htmlspecialchars($investor['company_registration_number'] ?? ''); ?>">
                 </div>
                 <div class="form-group">
                     <label>Identifiant fiscal</label>
                     <input type="text" name="company_tax_id" value="<?php echo htmlspecialchars($investor['company_tax_id'] ?? ''); ?>">
                 </div>
+            </div>
+
+            <div class="form-section corporate-only" style="display: none;">
+                <h2>Documents entreprise</h2>
                 <div class="form-group">
-                    <label>Documents entreprise (PDF, JPG, PNG)</label>
-                    <input type="file" name="company_docs" accept=".pdf,.jpg,.jpeg,.png">
+                    <label>Certificat d'immatriculation / RCCM (PDF, JPG, PNG)</label>
+                    <input type="file" name="company_registration_doc" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+                <div class="form-group">
+                    <label>Statuts de l'entreprise (PDF, JPG, PNG)</label>
+                    <input type="file" name="company_statutes" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+                <div class="form-group">
+                    <label>Pièce d'identité du représentant légal (PDF, JPG, PNG)</label>
+                    <input type="file" name="representative_id" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+                <div class="form-group">
+                    <label>Pouvoir ou mandat de représentation (PDF, JPG, PNG) - Optionnel</label>
+                    <input type="file" name="power_of_attorney" accept=".pdf,.jpg,.jpeg,.png">
                 </div>
             </div>
 
@@ -122,6 +142,34 @@
                 </div>
             </div>
 
+            <div class="form-section">
+                <h2>Déclarations obligatoires</h2>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="declarations[]" value="accuracy" required>
+                        <span>Je certifie l'exactitude des informations fournies.</span>
+                    </label>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="declarations[]" value="terms" required>
+                        <span>J'accepte les Conditions Générales d'Utilisation de la plateforme.</span>
+                    </label>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="declarations[]" value="privacy" required>
+                        <span>J'accepte la Politique de confidentialité.</span>
+                    </label>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="declarations[]" value="verification" required>
+                        <span>J'autorise Urbanova à vérifier les informations transmises.</span>
+                    </label>
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primary"><?php echo __('investor.submit_kyc'); ?></button>
         </form>
     </div>
@@ -130,17 +178,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const typeRadios = document.querySelectorAll('input[name="type"]');
-    const individualSection = document.querySelector('.individual-only');
-    const corporateSection = document.querySelector('.corporate-only');
+    const individualSections = document.querySelectorAll('.individual-only');
+    const corporateSections = document.querySelectorAll('.corporate-only');
 
     typeRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.value === 'individual') {
-                individualSection.style.display = 'block';
-                corporateSection.style.display = 'none';
+                individualSections.forEach(section => section.style.display = 'block');
+                corporateSections.forEach(section => section.style.display = 'none');
             } else {
-                individualSection.style.display = 'none';
-                corporateSection.style.display = 'block';
+                individualSections.forEach(section => section.style.display = 'none');
+                corporateSections.forEach(section => section.style.display = 'block');
             }
         });
     });

@@ -23,6 +23,7 @@
                 <a href="/investor"><?php echo __('investor.dashboard'); ?></a>
                 <a href="/investor/profile"><?php echo __('investor.profile_title'); ?></a>
                 <a href="/investor/kyc"><?php echo __('investor.kyc_title'); ?></a>
+                <a href="/investor/messages"><?php echo __('investor.messages_title'); ?></a>
                 <a href="/marketplace"><?php echo __('nav.marketplace'); ?></a>
                 <a href="/logout"><?php echo __('nav.logout'); ?></a>
             </nav>
@@ -100,6 +101,35 @@
                                     <div class="interest-actions">
                                         <a href="/investor/data-room/<?php echo $interest['project_id']; ?>" class="btn btn-sm">
                                             <?php echo __('investor.data_room'); ?>
+                                        </a>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="favorites-section">
+                    <h2><?php echo __('investor.my_favorites'); ?></h2>
+                    <?php if (empty($favorites)): ?>
+                        <p><?php echo __('investor.no_favorites'); ?></p>
+                        <a href="/marketplace" class="btn btn-primary"><?php echo __('investor.browse_projects'); ?></a>
+                    <?php else: ?>
+                        <div class="favorites-list">
+                            <?php foreach ($favorites as $favorite): ?>
+                                <div class="favorite-card">
+                                    <h3><?php echo htmlspecialchars($favorite['title']); ?></h3>
+                                    <p class="location"><?php echo htmlspecialchars($favorite['city']); ?>, <?php echo htmlspecialchars($favorite['country']); ?></p>
+                                    <div class="favorite-details">
+                                        <span><?php echo __('project.funding_sought'); ?>: <?php echo number_format($favorite['funding_sought']); ?> $</span>
+                                        <span><?php echo __('project.roi'); ?>: <?php echo $favorite['roi']; ?>%</span>
+                                    </div>
+                                    <div class="favorite-actions">
+                                        <a href="/marketplace/project/<?php echo $favorite['project_id']; ?>" class="btn btn-sm">
+                                            <?php echo __('investor.view_project'); ?>
+                                        </a>
+                                        <a href="/investor/favorites/<?php echo $favorite['project_id']; ?>/remove" class="btn btn-sm btn-danger">
+                                            <?php echo __('investor.remove_favorite'); ?>
                                         </a>
                                     </div>
                                 </div>

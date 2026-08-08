@@ -26,9 +26,13 @@ return [
     ['method' => 'GET', 'path' => '/projects/submit', 'handler' => 'ProjectController@submitForm', 'middleware' => ['AuthMiddleware']],
     ['method' => 'POST', 'path' => '/projects/submit', 'handler' => 'ProjectController@submit', 'middleware' => ['AuthMiddleware']],
 
+    // Promoter Dashboard
+    ['method' => 'GET', 'path' => '/promoter', 'handler' => 'PromoterController@index', 'middleware' => ['AuthMiddleware', 'PromoterMiddleware']],
+
     // Marketplace
     ['method' => 'GET', 'path' => '/marketplace', 'handler' => 'MarketplaceController@index'],
     ['method' => 'GET', 'path' => '/marketplace/{id}', 'handler' => 'MarketplaceController@show'],
+    ['method' => 'GET', 'path' => '/debug/marketplace', 'handler' => 'MarketplaceController@debug'],
 
     // Investor Portal
     ['method' => 'GET', 'path' => '/investor', 'handler' => 'InvestorController@index', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
@@ -38,6 +42,10 @@ return [
     ['method' => 'POST', 'path' => '/investor/profile', 'handler' => 'InvestorController@profileSubmit', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
     ['method' => 'GET', 'path' => '/investor/data-room/{id}', 'handler' => 'InvestorController@dataRoom', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
     ['method' => 'POST', 'path' => '/investor/interest/{id}', 'handler' => 'InvestorController@expressInterest', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
+    ['method' => 'GET', 'path' => '/investor/favorites/{id}/add', 'handler' => 'InvestorController@addFavorite', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
+    ['method' => 'GET', 'path' => '/investor/favorites/{id}/remove', 'handler' => 'InvestorController@removeFavorite', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
+    ['method' => 'GET', 'path' => '/investor/messages', 'handler' => 'InvestorController@messages', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
+    ['method' => 'POST', 'path' => '/investor/messages/send', 'handler' => 'InvestorController@sendMessage', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
 
     // Admin Dashboard
     ['method' => 'GET', 'path' => '/admin', 'handler' => 'AdminController@index', 'middleware' => ['AuthMiddleware', 'AdminMiddleware']],

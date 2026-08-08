@@ -9,6 +9,22 @@
 
 <div class="marketplace-container">
     <div class="container">
+        <!-- Debug info -->
+        <div class="alert alert-info" style="margin-bottom: 2rem;">
+            <strong>Debug Info:</strong> 
+            <?php 
+            error_log("Marketplace view loaded");
+            error_log("Projects: " . (isset($projects) ? 'set, count=' . count($projects) : 'NOT set'));
+            error_log("Filters: " . print_r($filters ?? [], true));
+            error_log("FilterOptions: " . print_r($filterOptions ?? [], true));
+            ?>
+            <?php if (isset($projects)): ?>
+                Projects array exists. Count: <?php echo count($projects); ?>
+            <?php else: ?>
+                Projects array is NOT set
+            <?php endif; ?>
+        </div>
+
         <div class="marketplace-layout">
             <!-- Filters Sidebar -->
             <aside class="filters-sidebar">
@@ -26,12 +42,14 @@
                             <label><?php echo __('project.country'); ?></label>
                             <select name="country">
                                 <option value=""><?php echo __('marketplace.filter'); ?></option>
-                                <?php foreach ($filterOptions['countries'] as $country): ?>
-                                    <option value="<?php echo htmlspecialchars($country['country']); ?>" 
-                                            <?php echo $filters['country'] === $country['country'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($country['country']); ?>
-                                    </option>
-                                <?php endforeach; ?>
+                                <?php if (!empty($filterOptions['countries'])): ?>
+                                    <?php foreach ($filterOptions['countries'] as $country): ?>
+                                        <option value="<?php echo htmlspecialchars($country['country']); ?>" 
+                                                <?php echo isset($filters['country']) && $filters['country'] === $country['country'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($country['country']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
 
@@ -39,12 +57,14 @@
                             <label><?php echo __('project.city'); ?></label>
                             <select name="city">
                                 <option value=""><?php echo __('marketplace.filter'); ?></option>
-                                <?php foreach ($filterOptions['cities'] as $city): ?>
-                                    <option value="<?php echo htmlspecialchars($city['city']); ?>"
-                                            <?php echo $filters['city'] === $city['city'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($city['city']); ?>
-                                    </option>
-                                <?php endforeach; ?>
+                                <?php if (!empty($filterOptions['cities'])): ?>
+                                    <?php foreach ($filterOptions['cities'] as $city): ?>
+                                        <option value="<?php echo htmlspecialchars($city['city']); ?>"
+                                                <?php echo isset($filters['city']) && $filters['city'] === $city['city'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($city['city']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
 
@@ -52,12 +72,14 @@
                             <label><?php echo __('project.sector'); ?></label>
                             <select name="sector">
                                 <option value=""><?php echo __('marketplace.filter'); ?></option>
-                                <?php foreach ($filterOptions['sectors'] as $sector): ?>
-                                    <option value="<?php echo htmlspecialchars($sector['sector']); ?>"
-                                            <?php echo $filters['sector'] === $sector['sector'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($sector['sector']); ?>
-                                    </option>
-                                <?php endforeach; ?>
+                                <?php if (!empty($filterOptions['sectors'])): ?>
+                                    <?php foreach ($filterOptions['sectors'] as $sector): ?>
+                                        <option value="<?php echo htmlspecialchars($sector['sector']); ?>"
+                                                <?php echo isset($filters['sector']) && $filters['sector'] === $sector['sector'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($sector['sector']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
 
@@ -65,19 +87,19 @@
                             <label><?php echo __('project.type'); ?></label>
                             <select name="type">
                                 <option value=""><?php echo __('marketplace.filter'); ?></option>
-                                <option value="residential" <?php echo $filters['type'] === 'residential' ? 'selected' : ''; ?>>
+                                <option value="residential" <?php echo isset($filters['type']) && $filters['type'] === 'residential' ? 'selected' : ''; ?>>
                                     <?php echo __('project.type_residential'); ?>
                                 </option>
-                                <option value="commercial" <?php echo $filters['type'] === 'commercial' ? 'selected' : ''; ?>>
+                                <option value="commercial" <?php echo isset($filters['type']) && $filters['type'] === 'commercial' ? 'selected' : ''; ?>>
                                     <?php echo __('project.type_commercial'); ?>
                                 </option>
-                                <option value="mixed_use" <?php echo $filters['type'] === 'mixed_use' ? 'selected' : ''; ?>>
+                                <option value="mixed_use" <?php echo isset($filters['type']) && $filters['type'] === 'mixed_use' ? 'selected' : ''; ?>>
                                     <?php echo __('project.type_mixed_use'); ?>
                                 </option>
-                                <option value="infrastructure" <?php echo $filters['type'] === 'infrastructure' ? 'selected' : ''; ?>>
+                                <option value="infrastructure" <?php echo isset($filters['type']) && $filters['type'] === 'infrastructure' ? 'selected' : ''; ?>>
                                     <?php echo __('project.type_infrastructure'); ?>
                                 </option>
-                                <option value="industrial" <?php echo $filters['type'] === 'industrial' ? 'selected' : ''; ?>>
+                                <option value="industrial" <?php echo isset($filters['type']) && $filters['type'] === 'industrial' ? 'selected' : ''; ?>>
                                     <?php echo __('project.type_industrial'); ?>
                                 </option>
                             </select>
@@ -109,9 +131,10 @@
 
             <!-- Projects Grid -->
             <main class="projects-main">
-                <?php if (empty($projects)): ?>
+                <?php if (!isset($projects) || empty($projects)): ?>
                     <div class="no-projects">
                         <p><?php echo __('marketplace.no_projects'); ?></p>
+                        <a href="/" class="btn btn-primary"><?php echo __('nav.home'); ?></a>
                     </div>
                 <?php else: ?>
                     <div class="projects-grid">
@@ -162,9 +185,16 @@
                                         </div>
                                     </div>
                                     
-                                    <a href="/marketplace/<?php echo $project['id']; ?>" class="btn btn-primary btn-block">
-                                        <?php echo __('marketplace.view_details'); ?>
-                                    </a>
+                                    <div class="project-actions">
+                                        <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'investor'): ?>
+                                            <a href="/investor/favorites/<?php echo $project['id']; ?>/add" class="btn btn-outline btn-sm" title="<?php echo __('investor.add_to_favorites'); ?>">
+                                                <i class="fas fa-heart"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                        <a href="/marketplace/<?php echo $project['id']; ?>" class="btn btn-primary">
+                                            <?php echo __('marketplace.view_details'); ?>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -318,6 +348,16 @@
     color: var(--muted-color);
 }
 
+.project-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.project-actions .btn {
+    flex: 1;
+}
+
 @media (max-width: 768px) {
     .marketplace-layout {
         grid-template-columns: 1fr;
@@ -334,16 +374,19 @@
 </style>
 
 <script>
-document.getElementById('toggleFilters').addEventListener('click', function() {
-    const filtersContent = document.getElementById('filtersContent');
-    filtersContent.classList.toggle('active');
-    
-    if (filtersContent.classList.contains('active')) {
-        this.innerHTML = '<i class="fas fa-filter"></i> <?php echo __('marketplace.hide_filters'); ?>';
-    } else {
-        this.innerHTML = '<i class="fas fa-filter"></i> <?php echo __('marketplace.show_filters'); ?>';
-    }
-});
+const toggleFilters = document.getElementById('toggleFilters');
+if (toggleFilters) {
+    toggleFilters.addEventListener('click', function() {
+        const filtersContent = document.getElementById('filtersContent');
+        filtersContent.classList.toggle('active');
+        
+        if (filtersContent.classList.contains('active')) {
+            this.innerHTML = '<i class="fas fa-filter"></i> <?php echo __('marketplace.hide_filters'); ?>';
+        } else {
+            this.innerHTML = '<i class="fas fa-filter"></i> <?php echo __('marketplace.show_filters'); ?>';
+        }
+    });
+}
 </script>
 
 <?php require_once APP_PATH . '/Views/layouts/footer.php'; ?>
