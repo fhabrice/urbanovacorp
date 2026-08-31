@@ -1,3 +1,13 @@
+<?php
+/**
+ * Configuration partagée (mot de passe admin, etc.)
+ */
+if (!defined('CONFIG_PATH')) {
+    define('CONFIG_PATH', __DIR__ . '/config');
+}
+$siteConfig = file_exists(CONFIG_PATH . '/config.php') ? require CONFIG_PATH . '/config.php' : [];
+$adminPassword = htmlspecialchars($siteConfig['security']['admin_password'] ?? 'urbanova', ENT_QUOTES, 'UTF-8');
+?>
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
 
@@ -2282,7 +2292,7 @@
         let currentUser = null;
         let registerWizardStep = 1;
         let isAdminAuthenticated = false;
-        const ADMIN_PASSWORD = 'urbanova';
+        const ADMIN_PASSWORD = <?php echo json_encode($adminPassword); ?>;
 
         // On Load initialization
         window.onload = function () {
@@ -3241,7 +3251,9 @@
                 
                 // Load users
                 try {
-                    const usersResponse = await fetch('api.php?action=get-users');
+                    const usersResponse = await fetch('api.php?action=get-users', {
+                        headers: { 'X-Admin-Password': ADMIN_PASSWORD }
+                    });
                     const usersResult = await usersResponse.json();
                     if (usersResult.success) {
                         document.getElementById('adminTotalUsers').textContent = usersResult.data.length;
@@ -3253,7 +3265,9 @@
                 
                 // Load investments
                 try {
-                    const invResponse = await fetch('api.php?action=get-investments');
+                    const invResponse = await fetch('api.php?action=get-investments', {
+                        headers: { 'X-Admin-Password': ADMIN_PASSWORD }
+                    });
                     const invResult = await invResponse.json();
                     if (invResult.success) {
                         const totalFormatted = (invResult.total_amount || 0).toLocaleString('fr-FR');
@@ -3332,7 +3346,7 @@
             try {
                 const response = await fetch('api.php?action=update-user-status', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
                     body: JSON.stringify({ user_id: userId, status: newStatus })
                 });
                 const res = await response.json();
@@ -3353,7 +3367,7 @@
             try {
                 const response = await fetch('api.php?action=delete-user', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
                     body: JSON.stringify({ user_id: userId })
                 });
                 const res = await response.json();
@@ -3374,7 +3388,7 @@
             try {
                 const response = await fetch('api.php?action=approve-investor', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
                     body: JSON.stringify({ user_id: userId })
                 });
                 const res = await response.json();
@@ -3395,7 +3409,7 @@
             try {
                 const response = await fetch('api.php?action=reject-investor', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
                     body: JSON.stringify({ user_id: userId })
                 });
                 const res = await response.json();
@@ -3484,7 +3498,7 @@
             try {
                 const response = await fetch('api.php?action=update-investment-status', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
                     body: JSON.stringify({ investment_id: invId, status: newStatus })
                 });
                 const res = await response.json();
@@ -3505,7 +3519,7 @@
             try {
                 const response = await fetch('api.php?action=delete-investment', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
                     body: JSON.stringify({ investment_id: invId })
                 });
                 const res = await response.json();
@@ -3603,7 +3617,7 @@
             try {
                 const response = await fetch('api.php?action=delete-project', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
                     body: JSON.stringify({ id: projectId })
                 });
                 const result = await response.json();
@@ -3625,7 +3639,7 @@
             try {
                 const response = await fetch('api.php?action=approve-project', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
                     body: JSON.stringify({ id: projectId, action: 'approve' })
                 });
                 
@@ -3648,7 +3662,7 @@
             try {
                 const response = await fetch('api.php?action=approve-project', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
                     body: JSON.stringify({ id: projectId, action: 'reject' })
                 });
                 

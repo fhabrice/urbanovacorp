@@ -32,6 +32,7 @@ return [
         'password_min_length' => 8,
         'max_login_attempts' => 5,
         'lockout_time' => 900,
+        'admin_password' => getenv('ADMIN_PASSWORD') ?: 'urbanova',
     ],
 
     // Upload
