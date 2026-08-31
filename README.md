@@ -306,7 +306,7 @@ jobs:
 
 ### Pour les administrateurs:
 
-1. Se connecter avec le compte admin
+1. Cliquer sur l'onglet **Admin** du site et saisir le mot de passe administrateur (`ADMIN_PASSWORD` défini dans `index.php`)
 2. Voir le tableau de bord et les statistiques
 3. Valider ou rejeter les projets soumis
 4. Approuver les investisseurs après vérification KYC

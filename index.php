@@ -1365,13 +1365,13 @@
                                     <i class="fa-solid fa-shield-halved text-2xl text-white"></i>
                                 </div>
                                 <h2 class="text-2xl font-extrabold text-brand-dark">Accès Admin</h2>
-                                <p class="text-slate-600 text-sm mt-1">Entrez votre code d'accès administrateur</p>
+                                <p class="text-slate-600 text-sm mt-1">Entrez le mot de passe administrateur</p>
                             </div>
                             
                             <form onsubmit="event.preventDefault(); handleAdminLogin();">
                                 <div class="mb-4">
-                                    <label class="block text-sm font-bold text-slate-700 mb-2">Code d'accès</label>
-                                    <input type="password" id="adminCode" placeholder="•••••••"
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Mot de passe</label>
+                                    <input type="password" id="adminCode" placeholder="Mot de passe"
                                         class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
                                         required>
                                 </div>
@@ -2282,7 +2282,7 @@
         let currentUser = null;
         let registerWizardStep = 1;
         let isAdminAuthenticated = false;
-        const ADMIN_CODE = '1234567';
+        const ADMIN_PASSWORD = 'urbanova';
 
         // On Load initialization
         window.onload = function () {
@@ -3179,14 +3179,14 @@
         function handleAdminLogin() {
             const code = document.getElementById('adminCode').value;
             
-            if (code === ADMIN_CODE) {
+            if (code === ADMIN_PASSWORD) {
                 isAdminAuthenticated = true;
                 document.getElementById('adminLogin').classList.add('hidden');
                 document.getElementById('adminDashboard').classList.remove('hidden');
                 showToast("Accès autorisé", "Bienvenue dans l'espace administration");
                 loadAdminData();
             } else {
-                showToast("Code incorrect", "Le code d'accès administrateur est incorrect", "warning");
+                showToast("Mot de passe incorrect", "Le mot de passe administrateur est incorrect", "warning");
                 document.getElementById('adminCode').value = '';
             }
         }
