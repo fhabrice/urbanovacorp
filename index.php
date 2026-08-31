@@ -2,11 +2,35 @@
 /**
  * Configuration partagée (mot de passe admin, etc.)
  */
-if (!defined('CONFIG_PATH')) {
-    define('CONFIG_PATH', __DIR__ . '/config');
+
+// Chemins requis par config/config.php (il utilise PUBLIC_PATH)
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', __DIR__);
 }
-$siteConfig = file_exists(CONFIG_PATH . '/config.php') ? require CONFIG_PATH . '/config.php' : [];
-$adminPassword = htmlspecialchars($siteConfig['security']['admin_password'] ?? 'urbanova', ENT_QUOTES, 'UTF-8');
+if (!defined('APP_PATH')) {
+    define('APP_PATH', BASE_PATH . '/app');
+}
+if (!defined('PUBLIC_PATH')) {
+    define('PUBLIC_PATH', BASE_PATH . '/public');
+}
+if (!defined('CONFIG_PATH')) {
+    define('CONFIG_PATH', BASE_PATH . '/config');
+}
+
+// Chargement défensif : la page ne doit jamais planter à cause de la config
+$adminPassword = 'urbanova';
+try {
+    if (file_exists(CONFIG_PATH . '/config.php')) {
+        $siteConfig = require CONFIG_PATH . '/config.php';
+        if (!empty($siteConfig['security']['admin_password'])) {
+            $adminPassword = (string) $siteConfig['security']['admin_password'];
+        }
+    }
+} catch (\Throwable $e) {
+    // On garde le mot de passe par défaut si la config est inaccessible
+    $adminPassword = 'urbanova';
+}
+$adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
