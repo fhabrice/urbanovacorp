@@ -3535,7 +3535,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                 if (!result.success) throw new Error(result.message || 'Erreur');
                 const projects = (result.data || []).filter(p => {
                     const st = (p.raw_status || p.status || '').toLowerCase();
-                    return st === 'approved' || st === 'approuvé' || st === 'published' || st === 'publié';
+                    return ['approved', 'approuvé', 'published', 'publié', 'funding', 'en financement', 'active', 'actif', 'completed', 'terminé'].includes(st);
                 });
                 if (projects.length === 0) {
                     container.innerHTML = '<p class="text-slate-500 text-center py-6">Aucun projet approuvé à mettre en avant.</p>';

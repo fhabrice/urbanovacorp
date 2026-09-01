@@ -84,6 +84,38 @@ class ApiController extends SimpleController
     }
 
     /**
+     * Vérifie si une colonne existe (compatibilité schémas anciens / nouveaux)
+     */
+    private function hasColumn($table, $column)
+    {
+        static $cache = [];
+        $key = $table . '.' . $column;
+        if (array_key_exists($key, $cache)) return $cache[$key];
+        try {
+            $stmt = $this->db->prepare(
+                "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?"
+            );
+            $stmt->execute([$table, $column]);
+            $cache[$key] = (int)$stmt->fetchColumn() > 0;
+        } catch (\Throwable $e) {
+            $cache[$key] = false;
+        }
+        return $cache[$key];
+    }
+
+    /**
+     * Message d'erreur actionnable quand la base n'a pas encore été mise à jour
+     */
+    private function dbUpgradeHint(\PDOException $e)
+    {
+        $msg = $e->getMessage();
+        if (stripos($msg, '42S02') !== false || stripos($msg, '42S22') !== false) {
+            return 'Base de données à mettre à jour : ouvrez https://votre-site/upgrade.php (mot de passe admin) ou importez database/upgrade_schema.sql dans phpMyAdmin. Détail : ' . $msg;
+        }
+        return 'Erreur de base de données: ' . $msg;
+    }
+
+    /**
      * Récupérer tous les projets pour la marketplace
      */
     public function getProjects()
@@ -92,36 +124,25 @@ class ApiController extends SimpleController
         
         if ($this->db) {
             try {
-                $stmt = $this->db->query("
-                    SELECT 
-                        p.id,
-                        p.title,
-                        p.city,
-                        p.country,
-                        p.sector,
-                        p.funding_sought as target,
-                        p.funding_raised as raised,
-                        p.expected_roi as roi,
-                        p.validation_status as status,
-                        p.project_type,
-                        p.operation_type,
-                        p.coordinates_lat,
-                        p.coordinates_lng,
-                        p.promoter,
-                        p.description,
-                        p.image,
-                        p.video_url,
-                        p.virtual_tour_url,
-                        p.google_maps_embed,
-                        p.brochure_path,
-                        p.availability,
-                        p.price,
-                        p.is_featured,
-                        CONCAT(p.city, ', ', p.country) as location
-                    FROM projects p
-                    WHERE p.validation_status IS NOT NULL
-                    ORDER BY p.created_at DESC
-                ");
+                // Sélection adaptative : fonctionne aussi si la base n'a pas encore
+                // été mise à jour (colonne validation_status absente -> status)
+                $f = ['p.id', 'p.title', 'p.city', 'p.country', 'p.sector',
+                      'p.funding_sought as target', 'p.funding_raised as raised',
+                      'p.expected_roi as roi', 'p.promoter', 'p.description', 'p.image'];
+                if ($this->hasColumn('projects', 'validation_status')) {
+                    $f[] = 'p.validation_status as status';
+                    $where = 'p.validation_status IS NOT NULL';
+                } else {
+                    $f[] = 'p.status as status';
+                    $where = 'p.status IS NOT NULL';
+                }
+                foreach (['project_type', 'operation_type', 'coordinates_lat', 'coordinates_lng',
+                          'video_url', 'virtual_tour_url', 'google_maps_embed', 'brochure_path',
+                          'availability', 'price', 'is_featured'] as $col) {
+                    if ($this->hasColumn('projects', $col)) $f[] = 'p.' . $col;
+                }
+                $f[] = "CONCAT(p.city, ', ', p.country) as location";
+                $stmt = $this->db->query('SELECT ' . implode(', ', $f) . " FROM projects p WHERE " . $where . " ORDER BY p.created_at DESC");
                 
                 $projects = $stmt->fetchAll(\PDO::FETCH_ASSOC);
                 
@@ -175,7 +196,7 @@ class ApiController extends SimpleController
             } catch (\PDOException $e) {
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Erreur de base de données: ' . $e->getMessage()
+                    'message' => $this->dbUpgradeHint($e)
                 ]);
                 exit;
             }
@@ -3243,18 +3264,24 @@ class ApiController extends SimpleController
     {
         if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
         try {
-            $stmt = $this->db->query("
-                SELECT p.id, p.title, p.slug, p.city, p.country, p.description, p.image,
-                       p.funding_sought AS target, p.funding_raised AS raised,
-                       p.expected_roi AS roi, p.validation_status AS status,
-                       p.housing_units, p.price, p.project_type,
-                       CONCAT(p.city, ', ', p.country) AS location
-                FROM projects p
-                WHERE p.is_featured = 1
-                  AND p.validation_status IN ('published', 'approved', 'funding', 'active')
-                ORDER BY p.updated_at DESC
-                LIMIT 9
-            ");
+            // Adaptatif : fonctionne sur l'ancien schéma (sans is_featured / validation_status)
+            $hasValidation = $this->hasColumn('projects', 'validation_status');
+            $hasFeatured = $this->hasColumn('projects', 'is_featured');
+            $statusCol = $hasValidation ? 'p.validation_status' : 'p.status';
+            $f = ['p.id', 'p.title', 'p.slug', 'p.city', 'p.country', 'p.description', 'p.image',
+                  'p.funding_sought AS target', 'p.funding_raised AS raised',
+                  'p.expected_roi AS roi', $statusCol . ' AS status'];
+            foreach (['housing_units', 'price', 'project_type'] as $col) {
+                if ($this->hasColumn('projects', $col)) $f[] = 'p.' . $col;
+            }
+            $f[] = "CONCAT(p.city, ', ', p.country) AS location";
+            $statusCond = $hasValidation
+                ? $statusCol . " IN ('published', 'approved', 'funding', 'active')"
+                : $statusCol . " IN ('approved', 'funding', 'completed')";
+            $featuredCond = $hasFeatured ? 'p.is_featured = 1 AND ' : '';
+            $stmt = $this->db->query(
+                'SELECT ' . implode(', ', $f) . ' FROM projects p WHERE ' . $featuredCond . $statusCond . ' ORDER BY p.updated_at DESC LIMIT 9'
+            );
             $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             $out = [];
             foreach ($rows as $p) {
@@ -3281,7 +3308,7 @@ class ApiController extends SimpleController
             }
             $this->jsonOut(['success' => true, 'data' => $out]);
         } catch (\PDOException $e) {
-            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            $this->jsonOut(['success' => false, 'message' => $this->dbUpgradeHint($e)]);
         }
     }
 
@@ -3343,7 +3370,7 @@ class ApiController extends SimpleController
             }
             $this->jsonOut(['success' => true, 'data' => $rows]);
         } catch (\PDOException $e) {
-            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            $this->jsonOut(['success' => false, 'message' => $this->dbUpgradeHint($e)]);
         }
     }
 
@@ -3495,7 +3522,7 @@ class ApiController extends SimpleController
             }
             $this->jsonOut(['success' => true, 'message' => 'Contenus du site enregistrés']);
         } catch (\PDOException $e) {
-            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            $this->jsonOut(['success' => false, 'message' => $this->dbUpgradeHint($e)]);
         }
     }
 

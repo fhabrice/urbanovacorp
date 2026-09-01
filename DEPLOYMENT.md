@@ -144,6 +144,25 @@ systemctl restart php8.1-fpm
 systemctl restart nginx
 ```
 
+### Méthode 3: Hébergement mutualisé (cPanel, sans SSH) — recommandé
+
+```text
+1. Téléchargez urbanovacorp.zip depuis la branche de livraison.
+2. Gestionnaire de fichiers -> extrayez le zip à la racine du site
+   (en écrasant les anciens fichiers).
+3. Ouvrez :  https://votre-domaine/upgrade.php
+4. Mot de passe : urbanova  (celui de l'espace admin)
+5. La page affiche l'exécution puis une vérification :
+   [OK] Table news (actualités)
+   [OK] Table site_content (contenus)
+   [OK] Colonne projects.is_featured / validation_status / project_type / slug
+   -> si tout est [OK], la base est prête ; le fichier se supprime tout seul.
+   -> si [MANQUANT], importez database/upgrade_schema.sql via phpMyAdmin
+      dans la base wqmetrvw_urbanova puis relancez.
+6. Rechargez https://votre-domaine : l'onglet admin « Contenus » est opérationnel
+   (projets phares, actualités, textes du site).
+```
+
 ### Méthode 2: CI/CD avec GitHub Actions
 
 Créez `.github/workflows/deploy.yml`:

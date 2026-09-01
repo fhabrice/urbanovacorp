@@ -173,9 +173,41 @@ foreach ($statements as $stmt) {
 
 echo "</pre>";
 
+// ---------------------------------------------------------------
+// Vérification finale : objets attendus par l'application
+// ---------------------------------------------------------------
+$checks = [
+    ['Table news (actualités)', "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'news'"],
+    ['Table site_content (contenus)', "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'site_content'"],
+    ['Colonne projects.is_featured', "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'projects' AND COLUMN_NAME = 'is_featured'"],
+    ['Colonne projects.validation_status', "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'projects' AND COLUMN_NAME = 'validation_status'"],
+    ['Colonne projects.project_type', "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'projects' AND COLUMN_NAME = 'project_type'"],
+    ['Colonne projects.slug', "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'projects' AND COLUMN_NAME = 'slug'"],
+];
+echo '<p>--- Vérification ---</p>';
+$missingChecks = 0;
+foreach ($checks as $checkRow) {
+    list($label, $sql) = $checkRow;
+    try {
+        $found = (int)$pdo->query($sql)->fetchColumn() > 0;
+    } catch (Exception $ex) {
+        $found = false;
+    }
+    if ($found) {
+        echo '<p><span class="ok">[OK]</span> ' . e($label) . '</p>';
+    } else {
+        $missingChecks++;
+        echo '<p><span class="bad">[MANQUANT]</span> ' . e($label) . '</p>';
+    }
+}
+
 if ($okCount > 0 || $skipCount > 0) {
     echo '<p><span class="ok">✔ Mise à jour terminée :</span> ' . $okCount . ' instruction(s) exécutée(s), ' . $skipCount . ' ignorée(s) (colonnes/tables déjà présentes).</p>';
-    echo '<p class="ok">✔ Les 3 modules sont maintenant prêts (Marketplace, Levée de fonds, Data Room).</p>';
+    if ($missingChecks > 0) {
+        echo '<p class="bad">⚠ ' . $missingChecks . ' élément(s) encore manquant(s). Réessayez, ou importez database/upgrade_schema.sql via phpMyAdmin dans la base « ' . e($dbConf['database'] ?? '') . ' ».</p>';
+    } else {
+        echo '<p class="ok">✔ La base est à jour : Marketplace, Levée de fonds, Data Room, projets phares, actualités et contenus du site sont prêts.</p>';
+    }
     echo '<p><a href="/">→ Retour au site</a></p>';
 
     // Auto-suppression (une fois réussi : la base est à jour et le script est ré-exécutable ailleurs)
