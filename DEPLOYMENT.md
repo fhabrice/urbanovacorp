@@ -45,18 +45,21 @@ Créez le fichier `.env`:
 # Application
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://urbanova.cd
+APP_URL=https://urbanovacorp.com
 
-# Database
+# Database (hébergement actuel — base "wqmetrvw_urbanova")
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=urbanova_prod
-DB_USER=urbanova_prod
-DB_PASSWORD=VERY_SECURE_PASSWORD
+DB_NAME=wqmetrvw_urbanova
+DB_USER=wqmetrvw_urbanova
+DB_PASSWORD=Goma@2019
 
 # Security
 SESSION_NAME=urbanova_session
 SESSION_LIFETIME=7200
+# Mot de passe d'accès à la partie Admin (par défaut: urbanova)
+ADMIN_PASSWORD=urbanova
+```
 
 # Email
 EMAIL_FROM=contact@urbanova.cd
@@ -120,16 +123,23 @@ ssh user@server
 cd /var/www/urbanovacorp
 composer install --no-dev --optimize-autoloader
 
-# 4. Exécuter les migrations
+# 4. Vérifier la connexion à la base (avec les identifiants ci-dessus)
+php database/status_check.php
+
+# 5. Appliquer la mise à jour du schéma (Modules 1-2-3) — idempotent, sans risque
+php database/apply_upgrade.php
+#   (à défaut : importer database/upgrade_schema.sql via phpMyAdmin)
+
+# 6. Exécuter les migrations PHP si la table "migrations" existe déjà
 php database/migrate.php
 
-# 5. Configurer les permissions
+# 7. Configurer les permissions
 chown -R www-data:www-data /var/www/urbanovacorp
 chmod -R 755 /var/www/urbanovacorp
 chmod -R 777 /var/www/urbanovacorp/public/uploads
 chmod -R 777 /var/www/urbanovacorp/storage
 
-# 6. Redémarrer les services
+# 8. Redémarrer les services
 systemctl restart php8.1-fpm
 systemctl restart nginx
 ```
