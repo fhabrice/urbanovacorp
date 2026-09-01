@@ -101,6 +101,51 @@ $actionMap = [
     'submit-contact'   => 'submitContact',
     'make-reservation' => 'makeReservation',
     'request-visit'    => 'requestVisit',
+
+    // ---- Module 1 : Marketplace - demandes d'information ----
+    'submit-project-inquiry'         => 'submitProjectInquiry',
+    'get-project-inquiries'          => 'getProjectInquiries',
+    'update-project-inquiry-status'  => 'updateProjectInquiryStatus',
+
+    // ---- Module 2 : Levée de fonds - mandats & campagnes ----
+    'submit-funding-request'   => 'submitFundingRequest',
+    'get-my-funding-requests'  => 'getMyFundingRequests',
+    'get-funding-requests'     => 'getFundingRequests',
+    'review-funding-request'   => 'reviewFundingRequest',
+    'get-campaigns'            => 'getCampaigns',
+    'create-campaign'          => 'createCampaign',
+    'update-campaign'          => 'updateCampaign',
+    'get-funding-dashboard'    => 'getFundingDashboard',
+
+    // ---- Module 2 : offres d'investissement ----
+    'submit-investment-offer'   => 'submitInvestmentOffer',
+    'get-my-investment-offers'  => 'getMyInvestmentOffers',
+    'get-investment-offers'     => 'getInvestmentOffers',
+    'review-investment-offer'   => 'reviewInvestmentOffer',
+    'express-funding-interest'  => 'expressFundingInterest',
+
+    // ---- Module 3 : Data Room & audit ----
+    'request-data-room-access'  => 'requestDataRoomAccess',
+    'get-my-data-room-requests' => 'getMyDataRoomRequests',
+    'get-data-room-requests'    => 'getDataRoomRequests',
+    'review-data-room-access'   => 'reviewDataRoomAccess',
+    'get-project-documents'     => 'getProjectDocuments',
+    'log-document-access'       => 'logDocumentAccess',
+    'get-data-room-audit'       => 'getDataRoomAudit',
+
+    // ---- Admin : statistiques, réservations, visites ----
+    'get-admin-stats'            => 'getAdminStats',
+    'get-reservations'           => 'getReservations',
+    'update-reservation-status'  => 'updateReservationStatus',
+    'get-visits'                 => 'getVisits',
+    'update-visit-status'        => 'updateVisitStatus',
+
+    // ---- Notifications & messagerie ----
+    'get-my-notifications'    => 'getMyNotifications',
+    'mark-notifications-read' => 'markNotificationsRead',
+    'get-investor-messages'   => 'getInvestorMessages',
+    'send-investor-message'   => 'sendInvestorMessage',
+    'reply-investor-message'  => 'replyInvestorMessage',
 ];
 
 // ---------------------------------------------------------------
@@ -110,16 +155,43 @@ $appConfig = require CONFIG_PATH . '/config.php';
 $adminPassword = $appConfig['security']['admin_password'] ?? 'urbanova';
 
 $adminActions = [
+    // Utilisateurs / investisseurs
     'get-users',
     'update-user-status',
     'delete-user',
     'approve-investor',
     'reject-investor',
+    // Investissements & projets
     'get-investments',
     'update-investment-status',
     'delete-investment',
     'approve-project',
     'delete-project',
+    'create-project',
+    'update-project',
+    // Module 1 - demandes d'information
+    'get-project-inquiries',
+    'update-project-inquiry-status',
+    // Module 2 - mandats, campagnes, offres
+    'get-funding-requests',
+    'review-funding-request',
+    'create-campaign',
+    'update-campaign',
+    'get-funding-dashboard',
+    'get-investment-offers',
+    'review-investment-offer',
+    // Module 3 - Data Room
+    'get-data-room-requests',
+    'review-data-room-access',
+    'get-data-room-audit',
+    // Admin - statistiques, réservations, visites
+    'get-admin-stats',
+    'get-reservations',
+    'update-reservation-status',
+    'get-visits',
+    'update-visit-status',
+    // Messagerie admin (réponses)
+    'reply-investor-message',
 ];
 
 // ---------------------------------------------------------------

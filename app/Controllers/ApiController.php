@@ -110,6 +110,12 @@ class ApiController extends SimpleController
                         p.promoter,
                         p.description,
                         p.image,
+                        p.video_url,
+                        p.virtual_tour_url,
+                        p.google_maps_embed,
+                        p.brochure_path,
+                        p.availability,
+                        p.price,
                         CONCAT(p.city, ', ', p.country) as location
                     FROM projects p
                     WHERE p.validation_status IS NOT NULL
@@ -149,7 +155,13 @@ class ApiController extends SimpleController
                             'lat' => $p['coordinates_lat'] ?? null,
                             'lng' => $p['coordinates_lng'] ?? null
                         ],
-                        'image' => $p['image'] ?: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'
+                        'image' => $p['image'] ?: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80',
+                        'video_url' => $p['video_url'] ?? null,
+                        'virtual_tour_url' => $p['virtual_tour_url'] ?? null,
+                        'google_maps_embed' => $p['google_maps_embed'] ?? null,
+                        'brochure_path' => $p['brochure_path'] ?? null,
+                        'availability' => $p['availability'] ?? 'available',
+                        'price' => $p['price'] ?? null
                     ];
                 }
                 
@@ -297,7 +309,7 @@ class ApiController extends SimpleController
             $nameParts = explode(' ', $name, 2);
             $firstName = $data['first_name'] ?? ($nameParts[0] ?? '');
             $lastName = $data['last_name'] ?? ($nameParts[1] ?? '');
-            $role = in_array($data['role'] ?? '', ['admin', 'investor', 'promoter', 'project_owner']) ? $data['role'] : 'investor';
+            $role = in_array($data['role'] ?? '', ['investor', 'promoter', 'client', 'project_owner']) ? $data['role'] : 'investor';
             $investorType = $data['investor_type'] ?? 'individual';
 
             // Insérer l'utilisateur avec toutes les colonnes compatibles
@@ -330,12 +342,13 @@ class ApiController extends SimpleController
             // Si c'est un investisseur, insérer dans la table investors
             if ($role === 'investor' || $role === 'promoter') {
                 try {
+                    // KYC : le compte investisseur est validé par Urbanova (statut pending)
                     $invStmt = $this->db->prepare("
                         INSERT INTO investors (
                             user_id, type, investor_type, investor_status, 
                             company_name, country, city, address, phone
                         ) VALUES (
-                            ?, 'individual', ?, 'approved', ?, 
+                            ?, 'individual', ?, 'pending', ?, 
                             ?, ?, ?, ?
                         )
                     ");
@@ -348,6 +361,8 @@ class ApiController extends SimpleController
                         $data['address'] ?? '',
                         $data['phone'] ?? ''
                     ]);
+                    $this->notifyAdmins('kyc_status', 'Nouvel investisseur en attente de validation KYC',
+                        'Le compte de ' . $data['email'] . ' attend la validation KYC par Urbanova.');
                 } catch (\PDOException $invEx) {
                     error_log('Register API: Failed to insert into investors table: ' . $invEx->getMessage());
                 }
@@ -1401,74 +1416,74 @@ class ApiController extends SimpleController
      */
     public function updateProject()
     {
-        header('Content-Type: application/json');
-        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
-            exit;
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
         }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
 
-        if (!$this->db) {
-            echo json_encode(['success' => false, 'message' => 'Base de données non disponible']);
-            exit;
-        }
-
-        $data = json_decode(file_get_contents('php://input'), true);
-        
-        if (!$data) {
-            $data = $_POST;
-        }
-
-        if (empty($data['id'])) {
-            echo json_encode(['success' => false, 'message' => 'ID du projet requis']);
-            exit;
-        }
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id'])) $this->jsonOut(['success' => false, 'message' => 'ID du projet requis']);
 
         try {
-            $locationParts = explode(',', $data['location']);
-            $city = trim($locationParts[0]);
-            $country = isset($locationParts[1]) ? trim($locationParts[1]) : 'RDC';
-            
-            $stmt = $this->db->prepare("
-                UPDATE projects SET
-                    title = ?,
-                    city = ?,
-                    country = ?,
-                    sector = ?,
-                    description = ?,
-                    funding_sought = ?,
-                    expected_roi = ?,
-                    project_type = ?,
-                    operation_type = ?,
-                    coordinates_lat = ?,
-                    coordinates_lng = ?,
-                    validation_status = 'submitted'
-                WHERE id = ?
-            ");
-            
-            $stmt->execute([
-                $data['name'],
-                $city,
-                $country,
-                $data['sector'],
-                $data['description'] ?? '',
-                $data['target'],
-                $data['roi'] ?? 0,
-                $data['project_type'] ?? 'residential',
-                $data['operation_type'] ?? 'sale',
-                $data['coordinates_lat'] ?? null,
-                $data['coordinates_lng'] ?? null,
-                $data['id']
-            ]);
-            
-            echo json_encode([
-                'success' => true,
-                'message' => 'Projet mis à jour avec succès'
-            ]);
-            exit;
+            $id = $data['id'];
+            $fields = [];
+            $params = [];
+
+            $map = [
+                'name'          => 'title',
+                'title'         => 'title',
+                'city'          => 'city',
+                'country'       => 'country',
+                'sector'        => 'sector',
+                'description'   => 'description',
+                'target'        => 'funding_sought',
+                'funding_sought'=> 'funding_sought',
+                'price'         => 'price',
+                'roi'           => 'expected_roi',
+                'expected_roi'  => 'expected_roi',
+                'project_type'  => 'project_type',
+                'operation_type'=> 'operation_type',
+                'video_url'     => 'video_url',
+                'virtual_tour_url' => 'virtual_tour_url',
+                'google_maps_embed' => 'google_maps_embed',
+                'brochure_path' => 'brochure_path',
+                'availability'  => 'availability',
+                'image'         => 'image',
+                'coordinates_lat' => 'coordinates_lat',
+                'coordinates_lng' => 'coordinates_lng',
+            ];
+
+            foreach ($map as $inputKey => $column) {
+                if (array_key_exists($inputKey, $data) && $data[$inputKey] !== '') {
+                    $fields[] = "$column = ?";
+                    $params[] = $data[$inputKey];
+                }
+            }
+
+            // Le porteur peut modifier tant que le projet n'est pas validé
+            $status = null;
+            if (in_array($_SESSION['user_role'] ?? '', ['admin', 'super_admin', 'project_manager'], true) === false) {
+                $status = "submitted";
+            } else {
+                $status = $data['validation_status'] ?? null;
+            }
+            if (!empty($data['validation_status'])) {
+                $fields[] = 'validation_status = ?';
+                $params[] = $data['validation_status'];
+            }
+
+            if (empty($fields)) {
+                $this->jsonOut(['success' => false, 'message' => 'Aucun champ à mettre à jour']);
+            }
+
+            $params[] = $id;
+            $sql = "UPDATE projects SET " . implode(', ', $fields) . " WHERE id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($params);
+
+            $this->jsonOut(['success' => true, 'message' => 'Projet mis à jour avec succès']);
         } catch (\PDOException $e) {
-            echo json_encode(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
-            exit;
+            $this->jsonOut(['success' => false, 'message' => 'Erreur de base de données: ' . $e->getMessage()]);
         }
     }
 
@@ -1810,6 +1825,1409 @@ class ApiController extends SimpleController
         } catch (\PDOException $e) {
             echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
             exit;
+        }
+    }
+    // ==================================================================
+    // ============ MODULES CAHIER DES CHARGES - HELPERS ================
+    // ==================================================================
+
+    /**
+     * Réponse JSON normalisée
+     */
+    private function jsonOut($data, $status = 200)
+    {
+        http_response_code($status);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
+    }
+
+    /**
+     * Vérifie que l'utilisateur connecté possède un des rôles requis
+     */
+    private function requireRole(array $roles, $message = 'Accès non autorisé')
+    {
+        if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', $roles, true)) {
+            $this->jsonOut(['success' => false, 'message' => $message], 403);
+        }
+    }
+
+    /**
+     * Vérifie une permission RBAC (tables permissions / role_permissions)
+     * avec repli sur une table de rôles par défaut si les tables n'existent pas.
+     */
+    private function hasPermission($permission)
+    {
+        $role = $_SESSION['user_role'] ?? null;
+        if (!$role) return false;
+        if ($role === 'super_admin') return true;
+
+        $fallback = [
+            'admin' => ['manage_users', 'manage_projects', 'validate_projects', 'manage_investors', 'manage_campaigns', 'view_analytics'],
+            'project_manager' => ['manage_projects', 'validate_projects', 'view_analytics'],
+            'promoter' => ['manage_own_projects'],
+            'investor' => ['view_projects', 'submit_offers', 'access_dataroom'],
+            'client' => ['view_marketplace', 'request_visits', 'make_reservations'],
+        ];
+
+        if ($this->db) {
+            try {
+                $stmt = $this->db->prepare("
+                    SELECT COUNT(*)
+                    FROM role_permissions rp
+                    JOIN permissions p ON p.id = rp.permission_id
+                    WHERE rp.role = ? AND p.name = ?
+                ");
+                $stmt->execute([$role, $permission]);
+                if ((int)$stmt->fetchColumn() > 0) return true;
+            } catch (\PDOException $e) {
+                // Tables absentes -> repli
+            }
+        }
+
+        return in_array($permission, $fallback[$role] ?? [], true);
+    }
+
+    /**
+     * Crée une notification pour un utilisateur
+     */
+    private function notify($userId, $type, $title, $message, $link = null)
+    {
+        if (!$this->db || !$userId) return;
+        try {
+            $stmt = $this->db->prepare(
+                "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, ?, ?, ?, ?)"
+            );
+            $stmt->execute([$userId, $type, $title, $message, $link]);
+        } catch (\PDOException $e) {
+            // Notification non bloquante
+        }
+    }
+
+    /**
+     * Notifie tous les administrateurs / gestionnaires
+     */
+    private function notifyAdmins($type, $title, $message, $link = null)
+    {
+        if (!$this->db) return;
+        try {
+            $stmt = $this->db->query(
+                "SELECT id FROM users WHERE role IN ('super_admin', 'admin', 'project_manager')"
+            );
+            foreach ($stmt->fetchAll(\PDO::FETCH_COLUMN) as $adminId) {
+                $this->notify($adminId, $type, $title, $message, $link);
+            }
+        } catch (\PDOException $e) {
+            // Non bloquant
+        }
+    }
+
+    /**
+     * Enregistre une entrée dans le journal d'audit de la Data Room
+     */
+    private function logDataRoomAccess($projectId, $investorId, $action, $details = null, $documentId = null)
+    {
+        if (!$this->db || !$projectId || !$investorId) return;
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO data_room_audit_log
+                    (project_id, investor_id, action, document_id, details, ip_address, user_agent)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $projectId,
+                $investorId,
+                $action,
+                $documentId,
+                $details,
+                $_SERVER['REMOTE_ADDR'] ?? null,
+                substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500),
+            ]);
+        } catch (\PDOException $e) {
+            // Non bloquant
+        }
+    }
+
+    /**
+     * Retourne l'id de la fiche investisseur liée à l'utilisateur connecté
+     */
+    private function getCurrentInvestorId()
+    {
+        if (!$this->db || empty($_SESSION['user_id'])) return null;
+        try {
+            $stmt = $this->db->prepare("SELECT id FROM investors WHERE user_id = ? LIMIT 1");
+            $stmt->execute([$_SESSION['user_id']]);
+            $id = $stmt->fetchColumn();
+            return $id ? (int)$id : null;
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Retourne l'id de la fiche investisseur d'un utilisateur
+     */
+    private function getInvestorIdForUser($userId)
+    {
+        if (!$this->db || !$userId) return null;
+        try {
+            $stmt = $this->db->prepare("SELECT id FROM investors WHERE user_id = ? LIMIT 1");
+            $stmt->execute([$userId]);
+            $id = $stmt->fetchColumn();
+            return $id ? (int)$id : null;
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
+    // ==================================================================
+    // ============ MODULE 1 - MARKETPLACE : DEMANDES D'INFO ============
+    // ==================================================================
+
+    /**
+     * Visiteur -> demande d'informations sur un projet
+     */
+    public function submitProjectInquiry()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) {
+            $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $required = ['project_id', 'name', 'email', 'message'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                $this->jsonOut(['success' => false, 'message' => "Le champ $field est requis"]);
+            }
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO project_inquiries (project_id, name, email, phone, message)
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                (int)$data['project_id'],
+                trim($data['name']),
+                trim($data['email']),
+                trim($data['phone'] ?? ''),
+                trim($data['message']),
+            ]);
+
+            // Notifier les administrateurs
+            $this->notifyAdmins('inquiry', 'Nouvelle demande d\'information',
+                'Demande de ' . $data['name'] . ' sur le projet #' . $data['project_id'],
+                '/'); 
+
+            $this->jsonOut(['success' => true, 'message' => 'Votre demande a bien été envoyée. Urbanova vous répondra rapidement.']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : liste des demandes d'informations
+     */
+    public function getProjectInquiries()
+    {
+        if (!$this->db) {
+            $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        }
+        try {
+            $stmt = $this->db->query("
+                SELECT i.*, p.title AS project_title
+                FROM project_inquiries i
+                LEFT JOIN projects p ON p.id = i.project_id
+                ORDER BY i.created_at DESC
+                LIMIT 200
+            ");
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $this->jsonOut(['success' => true, 'data' => $rows]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : mettre à jour le statut d'une demande d'information
+     */
+    public function updateProjectInquiryStatus()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id']) || empty($data['status'])) {
+            $this->jsonOut(['success' => false, 'message' => 'ID et statut requis']);
+        }
+        try {
+            $stmt = $this->db->prepare("UPDATE project_inquiries SET status = ? WHERE id = ?");
+            $stmt->execute([$data['status'], $data['id']]);
+            $this->jsonOut(['success' => true, 'message' => 'Statut de la demande mis à jour']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    // ==================================================================
+    // ============ MODULE 2 - LEVÉE DE FONDS : MANDATS =================
+    // ==================================================================
+
+    /**
+     * Porteur de projet : soumettre une demande de mandat de levée de fonds
+     */
+    public function submitFundingRequest()
+    {
+        $this->requireRole(['promoter', 'admin', 'super_admin', 'project_manager'], 'Vous devez être porteur de projet connecté');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['project_id'])) {
+            $this->jsonOut(['success' => false, 'message' => 'ID du projet requis']);
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO funding_requests (project_id, user_id, summary, amount_requested)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                (int)$data['project_id'],
+                (int)$_SESSION['user_id'],
+                trim($data['summary'] ?? ''),
+                $data['amount_requested'] ?? null,
+            ]);
+
+            $this->notifyAdmins('mandate', 'Nouvelle demande de mandat',
+                'Demande de levée de fonds pour le projet #' . $data['project_id']);
+
+            $this->jsonOut(['success' => true, 'message' => 'Votre demande de mandat a été soumise. Urbanova réalisera une étude préalable.']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Porteur : mes demandes de mandat
+     */
+    public function getMyFundingRequests()
+    {
+        $this->requireRole(['promoter', 'admin', 'super_admin', 'project_manager'], 'Accès réservé aux porteurs de projet');
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stmt = $this->db->prepare("
+                SELECT r.*, p.title AS project_title, p.city, p.country
+                FROM funding_requests r
+                LEFT JOIN projects p ON p.id = r.project_id
+                WHERE r.user_id = ?
+                ORDER BY r.created_at DESC
+            ");
+            $stmt->execute([$_SESSION['user_id']]);
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : liste des demandes de mandat
+     */
+    public function getFundingRequests()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stmt = $this->db->query("
+                SELECT r.*, p.title AS project_title, p.city, p.country,
+                       u.name AS applicant_name, u.email AS applicant_email
+                FROM funding_requests r
+                LEFT JOIN projects p ON p.id = r.project_id
+                LEFT JOIN users u ON u.id = r.user_id
+                ORDER BY r.created_at DESC
+                LIMIT 300
+            ");
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : étudier une demande de mandat (accepter / compléments / refuser)
+     */
+    public function reviewFundingRequest()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id']) || empty($data['action'])) {
+            $this->jsonOut(['success' => false, 'message' => 'ID et action requis']);
+        }
+
+        try {
+            $statusMap = [
+                'accept' => 'accepted',
+                'request_info' => 'requested_info',
+                'reject' => 'rejected',
+                'close' => 'closed',
+                'cancel' => 'cancelled',
+            ];
+            $status = $statusMap[$data['action']] ?? $data['action'];
+            $commission = $data['commission_rate'] ?? null;
+            $notes = $data['notes'] ?? null;
+            $mandateRef = $data['mandate_reference'] ?? null;
+
+            $stmt = $this->db->prepare("
+                UPDATE funding_requests
+                SET status = ?, commission_rate = COALESCE(?, commission_rate),
+                    admin_notes = COALESCE(?, admin_notes),
+                    mandate_reference = COALESCE(?, mandate_reference),
+                    mandate_date = CASE WHEN ? = 'accepted' THEN CURDATE() ELSE mandate_date END,
+                    decided_by = ?, decided_at = NOW()
+                WHERE id = ?
+            ");
+            $stmt->execute([
+                $status, $commission, $notes, $mandateRef, $status,
+                $_SESSION['user_id'] ?? null, $data['id'],
+            ]);
+
+            // Récupérer le projet pour notifier + créer la campagne
+            $stmt = $this->db->prepare("SELECT project_id, user_id, amount_requested FROM funding_requests WHERE id = ?");
+            $stmt->execute([$data['id']]);
+            $req = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($req) {
+                // Notification au porteur
+                $this->notify((int)$req['user_id'], 'mandate',
+                    'Décision sur votre demande de mandat',
+                    'Votre demande de levée de fonds (projet #' . $req['project_id'] . ') est : ' . $status,
+                    '/promoteur');
+
+                // Création automatique d'une campagne brouillon si accepté
+                if ($status === 'accepted' && !empty($req['project_id'])) {
+                    try {
+                        $check = $this->db->prepare("SELECT COUNT(*) FROM funding_campaigns WHERE project_id = ?");
+                        $check->execute([$req['project_id']]);
+                        if ((int)$check->fetchColumn() === 0) {
+                            $stmtP = $this->db->prepare("SELECT title FROM projects WHERE id = ?");
+                            $stmtP->execute([$req['project_id']]);
+                            $title = $stmtP->fetchColumn();
+                            $stmtC = $this->db->prepare("
+                                INSERT INTO funding_campaigns
+                                    (project_id, title, description, target_amount, commission_rate, start_date, end_date, status)
+                                VALUES (?, ?, ?, ?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 90 DAY), 'draft')
+                            ");
+                            $stmtC->execute([
+                                $req['project_id'],
+                                'Campagne ' . ($title ?: '#' . $req['project_id']),
+                                'Levée de fonds organisée par Urbanova Solutions',
+                                $req['amount_requested'] ?: 100000,
+                                $commission ?: 3.00,
+                            ]);
+                        }
+                    } catch (\PDOException $e) {
+                        // La campagne n'a pas pu être créée automatiquement
+                    }
+                }
+            }
+
+            $this->jsonOut(['success' => true, 'message' => 'Demande de mandat mise à jour']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    // ==================================================================
+    // ============ MODULE 2 - LEVÉE DE FONDS : CAMPAGNES ===============
+    // ==================================================================
+
+    /**
+     * Liste des campagnes (publique pour la marketplace / investisseurs)
+     */
+    public function getCampaigns()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stmt = $this->db->query("
+                SELECT c.*, p.title AS project_title, p.city, p.country, p.image,
+                       p.description AS project_description
+                FROM funding_campaigns c
+                LEFT JOIN projects p ON p.id = c.project_id
+                ORDER BY c.created_at DESC
+            ");
+            $campaigns = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            // Montant mobilisé = somme des offres acceptées
+            foreach ($campaigns as &$c) {
+                $stmt = $this->db->prepare("
+                    SELECT COALESCE(SUM(amount), 0) FROM investment_offers
+                    WHERE campaign_id = ? AND status = 'accepted'
+                ");
+                $stmt->execute([$c['id']]);
+                $c['raised'] = (float)$stmt->fetchColumn();
+                $c['target'] = (float)$c['target_amount'];
+                $c['progress'] = $c['target'] > 0
+                    ? round(($c['raised'] / $c['target']) * 100, 1)
+                    : 0;
+            }
+
+            $this->jsonOut(['success' => true, 'data' => $campaigns]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : créer une campagne de financement
+     */
+    public function createCampaign()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $required = ['project_id', 'title', 'target_amount', 'start_date', 'end_date'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) $this->jsonOut(['success' => false, 'message' => "Le champ $field est requis"]);
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO funding_campaigns
+                    (project_id, title, description, target_amount, minimum_investment,
+                     maximum_investment, commission_rate, start_date, end_date, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                (int)$data['project_id'],
+                trim($data['title']),
+                trim($data['description'] ?? ''),
+                $data['target_amount'],
+                $data['minimum_investment'] ?? null,
+                $data['maximum_investment'] ?? null,
+                $data['commission_rate'] ?? 3.00,
+                $data['start_date'],
+                $data['end_date'],
+                $data['status'] ?? 'draft',
+            ]);
+
+            $this->jsonOut(['success' => true, 'message' => 'Campagne créée avec succès', 'id' => (int)$this->db->lastInsertId()]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : mettre à jour une campagne
+     */
+    public function updateCampaign()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id'])) $this->jsonOut(['success' => false, 'message' => 'ID de campagne requis']);
+
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE funding_campaigns SET
+                    title = COALESCE(?, title),
+                    description = COALESCE(?, description),
+                    target_amount = COALESCE(?, target_amount),
+                    minimum_investment = COALESCE(?, minimum_investment),
+                    maximum_investment = COALESCE(?, maximum_investment),
+                    commission_rate = COALESCE(?, commission_rate),
+                    start_date = COALESCE(?, start_date),
+                    end_date = COALESCE(?, end_date),
+                    status = COALESCE(?, status)
+                WHERE id = ?
+            ");
+            $stmt->execute([
+                $data['title'] ?? null,
+                $data['description'] ?? null,
+                $data['target_amount'] ?? null,
+                $data['minimum_investment'] ?? null,
+                $data['maximum_investment'] ?? null,
+                $data['commission_rate'] ?? null,
+                $data['start_date'] ?? null,
+                $data['end_date'] ?? null,
+                $data['status'] ?? null,
+                $data['id'],
+            ]);
+            $this->jsonOut(['success' => true, 'message' => 'Campagne mise à jour']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : tableau de bord levée de fonds (pipeline + statistiques)
+     */
+    public function getFundingDashboard()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stats = [];
+
+            $stmt = $this->db->query("SELECT COUNT(*) FROM funding_campaigns WHERE status = 'active'");
+            $stats['active_campaigns'] = (int)$stmt->fetchColumn();
+
+            $stmt = $this->db->query("SELECT COALESCE(SUM(target_amount),0) FROM funding_campaigns WHERE status IN ('active','draft')");
+            $stats['total_target'] = (float)$stmt->fetchColumn();
+
+            $stmt = $this->db->query("SELECT COALESCE(SUM(o.amount),0) FROM investment_offers o WHERE o.status='accepted'");
+            $stats['total_raised'] = (float)$stmt->fetchColumn();
+
+            $stmt = $this->db->query("SELECT COUNT(DISTINCT investor_id) FROM investment_offers");
+            $stats['total_investors'] = (int)$stmt->fetchColumn();
+
+            $stmt = $this->db->query("SELECT COUNT(*) FROM funding_requests");
+            $stats['mandate_requests'] = (int)$stmt->fetchColumn();
+
+            $stmt = $this->db->query("SELECT status, COUNT(*) AS c FROM funding_requests GROUP BY status");
+            $stats['mandate_by_status'] = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+            $stmt = $this->db->query("SELECT status, COUNT(*) AS c FROM investment_offers GROUP BY status");
+            $stats['offers_by_status'] = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+            // Pipeline : campagnes avec progression
+            $stmt = $this->db->query("
+                SELECT c.*, p.title AS project_title, p.city, p.country,
+                       (SELECT COALESCE(SUM(amount),0) FROM investment_offers o
+                        WHERE o.campaign_id = c.id AND o.status='accepted') AS raised
+                FROM funding_campaigns c
+                LEFT JOIN projects p ON p.id = c.project_id
+                ORDER BY c.created_at DESC
+                LIMIT 100
+            ");
+            $campaigns = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            foreach ($campaigns as &$c) {
+                $c['target'] = (float)$c['target_amount'];
+                $c['raised'] = (float)$c['raised'];
+                $c['progress'] = $c['target'] > 0 ? round(($c['raised'] / $c['target']) * 100, 1) : 0;
+            }
+            $stats['campaigns'] = $campaigns;
+
+            $this->jsonOut(['success' => true, 'data' => $stats]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+    // ==================================================================
+    // ============ MODULE 2 - LEVÉE DE FONDS : OFFRES ==================
+    // ==================================================================
+
+    /**
+     * Investisseur : soumettre une offre d'investissement sur une campagne
+     */
+    public function submitInvestmentOffer()
+    {
+        $this->requireRole(['investor', 'admin', 'super_admin'], 'Seuls les investisseurs certifiés peuvent soumettre une offre');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['campaign_id']) || empty($data['amount'])) {
+            $this->jsonOut(['success' => false, 'message' => 'Campagne et montant requis']);
+        }
+
+        $investorId = $this->getCurrentInvestorId();
+        if (!$investorId) {
+            $this->jsonOut(['success' => false, 'message' => 'Compte investisseur introuvable. Complétez votre KYC.']);
+        }
+
+        try {
+            // Vérifier statut investisseur
+            $stmt = $this->db->prepare("SELECT investor_status FROM investors WHERE id = ?");
+            $stmt->execute([$investorId]);
+            $status = $stmt->fetchColumn();
+            if ($status !== 'approved') {
+                $this->jsonOut(['success' => false, 'message' => 'Votre profil investisseur doit être approuvé (KYC) avant de soumettre une offre.']);
+            }
+
+            $stmt = $this->db->prepare("
+                INSERT INTO investment_offers (campaign_id, investor_id, amount, message)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                (int)$data['campaign_id'],
+                $investorId,
+                $data['amount'],
+                trim($data['message'] ?? ''),
+            ]);
+
+            $this->notifyAdmins('offer', 'Nouvelle offre d\'investissement',
+                'Offre de ' . number_format((float)$data['amount'], 0, ',', ' ') . ' $ sur la campagne #' . $data['campaign_id']);
+
+            $this->jsonOut(['success' => true, 'message' => 'Votre offre a été soumise et sera analysée par Urbanova.']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Investisseur : mes offres
+     */
+    public function getMyInvestmentOffers()
+    {
+        $this->requireRole(['investor', 'admin', 'super_admin'], 'Accès réservé aux investisseurs');
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $investorId = $this->getCurrentInvestorId();
+        if (!$investorId) $this->jsonOut(['success' => true, 'data' => []]);
+
+        try {
+            $stmt = $this->db->prepare("
+                SELECT o.*, c.title AS campaign_title, p.title AS project_title
+                FROM investment_offers o
+                LEFT JOIN funding_campaigns c ON c.id = o.campaign_id
+                LEFT JOIN projects p ON p.id = c.project_id
+                WHERE o.investor_id = ?
+                ORDER BY o.created_at DESC
+            ");
+            $stmt->execute([$investorId]);
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : liste des offres d'investissement
+     */
+    public function getInvestmentOffers()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stmt = $this->db->query("
+                SELECT o.*, c.title AS campaign_title, p.title AS project_title,
+                       u.name AS investor_name, u.email AS investor_email
+                FROM investment_offers o
+                LEFT JOIN funding_campaigns c ON c.id = o.campaign_id
+                LEFT JOIN projects p ON p.id = c.project_id
+                LEFT JOIN investors i ON i.id = o.investor_id
+                LEFT JOIN users u ON u.id = i.user_id
+                ORDER BY o.created_at DESC
+                LIMIT 300
+            ");
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : accepter / refuser une offre d'investissement
+     */
+    public function reviewInvestmentOffer()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id']) || empty($data['action'])) {
+            $this->jsonOut(['success' => false, 'message' => 'ID et action requis']);
+        }
+
+        try {
+            $statusMap = ['accept' => 'accepted', 'reject' => 'rejected', 'withdraw' => 'withdrawn'];
+            $status = $statusMap[$data['action']] ?? $data['action'];
+
+            $stmt = $this->db->prepare("
+                UPDATE investment_offers
+                SET status = ?, reviewed_by = ?, reviewed_at = NOW(), rejection_reason = COALESCE(?, rejection_reason)
+                WHERE id = ?
+            ");
+            $stmt->execute([$status, $_SESSION['user_id'] ?? null, $data['reason'] ?? null, $data['id']]);
+
+            // Notifier l'investisseur
+            $stmt = $this->db->prepare("
+                SELECT o.investor_id, i.user_id, o.amount, c.title
+                FROM investment_offers o
+                LEFT JOIN investors i ON i.id = o.investor_id
+                LEFT JOIN funding_campaigns c ON c.id = o.campaign_id
+                WHERE o.id = ?
+            ");
+            $stmt->execute([$data['id']]);
+            $offer = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($offer && $offer['user_id']) {
+                $this->notify((int)$offer['user_id'], 'offer',
+                    'Offre d\'investissement ' . ($status === 'accepted' ? 'acceptée' : 'refusée'),
+                    'Votre offre de ' . number_format((float)$offer['amount'], 0, ',', ' ') . ' $ sur "' . ($offer['title'] ?? '') . '" : ' . $status);
+            }
+
+            $this->jsonOut(['success' => true, 'message' => 'Offre mise à jour']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Investisseur : exprimer un intérêt pour un projet en levée de fonds
+     */
+    public function expressFundingInterest()
+    {
+        $this->requireRole(['investor', 'admin', 'super_admin'], 'Accès réservé aux investisseurs');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['project_id'])) $this->jsonOut(['success' => false, 'message' => 'Projet requis']);
+
+        $investorId = $this->getCurrentInvestorId();
+        if (!$investorId) $this->jsonOut(['success' => false, 'message' => 'Compte investisseur introuvable']);
+
+        try {
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM investor_interests WHERE project_id = ? AND investor_id = ?");
+            $stmt->execute([$data['project_id'], $investorId]);
+            if ((int)$stmt->fetchColumn() > 0) {
+                $this->jsonOut(['success' => true, 'message' => 'Intérêt déjà exprimé pour ce projet']);
+            }
+            $stmt = $this->db->prepare("INSERT INTO investor_interests (project_id, investor_id) VALUES (?, ?)");
+            $stmt->execute([$data['project_id'], $investorId]);
+
+            $this->notifyAdmins('investment_update', 'Nouvel intérêt investisseur',
+                'Un investisseur s\'intéresse au projet #' . $data['project_id']);
+
+            $this->jsonOut(['success' => true, 'message' => 'Intérêt exprimé avec succès']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    // ==================================================================
+    // ============ MODULE 3 - DATA ROOM ================================
+    // ==================================================================
+
+    /**
+     * Investisseur : demander l'accès à la Data Room d'un projet
+     */
+    public function requestDataRoomAccess()
+    {
+        $this->requireRole(['investor', 'admin', 'super_admin'], 'Accès réservé aux investisseurs');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['project_id'])) $this->jsonOut(['success' => false, 'message' => 'Projet requis']);
+
+        $investorId = $this->getCurrentInvestorId();
+        if (!$investorId) $this->jsonOut(['success' => false, 'message' => 'Compte investisseur introuvable']);
+
+        $level = in_array($data['permission_level'] ?? '', ['view_only', 'download_allowed', 'full_access', 'temporary'], true)
+            ? $data['permission_level'] : 'view_only';
+
+        try {
+            // Pas de demande en double en attente
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) FROM data_room_requests
+                WHERE project_id = ? AND investor_id = ? AND status IN ('pending', 'approved')
+            ");
+            $stmt->execute([$data['project_id'], $investorId]);
+            if ((int)$stmt->fetchColumn() > 0) {
+                $this->jsonOut(['success' => false, 'message' => 'Une demande existe déjà pour ce projet']);
+            }
+
+            $stmt = $this->db->prepare("
+                INSERT INTO data_room_requests (project_id, investor_id, requested_level, justification)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->execute([$data['project_id'], $investorId, $level, trim($data['justification'] ?? '')]);
+
+            $this->notifyAdmins('data_room', 'Demande d\'accès Data Room',
+                'Un investisseur demande l\'accès aux documents du projet #' . $data['project_id']);
+
+            $this->jsonOut(['success' => true, 'message' => 'Votre demande d\'accès a été envoyée à Urbanova.']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Investisseur : mes demandes d'accès Data Room
+     */
+    public function getMyDataRoomRequests()
+    {
+        $this->requireRole(['investor', 'admin', 'super_admin'], 'Accès réservé aux investisseurs');
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $investorId = $this->getCurrentInvestorId();
+        if (!$investorId) $this->jsonOut(['success' => true, 'data' => []]);
+
+        try {
+            $stmt = $this->db->prepare("
+                SELECT r.*, p.title AS project_title, p.city, p.country
+                FROM data_room_requests r
+                LEFT JOIN projects p ON p.id = r.project_id
+                WHERE r.investor_id = ?
+                ORDER BY r.created_at DESC
+            ");
+            $stmt->execute([$investorId]);
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : liste des demandes d'accès Data Room
+     */
+    public function getDataRoomRequests()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stmt = $this->db->query("
+                SELECT r.*, p.title AS project_title,
+                       u.name AS investor_name, u.email AS investor_email
+                FROM data_room_requests r
+                LEFT JOIN projects p ON p.id = r.project_id
+                LEFT JOIN investors i ON i.id = r.investor_id
+                LEFT JOIN users u ON u.id = i.user_id
+                ORDER BY r.created_at DESC
+                LIMIT 300
+            ");
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : valider / refuser / révoquer une demande d'accès Data Room
+     */
+    public function reviewDataRoomAccess()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id']) || empty($data['action'])) {
+            $this->jsonOut(['success' => false, 'message' => 'ID et action requis']);
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                SELECT r.*, i.user_id AS investor_user_id
+                FROM data_room_requests r
+                LEFT JOIN investors i ON i.id = r.investor_id
+                WHERE r.id = ?
+            ");
+            $stmt->execute([$data['id']]);
+            $req = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (!$req) $this->jsonOut(['success' => false, 'message' => 'Demande introuvable']);
+
+            $action = $data['action'];
+
+            if ($action === 'approve') {
+                $level = in_array($data['permission_level'] ?? '', ['view_only', 'download_allowed', 'full_access', 'temporary'], true)
+                    ? $data['permission_level'] : ($req['requested_level'] ?: 'view_only');
+                $expiresAt = null;
+                if ($level === 'temporary' && !empty($data['duration_days'])) {
+                    $expiresAt = date('Y-m-d H:i:s', time() + ((int)$data['duration_days'] * 86400));
+                }
+
+                // Créer / mettre à jour la permission
+                $stmt = $this->db->prepare("
+                    SELECT id FROM data_room_permissions
+                    WHERE project_id = ? AND investor_id = ?
+                ");
+                $stmt->execute([$req['project_id'], $req['investor_id']]);
+                $permId = $stmt->fetchColumn();
+
+                if ($permId) {
+                    $stmt = $this->db->prepare("
+                        UPDATE data_room_permissions
+                        SET permission_level = ?, expires_at = ?, status = 'active',
+                            granted_by = ?, granted_at = NOW()
+                        WHERE id = ?
+                    ");
+                    $stmt->execute([$level, $expiresAt, $_SESSION['user_id'] ?? null, $permId]);
+                } else {
+                    $stmt = $this->db->prepare("
+                        INSERT INTO data_room_permissions
+                            (project_id, investor_id, permission_level, expires_at, granted_by)
+                        VALUES (?, ?, ?, ?, ?)
+                    ");
+                    $stmt->execute([$req['project_id'], $req['investor_id'], $level, $expiresAt, $_SESSION['user_id'] ?? null]);
+                    $permId = (int)$this->db->lastInsertId();
+                }
+
+                $stmt = $this->db->prepare("
+                    UPDATE data_room_requests
+                    SET status = 'approved', granted_permission_id = ?, decided_by = ?, decided_at = NOW(),
+                        refusal_reason = NULL
+                    WHERE id = ?
+                ");
+                $stmt->execute([$permId, $_SESSION['user_id'] ?? null, $req['id']]);
+
+                $this->logDataRoomAccess($req['project_id'], $req['investor_id'], 'access_granted',
+                    'Accès accordé (niveau: ' . $level . ($expiresAt ? ', expire le ' . $expiresAt : '') . ')');
+
+                if ($req['investor_user_id']) {
+                    $this->notify((int)$req['investor_user_id'], 'data_room',
+                        'Accès Data Room accordé',
+                        'Votre accès aux documents du projet #' . $req['project_id'] . ' a été validé.', '/investor');
+                }
+
+                $this->jsonOut(['success' => true, 'message' => 'Accès accordé']);
+            } elseif ($action === 'refuse') {
+                $stmt = $this->db->prepare("
+                    UPDATE data_room_requests
+                    SET status = 'refused', decided_by = ?, decided_at = NOW(), refusal_reason = ?
+                    WHERE id = ?
+                ");
+                $stmt->execute([$_SESSION['user_id'] ?? null, $data['reason'] ?? null, $req['id']]);
+
+                $this->logDataRoomAccess($req['project_id'], $req['investor_id'], 'access_denied',
+                    'Demande refusée' . (!empty($data['reason']) ? ': ' . $data['reason'] : ''));
+
+                if ($req['investor_user_id']) {
+                    $this->notify((int)$req['investor_user_id'], 'data_room',
+                        'Demande Data Room refusée',
+                        'Votre demande d\'accès au projet #' . $req['project_id'] . ' a été refusée.', '/investor');
+                }
+
+                $this->jsonOut(['success' => true, 'message' => 'Demande refusée']);
+            } elseif ($action === 'revoke') {
+                // Retirer la permission liée
+                if (!empty($req['granted_permission_id'])) {
+                    $stmt = $this->db->prepare("UPDATE data_room_permissions SET status = 'revoked' WHERE id = ?");
+                    $stmt->execute([$req['granted_permission_id']]);
+                }
+                $stmt = $this->db->prepare("
+                    UPDATE data_room_requests SET status = 'revoked', decided_by = ?, decided_at = NOW()
+                    WHERE id = ?
+                ");
+                $stmt->execute([$_SESSION['user_id'] ?? null, $req['id']]);
+
+                $this->logDataRoomAccess($req['project_id'], $req['investor_id'], 'access_revoked',
+                    'Accès retiré par Urbanova');
+
+                if ($req['investor_user_id']) {
+                    $this->notify((int)$req['investor_user_id'], 'data_room',
+                        'Accès Data Room retiré',
+                        'Votre accès aux documents du projet #' . $req['project_id'] . ' a été retiré.', '/investor');
+                }
+
+                $this->jsonOut(['success' => true, 'message' => 'Accès retiré']);
+            } else {
+                $this->jsonOut(['success' => false, 'message' => 'Action inconnue']);
+            }
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Documents d'un projet : publics (non confidentiels) ou si permission Data Room
+     */
+    public function getProjectDocuments()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $projectId = $_GET['project_id'] ?? null;
+        if (!$projectId) $this->jsonOut(['success' => false, 'message' => 'projet requis (paramètre project_id)']);
+
+        try {
+            $investorId = $this->getCurrentInvestorId();
+            $isAdmin = in_array($_SESSION['user_role'] ?? '', ['admin', 'super_admin', 'project_manager'], true);
+
+            // Accès à la Data Room ?
+            $hasAccess = false;
+            if ($investorId) {
+                $stmt = $this->db->prepare("
+                    SELECT permission_level FROM data_room_permissions
+                    WHERE project_id = ? AND investor_id = ? AND status = 'active'
+                      AND (expires_at IS NULL OR expires_at > NOW())
+                    LIMIT 1
+                ");
+                $stmt->execute([$projectId, $investorId]);
+                $hasAccess = (bool)$stmt->fetchColumn();
+            }
+
+            $stmt = $this->db->prepare("
+                SELECT id, project_id, document_type, title, file_path, file_size, mime_type, is_confidential, created_at
+                FROM project_documents
+                WHERE project_id = ?
+                ORDER BY is_confidential ASC, created_at DESC
+            ");
+            $stmt->execute([$projectId]);
+            $docs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $visible = array_filter($docs, function ($d) use ($hasAccess, $isAdmin) {
+                return $isAdmin || $hasAccess || !(bool)$d['is_confidential'];
+            });
+
+            foreach ($visible as &$d) {
+                $d['can_download'] = $isAdmin || !(bool)$d['is_confidential'] || $hasAccess;
+            }
+
+            $this->jsonOut(['success' => true, 'has_access' => $hasAccess || $isAdmin, 'data' => array_values($visible)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Journalisation d'une consultation / téléchargement de document
+     */
+    public function logDocumentAccess()
+    {
+        $this->requireRole(['investor', 'admin', 'super_admin', 'project_manager'], 'Accès non autorisé');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['document_id']) || empty($data['project_id'])) {
+            $this->jsonOut(['success' => false, 'message' => 'Document et projet requis']);
+        }
+        $action = $data['action'] === 'download' ? 'document_downloaded' : 'document_viewed';
+        $investorId = $this->getCurrentInvestorId();
+        if (!$investorId && !in_array($_SESSION['user_role'] ?? '', ['admin', 'super_admin', 'project_manager'], true)) {
+            $this->jsonOut(['success' => false, 'message' => 'Compte investisseur introuvable']);
+        }
+
+        $this->logDataRoomAccess($data['project_id'], $investorId ?: 0, $action,
+            'Document #' . $data['document_id'], $data['document_id']);
+        $this->jsonOut(['success' => true]);
+    }
+
+    /**
+     * Admin : journal d'audit Data Room
+     */
+    public function getDataRoomAudit()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $params = [];
+            $where = "1=1";
+            if (!empty($_GET['project_id'])) {
+                $where .= " AND a.project_id = ?";
+                $params[] = (int)$_GET['project_id'];
+            }
+            if (!empty($_GET['action'])) {
+                $where .= " AND a.action = ?";
+                $params[] = $_GET['action'];
+            }
+
+            $stmt = $this->db->prepare("
+                SELECT a.*, p.title AS project_title, u.name AS investor_name, u.email AS investor_email
+                FROM data_room_audit_log a
+                LEFT JOIN projects p ON p.id = a.project_id
+                LEFT JOIN investors i ON i.id = a.investor_id
+                LEFT JOIN users u ON u.id = i.user_id
+                WHERE $where
+                ORDER BY a.created_at DESC
+                LIMIT 300
+            ");
+            $stmt->execute($params);
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    // ==================================================================
+    // ============ MODULE 1+2 - ADMIN : DEMANDES, VISITES, STATS =======
+    // ==================================================================
+
+    /**
+     * Administrateur : statistiques globales de la plateforme
+     */
+    public function getAdminStats()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $stats = [];
+
+        $queries = [
+            'total_projects'      => "SELECT COUNT(*) FROM projects",
+            'pending_projects'    => "SELECT COUNT(*) FROM projects WHERE validation_status IN ('pending','submitted','under_review')",
+            'published_projects'  => "SELECT COUNT(*) FROM projects WHERE validation_status IN ('approved','published')",
+            'sold_or_rented'      => "SELECT COUNT(*) FROM projects WHERE validation_status IN ('sold','rented')",
+            'total_users'         => "SELECT COUNT(*) FROM users",
+            'total_investors'     => "SELECT COUNT(*) FROM investors",
+            'pending_kyc'         => "SELECT COUNT(*) FROM investors WHERE investor_status = 'pending'",
+            'pending_reservations' => "SELECT COUNT(*) FROM project_reservations WHERE status = 'pending'",
+            'pending_visits'      => "SELECT COUNT(*) FROM project_visits WHERE status = 'pending'",
+            'pending_queries'     => "SELECT COUNT(*) FROM project_inquiries WHERE status = 'new'",
+            'pending_dataroom'    => "SELECT COUNT(*) FROM data_room_requests WHERE status = 'pending'",
+            'pending_offers'      => "SELECT COUNT(*) FROM investment_offers WHERE status = 'pending'",
+            'pending_mandates'    => "SELECT COUNT(*) FROM funding_requests WHERE status IN ('pending_study','under_review')",
+            'active_campaigns'    => "SELECT COUNT(*) FROM funding_campaigns WHERE status = 'active'",
+            'total_investments'   => "SELECT COUNT(*) FROM investments",
+            'total_investment_amount' => "SELECT COALESCE(SUM(amount), 0) FROM investments",
+        ];
+
+        foreach ($queries as $key => $sql) {
+            try {
+                $stmt = $this->db->query($sql);
+                $stats[$key] = $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+                $stats[$key] = 0;
+            }
+        }
+
+        $this->jsonOut(['success' => true, 'data' => $stats]);
+    }
+
+    /**
+     * Admin : liste des réservations
+     */
+    public function getReservations()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stmt = $this->db->query("
+                SELECT r.*, p.title AS project_title, p.city, p.country
+                FROM project_reservations r
+                LEFT JOIN projects p ON p.id = r.project_id
+                ORDER BY r.created_at DESC
+                LIMIT 300
+            ");
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : changer le statut d'une réservation
+     */
+    public function updateReservationStatus()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id']) || empty($data['status'])) {
+            $this->jsonOut(['success' => false, 'message' => 'ID et statut requis']);
+        }
+        try {
+            $stmt = $this->db->prepare("UPDATE project_reservations SET status = ? WHERE id = ?");
+            $stmt->execute([$data['status'], $data['id']]);
+            $this->jsonOut(['success' => true, 'message' => 'Réservation mise à jour']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : liste des demandes de visite
+     */
+    public function getVisits()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stmt = $this->db->query("
+                SELECT v.*, p.title AS project_title, p.city, p.country
+                FROM project_visits v
+                LEFT JOIN projects p ON p.id = v.project_id
+                ORDER BY v.created_at DESC
+                LIMIT 300
+            ");
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : changer le statut d'une demande de visite
+     */
+    public function updateVisitStatus()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id']) || empty($data['status'])) {
+            $this->jsonOut(['success' => false, 'message' => 'ID et statut requis']);
+        }
+        try {
+            $stmt = $this->db->prepare("UPDATE project_visits SET status = ? WHERE id = ?");
+            $stmt->execute([$data['status'], $data['id']]);
+            $this->jsonOut(['success' => true, 'message' => 'Visite mise à jour']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    // ==================================================================
+    // ============ NOTIFICATIONS & MESSAGERIE ==========================
+    // ==================================================================
+
+    /**
+     * Notifications de l'utilisateur connecté
+     */
+    public function getMyNotifications()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        if (empty($_SESSION['user_id'])) $this->jsonOut(['success' => true, 'data' => []]);
+        try {
+            $stmt = $this->db->prepare("
+                SELECT * FROM notifications
+                WHERE user_id = ?
+                ORDER BY created_at DESC
+                LIMIT 100
+            ");
+            $stmt->execute([$_SESSION['user_id']]);
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $stmt2 = $this->db->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0");
+            $stmt2->execute([$_SESSION['user_id']]);
+            $this->jsonOut(['success' => true, 'unread' => (int)$stmt2->fetchColumn(), 'data' => $rows]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Marquer les notifications comme lues
+     */
+    public function markNotificationsRead()
+    {
+        if (!$this->db || empty($_SESSION['user_id'])) $this->jsonOut(['success' => true]);
+        try {
+            $stmt = $this->db->prepare("UPDATE notifications SET is_read = 1 WHERE user_id = ?");
+            $stmt->execute([$_SESSION['user_id']]);
+            $this->jsonOut(['success' => true]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Messagerie investisseur : messages de l'utilisateur connecté (ou tous pour admin)
+     */
+    public function getInvestorMessages()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $isAdmin = in_array($_SESSION['user_role'] ?? '', ['admin', 'super_admin', 'project_manager'], true);
+        try {
+            if ($isAdmin) {
+                $stmt = $this->db->query("
+                    SELECT m.*, u.name AS investor_name, u.email AS investor_email, p.title AS project_title
+                    FROM investor_messages m
+                    LEFT JOIN investors i ON i.id = m.investor_id
+                    LEFT JOIN users u ON u.id = i.user_id
+                    LEFT JOIN projects p ON p.id = m.project_id
+                    ORDER BY m.created_at DESC
+                    LIMIT 300
+                ");
+            } else {
+                $this->requireRole(['investor'], 'Accès réservé aux investisseurs');
+                $investorId = $this->getCurrentInvestorId();
+                if (!$investorId) $this->jsonOut(['success' => true, 'data' => []]);
+                $stmt = $this->db->prepare("
+                    SELECT * FROM investor_messages
+                    WHERE investor_id = ?
+                    ORDER BY created_at DESC
+                    LIMIT 300
+                ");
+                $stmt->execute([$investorId]);
+            }
+            $this->jsonOut(['success' => true, 'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Investisseur : envoyer un message à Urbanova
+     */
+    public function sendInvestorMessage()
+    {
+        $this->requireRole(['investor', 'admin', 'super_admin'], 'Accès réservé aux investisseurs');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['subject']) || empty($data['message'])) {
+            $this->jsonOut(['success' => false, 'message' => 'Sujet et message requis']);
+        }
+
+        $investorId = $this->getCurrentInvestorId();
+        if (!$investorId) $this->jsonOut(['success' => false, 'message' => 'Compte investisseur introuvable']);
+
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO investor_messages (investor_id, project_id, subject, message)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->execute([$investorId, $data['project_id'] ?? null, $data['subject'], $data['message']]);
+
+            $this->notifyAdmins('message', 'Nouveau message investisseur', $data['subject']);
+            $this->jsonOut(['success' => true, 'message' => 'Message envoyé à Urbanova']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : répondre à un message investisseur
+     */
+    public function replyInvestorMessage()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id']) || empty($data['reply'])) {
+            $this->jsonOut(['success' => false, 'message' => 'ID et réponse requis']);
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE investor_messages
+                SET status = 'replied', admin_reply = ?, admin_replied_at = NOW(), admin_replied_by = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([$data['reply'], $_SESSION['user_id'] ?? null, $data['id']]);
+
+            // Notifier l'investisseur
+            $stmt = $this->db->prepare("
+                SELECT m.investor_id, i.user_id
+                FROM investor_messages m
+                LEFT JOIN investors i ON i.id = m.investor_id
+                WHERE m.id = ?
+            ");
+            $stmt->execute([$data['id']]);
+            $msg = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($msg && $msg['user_id']) {
+                $this->notify((int)$msg['user_id'], 'message',
+                    'Réponse d\'Urbanova à votre message', 'Urbanova a répondu à votre message.', '/investor');
+            }
+
+            $this->jsonOut(['success' => true, 'message' => 'Réponse enregistrée']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
         }
     }
 }

@@ -12,7 +12,11 @@ Une plateforme web moderne pour le développement urbain durable, la levée de f
 
 ### Plateforme de Levée de Fonds
 - Soumission de projets immobiliers complets
-- Système de validation administrative
+- Demande de mandat de levée de fonds (étude préalable Urbanova : accepter / demander des compléments / refuser)
+- Contrat de mandat avec commission de succès 2 %–5 % paramétrable
+- Campagnes de financement (création automatique à l'acceptation d'un mandat)
+- Offres d'investissement soumises par les investisseurs KYC validés
+- Tableau de bord pipeline : mandats, campagnes, offres, montants mobilisés
 - Upload de documents (business plan, plans, autorisations)
 - Informations financières détaillées (ROI, TRI, etc.)
 
@@ -23,18 +27,23 @@ Une plateforme web moderne pour le développement urbain durable, la levée de f
 - Interface intuitive pour les investisseurs
 
 ### Espace Investisseurs Certifiés
-- Vérification KYC/KYB rigoureuse
+- Vérification KYC/KYB rigoureuse (validation par Urbanova)
 - Formulaires individuels et corporatifs
-- Data Room sécurisée
-- Système d'expression d'intérêt
+- Data Room sécurisée, accès accordé projet par projet par Urbanova
+- Niveaux de permission : consultation seule, téléchargement, accès complet, accès temporaire
+- Journal d'audit complet (demandes, validations, consultations, téléchargements, IP, horodatage)
+- Système d'expression d'intérêt, offres d'investissement et notifications
 - Contact direct avec les promoteurs
 
 ### Administration
-- Tableau de bord avec statistiques
-- Gestion des projets (validation, rejet)
-- Gestion des investisseurs (approbation KYC)
+- Tableau de bord avec statistiques complètes (projets, ventes, locations, prospects, visites, réservations, campagnes)
+- Gestion des projets : validation, publication, suspension, archivage, modification des prix, vidéos, brochures
+- Gestion des investisseurs (approbation KYC) et des offres d'investissement
+- Gestion des mandats de levée de fonds (étude préalable + commission 2 %–5 %)
+- Gestion des campagnes de financement
+- Validation/refus/révocation des accès Data Room + consultation du journal d'audit
+- Gestion des demandes : informations, réservations, visites
 - Rapports et analyses
-- Interface de gestion complète
 
 ## 🛠️ Technologies
 

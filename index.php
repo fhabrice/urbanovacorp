@@ -138,6 +138,9 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                     <button onclick="goToMarketplace()"
                         class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
                         id="nav-marketplace">Marketplace</button>
+                    <button onclick="goToCampaigns()"
+                        class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
+                        id="nav-campagnes">Levée de fonds</button>
                     <button onclick="switchTab('promoteur')"
                         class="nav-link px-3 py-2 rounded-md transition-all text-slate-300 hover:text-white"
                         id="nav-promoteur">Tableau de bord</button>
@@ -182,6 +185,8 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">À propos</button>
             <button onclick="goToMarketplace(); toggleMobileMenu()"
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Marketplace</button>
+            <button onclick="goToCampaigns(); toggleMobileMenu()"
+                class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Levée de fonds</button>
             <button onclick="goToPromoterDashboard(); toggleMobileMenu()"
                 class="block w-full text-left px-3 py-2.5 rounded-md text-slate-300 hover:text-white font-medium">Tableau de bord</button>
             <button onclick="switchTab('investisseur'); toggleMobileMenu()"
@@ -870,6 +875,64 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
         </div>
 
 
+        <!-- ================= PAGE 3bis: LEVÉE DE FONDS (CAMPAGNES) ================= -->
+        <div id="page-campagnes" class="tab-content hidden bg-slate-100">
+            <!-- Header Section -->
+            <section class="bg-brand-dark text-white py-12 border-b border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-xs text-slate-400 space-x-2 mb-3">
+                        <span class="hover:text-white cursor-pointer" onclick="switchTab('accueil')">Accueil</span>
+                        <span>/</span>
+                        <span class="text-brand-gold font-medium">Levée de fonds</span>
+                    </div>
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                        <div>
+                            <h1 class="text-3xl md:text-4xl font-extrabold">Levée de fonds immobilière</h1>
+                            <p class="text-slate-400 mt-2">Campagnes de financement structurées et sécurisées par Urbanova</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="goToPromoterDashboard();"
+                                class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-md">
+                                <i class="fa-solid fa-file-signature mr-2"></i>Soumettre un projet / mandat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <!-- Info rapide modèle économique -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 mb-8 flex flex-col md:flex-row md:items-center gap-4">
+                        <div class="w-12 h-12 shrink-0 bg-brand-gold/15 text-brand-gold rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-percent"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-brand-dark">Commission de succès Urbanova : 2 % à 5 %</p>
+                            <p class="text-sm text-slate-600">du montant effectivement levé, formalisée dans un contrat de mandat signé avec le porteur de projet.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-extrabold text-brand-dark">Campagnes actives</h2>
+                        <span class="text-sm text-slate-500" id="campaignsCount">Chargement...</span>
+                    </div>
+                    <div id="campaignsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+                    <!-- Espace investisseur -->
+                    <div class="mt-12 bg-brand-navy rounded-3xl p-8 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div>
+                            <h3 class="text-xl font-extrabold mb-2">Vous êtes investisseur ?</h3>
+                            <p class="text-slate-300 text-sm max-w-xl">Exprimez votre intérêt sur une campagne ou soumettez une offre après validation de votre profil KYC. L'accès aux documents confidentiels passe par la Data Room contrôlée par Urbanova.</p>
+                        </div>
+                        <button onclick="switchTab('investisseur');" class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold px-6 py-3 rounded-xl text-sm transition-all shrink-0 shadow-lg">
+                            <i class="fa-solid fa-user-tie mr-2"></i>Espace Investisseur
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
         <!-- ================= PAGE 4: LEVÉE DE FONDS (SOUMISSION) ================= -->
         <div id="page-levee" class="tab-content hidden">
             <!-- Header Section -->
@@ -1132,6 +1195,16 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                     <i class="fa-solid fa-magnifying-glass-chart"></i>
                                     <span>Opportunités</span>
                                 </button>
+                                <button onclick="setInvestorTab('offres')" id="invest-tab-offres"
+                                    class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50">
+                                    <i class="fa-solid fa-file-signature"></i>
+                                    <span>Mes offres</span>
+                                </button>
+                                <button onclick="setInvestorTab('notifications')" id="invest-tab-notifications"
+                                    class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50">
+                                    <i class="fa-solid fa-bell"></i>
+                                    <span>Notifications</span>
+                                </button>
                                 <button onclick="handleInvestorSpaceAction()"
                                     class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center space-x-3 text-red-600 hover:bg-red-50 mt-8">
                                     <i class="fa-solid fa-arrow-right-from-bracket" id="investorLogoutIcon"></i>
@@ -1249,8 +1322,43 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                 </div>
                             </div>
 
+                            <!-- TAB SUB-CONTENT: MES OFFRES -->
+                            <div id="invest-sub-offres" class="invest-sub-content hidden space-y-8">
+                                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                                    <h3 class="font-extrabold text-brand-dark text-lg mb-1">Mes offres d'investissement</h3>
+                                    <p class="text-sm text-slate-500 mb-4">Offres soumises sur les campagnes de levée de fonds Urbanova.</p>
+                                    <div id="investMyOffersList" class="space-y-4">
+                                        <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB SUB-CONTENT: NOTIFICATIONS -->
+                            <div id="invest-sub-notifications" class="invest-sub-content hidden space-y-8">
+                                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h3 class="font-extrabold text-brand-dark text-lg">Notifications</h3>
+                                        <button onclick="markAllNotificationsRead()" class="text-brand-gold text-xs font-bold hover:underline">Tout marquer comme lu</button>
+                                    </div>
+                                    <div id="investNotificationsList" class="space-y-3">
+                                        <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- TAB SUB-CONTENT: SECURED DATA ROOM -->
                             <div id="invest-sub-dataroom" class="invest-sub-content hidden space-y-8">
+                                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h3 class="font-extrabold text-brand-dark">Mes demandes d'accès Data Room</h3>
+                                            <p class="text-xs text-slate-500">Accès accordé projet par projet par Urbanova.</p>
+                                        </div>
+                                        <button onclick="goToMarketplace()" class="text-brand-gold text-xs font-bold hover:underline">Demander un accès</button>
+                                    </div>
+                                    <div id="investDataroomRequestsList" class="space-y-3"></div>
+                                </div>
+
                                 <!-- KYC Validation Screen simulator (Locks/Unlocks confidential data) -->
                                 <div id="dataroom-locked-state"
                                     class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center space-y-6">
@@ -1465,15 +1573,51 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                     </div>
                                 </div>
                             </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-slate-500 text-sm font-medium">Campagnes actives</p>
+                                        <p class="text-3xl font-extrabold text-brand-navy mt-1" id="adminActiveCampaigns">0</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                        <i class="fa-solid fa-arrow-trend-up text-purple-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-slate-500 text-sm font-medium">Data Room en attente</p>
+                                        <p class="text-3xl font-extrabold text-brand-gold mt-1" id="adminPendingDataroom">0</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
+                                        <i class="fa-solid fa-lock text-red-500"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-slate-500 text-sm font-medium">Réservations / Visites en attente</p>
+                                        <p class="text-3xl font-extrabold text-brand-navy mt-1" id="adminPendingDemandes">0</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center">
+                                        <i class="fa-solid fa-calendar-check text-cyan-600"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Tabs for admin management -->
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-100">
-                            <div class="border-b border-slate-100">
-                                <div class="flex">
+                            <div class="border-b border-slate-100 overflow-x-auto">
+                                <div class="flex min-w-max">
                                     <button onclick="switchAdminTab('projects')" class="admin-tab px-6 py-4 text-sm font-bold text-brand-navy border-b-2 border-brand-navy">Projets</button>
                                     <button onclick="switchAdminTab('users')" class="admin-tab px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-700">Utilisateurs</button>
                                     <button onclick="switchAdminTab('investments')" class="admin-tab px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-700">Investissements</button>
+                                    <button onclick="switchAdminTab('levees')" class="admin-tab px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-700">Levées de fonds</button>
+                                    <button onclick="switchAdminTab('dataroom')" class="admin-tab px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-700">Data Room</button>
+                                    <button onclick="switchAdminTab('demandes')" class="admin-tab px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-700">Demandes</button>
                                 </div>
                             </div>
 
@@ -1498,6 +1642,64 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                 <h3 class="text-lg font-bold text-brand-dark mb-4">Gestion des Investissements</h3>
                                 <div id="adminInvestmentsList" class="space-y-4">
                                     <p class="text-slate-500 text-center py-8">Chargement des investissements...</p>
+                                </div>
+                            </div>
+
+                            <!-- Levée de fonds Management -->
+                            <div id="adminLeveesTab" class="p-6 hidden">
+                                <h3 class="text-lg font-bold text-brand-dark mb-2">Levée de fonds</h3>
+                                <p class="text-sm text-slate-500 mb-6">Mandats de levée, campagnes de financement et offres d'investissement.</p>
+
+                                <h4 class="font-bold text-brand-dark mb-3 border-t border-slate-100 pt-4">Demandes de mandat (étude préalable)</h4>
+                                <div id="adminMandatsList" class="space-y-4 mb-8">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                </div>
+
+                                <h4 class="font-bold text-brand-dark mb-3">Campagnes de financement</h4>
+                                <div id="adminCampaignsList" class="space-y-4 mb-8">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                </div>
+
+                                <h4 class="font-bold text-brand-dark mb-3">Offres d'investissement</h4>
+                                <div id="adminOffersList" class="space-y-4">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                </div>
+                            </div>
+
+                            <!-- Data Room Management -->
+                            <div id="adminDataroomTab" class="p-6 hidden">
+                                <h3 class="text-lg font-bold text-brand-dark mb-2">Data Room & Accès</h3>
+                                <p class="text-sm text-slate-500 mb-6">Demandes d'accès des investisseurs et journal de traçabilité.</p>
+
+                                <h4 class="font-bold text-brand-dark mb-3">Demandes d'accès</h4>
+                                <div id="adminDataroomRequestsList" class="space-y-4 mb-8">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                </div>
+
+                                <h4 class="font-bold text-brand-dark mb-3">Journal d'audit (traçabilité)</h4>
+                                <div id="adminAuditLogList" class="space-y-2">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                </div>
+                            </div>
+
+                            <!-- Demandes Management -->
+                            <div id="adminDemandesTab" class="p-6 hidden">
+                                <h3 class="text-lg font-bold text-brand-dark mb-2">Demandes commerciales</h3>
+                                <p class="text-sm text-slate-500 mb-6">Demandes d'information, réservations et demandes de visite.</p>
+
+                                <h4 class="font-bold text-brand-dark mb-3">Demandes d'information</h4>
+                                <div id="adminInquiriesList" class="space-y-4 mb-8">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                </div>
+
+                                <h4 class="font-bold text-brand-dark mb-3">Réservations</h4>
+                                <div id="adminReservationsList" class="space-y-4 mb-8">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                </div>
+
+                                <h4 class="font-bold text-brand-dark mb-3">Demandes de visite</h4>
+                                <div id="adminVisitsList" class="space-y-4">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
                                 </div>
                             </div>
                         </div>
@@ -2325,6 +2527,53 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
             initializeProjectWizardFileInputs();
         }
 
+        // Demande de mandat de levée de fonds (porteur)
+        async function requestMandat(projectId, title) {
+            if (!currentUser || !['promoter', 'admin', 'super_admin', 'project_manager'].includes(currentUser.role)) {
+                showToast("Connexion requise", "Connectez-vous en tant que porteur de projet", "warning");
+                openLoginModal();
+                return;
+            }
+            const amount = prompt('Montant recherché pour ' + title + ' ($) :', '');
+            if (amount === null) return;
+            const summary = prompt('Résumé / contexte de la levée de fonds :', '');
+            if (summary === null) return;
+            try {
+                const res = await fetch('api.php?action=submit-funding-request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_id: projectId, amount_requested: amount, summary })
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Demande envoyée' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        // Modification d'un projet par le porteur (avant validation)
+        async function editProjectAsPromoter(projectId) {
+            const name = prompt('Nom du projet :', '');
+            if (name === null) return;
+            const target = prompt('Financement recherché ($) :', '');
+            if (target === null) return;
+            const desc = prompt('Description :', '');
+            if (desc === null) return;
+            const payload = { id: projectId, name, target, description: desc };
+            try {
+                const res = await fetch('api.php?action=update-project', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Succès' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+                loadPromoteurProjects();
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
         function initializeProjectWizardFileInputs() {
             const businessPlanDropzone = document.getElementById('businessPlanDropzone');
             const businessPlanInput = document.getElementById('businessPlanInput');
@@ -3029,13 +3278,22 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                 const translatedStatus = statusTranslations[p.validation_status] || p.validation_status;
 
                 const item = document.createElement('div');
-                item.className = 'p-4 hover:bg-slate-50 cursor-pointer';
+                item.className = 'p-4 hover:bg-slate-50';
+                const editable = ['draft', 'submitted', 'under_review', 'additional_info'].includes(p.validation_status);
                 item.innerHTML = `
                     <div class="font-bold text-brand-dark text-sm">${p.title}</div>
                     <div class="text-xs text-slate-500 mb-2">${p.city}</div>
-                    <span class="status-badge status-${p.validation_status} text-xs">
-                        ${translatedStatus}
-                    </span>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="status-badge status-${p.validation_status} text-xs">
+                            ${translatedStatus}
+                        </span>
+                        <button onclick="requestMandat(${p.id}, '${p.title.replace(/'/g, "\\'")}')" class="bg-brand-navy hover:bg-slate-800 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold ${p.validation_status === 'approved' || p.validation_status === 'published' ? '' : 'opacity-60'}">
+                            <i class="fa-solid fa-hand-holding-dollar mr-1"></i>Demander un mandat de financement
+                        </button>
+                        ${editable ? `<button onclick="editProjectAsPromoter(${p.id})" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">
+                            <i class="fa-solid fa-pen mr-1"></i>Modifier
+                        </button>` : ''}
+                    </div>
                 `;
                 container.appendChild(item);
             });
@@ -3053,6 +3311,11 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
             // Hide all tab contents first
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(el => el.classList.add('hidden'));
+
+            // Load campaigns on demand
+            if (tabId === 'campagnes') {
+                loadCampaigns();
+            }
 
             // Check auth for promoter tab
             if (tabId === 'promoteur') {
@@ -3237,12 +3500,17 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
         // Switch Admin Tabs
         function switchAdminTab(tab) {
             // Hide all tabs
-            document.getElementById('adminProjectsTab').classList.add('hidden');
-            document.getElementById('adminUsersTab').classList.add('hidden');
-            document.getElementById('adminInvestmentsTab').classList.add('hidden');
+            ['projects', 'users', 'investments', 'levees', 'dataroom', 'demandes'].forEach(t => {
+                document.getElementById('admin' + t.charAt(0).toUpperCase() + t.slice(1) + 'Tab').classList.add('hidden');
+            });
             
             // Show selected tab
             document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.remove('hidden');
+
+            // Lazy loading des données par onglet
+            if (tab === 'levees') loadAdminLevees();
+            if (tab === 'dataroom') loadAdminDataRoom();
+            if (tab === 'demandes') loadAdminDemandes();
             
             // Update tab styles
             document.querySelectorAll('.admin-tab').forEach(btn => {
@@ -3273,6 +3541,9 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                     renderAdminProjects(projects);
                 }
                 
+                // Load global admin stats
+                try { await loadAdminStats(); } catch (e) { console.error(e); }
+
                 // Load users
                 try {
                     const usersResponse = await fetch('api.php?action=get-users', {
@@ -3597,6 +3868,24 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                     <i class="fa-solid fa-xmark mr-1"></i>Rejeter
                                 </button>
                             ` : ''}
+                            ${(project.raw_status || project.status) === 'approved' || project.status === 'Approuvé' ? `
+                                <button onclick="setProjectStatus(${project.numeric_id || project.id}, 'publish')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center">
+                                    <i class="fa-solid fa-globe mr-1"></i>Publier
+                                </button>
+                            ` : ''}
+                            ${(project.raw_status || project.status) === 'published' ? `
+                                <button onclick="setProjectStatus(${project.numeric_id || project.id}, 'suspend')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center">
+                                    <i class="fa-solid fa-pause mr-1"></i>Suspendre
+                                </button>
+                                <button onclick="editProjectAdmin(${project.numeric_id || project.id})" class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center">
+                                    <i class="fa-solid fa-pen mr-1"></i>Modifier
+                                </button>
+                            ` : ''}
+                            ${(project.raw_status || project.status) !== 'archived' ? `
+                                <button onclick="setProjectStatus(${project.numeric_id || project.id}, 'archive')" class="bg-slate-500 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center">
+                                    <i class="fa-solid fa-box-archive mr-1"></i>Archiver
+                                </button>
+                            ` : ''}
 
                             <button onclick="viewProjectDetailsAdmin('${project.id}', ${project.numeric_id || project.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center">
                                 <i class="fa-solid fa-eye mr-1"></i>Voir
@@ -3678,6 +3967,27 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
             } catch (error) {
                 console.error('Error approving project:', error);
                 showToast("Erreur", "Erreur lors de l'approbation", "warning");
+            }
+        }
+
+        // Set project status (publish / suspend / archive / sell / rent)
+        async function setProjectStatus(projectId, action) {
+            try {
+                const response = await fetch('api.php?action=approve-project', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id: projectId, action })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast("Succès", "Statut du projet mis à jour : " + result.message);
+                    loadAdminData();
+                } else {
+                    showToast("Erreur", result.message, "warning");
+                }
+            } catch (error) {
+                console.error('Error setting project status:', error);
+                showToast("Erreur", "Erreur lors de la mise à jour", "warning");
             }
         }
 
@@ -3852,6 +4162,20 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                             <button onclick="openVisitModal('${p.id}', '${p.title.replace(/'/g, "\\'")}')" class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-2.5 px-4 rounded-xl text-xs transition-all shadow-sm">
                                 <i class="fa-solid fa-calendar mr-1"></i> Visiter
                             </button>
+                            <button onclick="openInquiryModal('${p.id}', '${p.title.replace(/'/g, "\\'")}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs transition-all">
+                                <i class="fa-solid fa-circle-info mr-1"></i> Informations
+                            </button>
+                            ${p.brochure_path ? `
+                            <a href="${p.brochure_path}" target="_blank" download class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-xs transition-all text-center">
+                                <i class="fa-solid fa-file-pdf mr-1"></i> Brochure
+                            </a>` : `
+                            ${currentUser && currentUser.role === 'investor' ? `
+                            <button onclick="openDataroomModal('${p.id}', '${p.title.replace(/'/g, "\\'")}')" class="bg-brand-navy/10 hover:bg-brand-navy/20 text-brand-navy font-bold py-2.5 px-4 rounded-xl text-xs transition-all">
+                                <i class="fa-solid fa-lock mr-1"></i> Data Room
+                            </button>` : `<button onclick="showToast('Accès investisseur', 'La Data Room est réservée aux investisseurs certifiés', 'warning'); openLoginModal();" class="bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold py-2.5 px-4 rounded-xl text-xs transition-all">
+                                <i class="fa-solid fa-lock mr-1"></i> Data Room
+                            </button>`}
+                            `}
                         </div>
                     </div>
                 `;
@@ -4269,11 +4593,21 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
             // Show target
             document.getElementById(`invest-sub-${tab}`).classList.remove('hidden');
 
+            // Load data per sub-tab
+            if (tab === 'dataroom') {
+                loadMyDataRoomRequests();
+                loadDataroomDocuments(null);
+            }
+            if (tab === 'offres') loadMyOffers();
+            if (tab === 'notifications') loadInvestorNotifications();
+
             // Manage nav buttons styling inside Investor Panel
             const buttons = [
                 { id: 'dashboard', el: document.getElementById('invest-tab-dashboard') },
                 { id: 'investissements', el: document.getElementById('invest-tab-investissements') },
-                { id: 'dataroom', el: document.getElementById('invest-tab-dataroom') }
+                { id: 'dataroom', el: document.getElementById('invest-tab-dataroom') },
+                { id: 'offres', el: document.getElementById('invest-tab-offres') },
+                { id: 'notifications', el: document.getElementById('invest-tab-notifications') }
             ];
 
             buttons.forEach(btn => {
@@ -4498,6 +4832,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                 <select id="regRole" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
                                     <option value="investor">Investisseur</option>
                                     <option value="promoter">Porteur de projet</option>
+                                    <option value="client">Client / Acheteur</option>
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
@@ -4556,6 +4891,819 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
             } catch (err) {
                 alert("⚠️ ERREUR DE CONNEXION AU SERVEUR");
                 showToast("Erreur", "Erreur de connexion au serveur", "warning");
+            }
+        }
+
+        // =========================================================
+        // MODULE 2 : LEVÉE DE FONDS - CAMPAGNES (page publique)
+        // =========================================================
+        function goToCampaigns() {
+            switchTab('campagnes');
+        }
+
+        async function loadCampaigns() {
+            const grid = document.getElementById('campaignsGrid');
+            const counter = document.getElementById('campaignsCount');
+            if (grid) grid.innerHTML = '<div class="col-span-full text-center py-10"><i class="fa-solid fa-spinner fa-spin text-2xl text-brand-gold"></i></div>';
+
+            try {
+                const res = await fetch('api.php?action=get-campaigns');
+                const data = await res.json();
+                if (data.success) {
+                    if (counter) counter.innerText = data.data.length + ' campagne(s)';
+                    renderCampaigns(data.data);
+                } else {
+                    if (grid) grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-500">Aucune campagne disponible pour le moment.</div>';
+                }
+            } catch (e) {
+                if (grid) grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-500">Impossible de charger les campagnes.</div>';
+            }
+        }
+
+        function renderCampaigns(campaigns) {
+            const grid = document.getElementById('campaignsGrid');
+            if (!grid) return;
+
+            if (!campaigns || campaigns.length === 0) {
+                grid.innerHTML = '<div class="col-span-full bg-white rounded-2xl border border-slate-200 p-10 text-center"><i class="fa-solid fa-arrow-trend-up text-4xl text-brand-gold mb-3"></i><h4 class="font-bold text-brand-dark">Aucune campagne en cours</h4><p class="text-sm text-slate-500 mt-1">Urbanova structure actuellement de nouvelles levées de fonds.</p></div>';
+                return;
+            }
+
+            grid.innerHTML = campaigns.map(c => {
+                const progress = c.progress || 0;
+                const statusLabel = { draft: 'Brouillon', active: 'Active', paused: 'En pause', completed: 'Terminée', cancelled: 'Annulée' }[c.status] || c.status;
+                const statusColor = c.status === 'active' ? 'bg-emerald-100 text-emerald-700' : c.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600';
+                return `
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl transition-all flex flex-col">
+                        <div class="relative h-44 overflow-hidden">
+                            <img src="${c.image || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'}" alt="${c.project_title}" class="w-full h-full object-cover">
+                            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold ${statusColor}">${statusLabel}</span>
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="font-extrabold text-brand-dark mb-1">${c.title}</h3>
+                            <p class="text-xs text-slate-500 mb-2"><i class="fa-solid fa-location-dot text-brand-gold mr-1"></i>${c.city || ''}${c.country ? ', ' + c.country : ''}</p>
+                            <p class="text-sm text-slate-600 mb-4 line-clamp-2">${(c.description || c.project_description || '').substring(0, 120)}</p>
+                            <div class="mt-auto">
+                                <div class="flex justify-between text-xs font-bold text-slate-600 mb-1">
+                                    <span>Objectif : ${Number(c.target_amount).toLocaleString('fr-FR')} $</span>
+                                    <span>Mobilisé : ${Number(c.raised || 0).toLocaleString('fr-FR')} $</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mb-2">
+                                    <div class="bg-brand-gold h-full" style="width: ${progress}%"></div>
+                                </div>
+                                <div class="flex justify-between text-[11px] text-slate-400 mb-4">
+                                    <span>${progress}% financé</span>
+                                    <span>Commission Urbanova : ${c.commission_rate || 0}%</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    ${currentUser && currentUser.role === 'investor' ? `
+                                    <button onclick="openOfferModal('${c.id}','${c.title.replace(/'/g, "\\'")}', ${c.target_amount}, ${c.minimum_investment || 0}, ${c.maximum_investment || 0})" class="bg-brand-navy hover:bg-slate-800 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all">Faire une offre</button>
+                                    <button onclick="expressFundingInterest('${c.project_id}')" class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold py-2.5 px-3 rounded-xl text-xs transition-all">Exprimer mon intérêt</button>
+                                    ` : `
+                                    <button onclick="showToast('Connexion requise','Connectez-vous en tant qu\\'investisseur pour participer','warning'); openLoginModal();" class="col-span-2 bg-brand-navy hover:bg-slate-800 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all">Investir (réservé investisseurs certifiés)</button>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openOfferModal(campaignId, title, target, min, max) {
+            const modalHtml = `
+                <div id="offerModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl max-w-md w-full p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-brand-dark">Offre d'investissement</h3>
+                            <button onclick="document.getElementById('offerModal').remove()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-times text-xl"></i></button>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">Campagne : <strong>${title}</strong><br>Objectif : ${Number(target).toLocaleString('fr-FR')} $ ${min ? ' • Minimum : ' + Number(min).toLocaleString('fr-FR') + ' $' : ''}</p>
+                        <form onsubmit="event.preventDefault(); submitOffer('${campaignId}');" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Montant ($) *</label>
+                                <input type="number" id="offerAmount" min="${min || 1}" max="${max || ''}" class="w-full border border-slate-300 rounded-lg p-2.5" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Message</label>
+                                <textarea id="offerMessage" rows="3" class="w-full border border-slate-300 rounded-lg p-2.5" placeholder="Votre note d'intention..."></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-brand-navy hover:bg-slate-800 text-white font-bold py-3 rounded-xl">Soumettre l'offre</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        async function submitOffer(campaignId) {
+            const amount = document.getElementById('offerAmount').value;
+            const message = document.getElementById('offerMessage').value;
+            try {
+                const res = await fetch('api.php?action=submit-investment-offer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ campaign_id: campaignId, amount, message })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Offre soumise', data.message);
+                    document.getElementById('offerModal').remove();
+                } else {
+                    showToast('Erreur', data.message, 'warning');
+                }
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        async function expressFundingInterest(projectId) {
+            try {
+                const res = await fetch('api.php?action=express-funding-interest', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_id: projectId })
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Intérêt enregistré' : 'Info', data.message, data.success ? 'success' : 'warning');
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        // =========================================================
+        // MODULE 1 : DEMANDE D'INFORMATION (Marketplace)
+        // =========================================================
+        function openInquiryModal(projectId, title) {
+            const modalHtml = `
+                <div id="inquiryModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl max-w-md w-full p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-brand-dark">Demander des informations</h3>
+                            <button onclick="document.getElementById('inquiryModal').remove()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-times text-xl"></i></button>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">Projet : <strong>${title}</strong></p>
+                        <form onsubmit="event.preventDefault(); submitInquiry('${projectId}');" class="space-y-4">
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nom complet *</label><input id="inqName" class="w-full border border-slate-300 rounded-lg p-2.5" required></div>
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Email *</label><input id="inqEmail" type="email" class="w-full border border-slate-300 rounded-lg p-2.5" required></div>
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Téléphone</label><input id="inqPhone" class="w-full border border-slate-300 rounded-lg p-2.5"></div>
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Message *</label><textarea id="inqMessage" rows="3" class="w-full border border-slate-300 rounded-lg p-2.5" required></textarea></div>
+                            <button type="submit" class="w-full bg-brand-navy hover:bg-slate-800 text-white font-bold py-3 rounded-xl">Envoyer la demande</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        async function submitInquiry(projectId) {
+            const payload = {
+                project_id: projectId,
+                name: document.getElementById('inqName').value,
+                email: document.getElementById('inqEmail').value,
+                phone: document.getElementById('inqPhone').value,
+                message: document.getElementById('inqMessage').value
+            };
+            try {
+                const res = await fetch('api.php?action=submit-project-inquiry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Demande envoyée', data.message);
+                    document.getElementById('inquiryModal').remove();
+                } else {
+                    showToast('Erreur', data.message, 'warning');
+                }
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        // =========================================================
+        // MODULE 3 : DATA ROOM (investisseur)
+        // =========================================================
+        function openDataroomModal(projectId, title) {
+            const modalHtml = `
+                <div id="dataroomModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl max-w-md w-full p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-brand-dark">Demande d'accès Data Room</h3>
+                            <button onclick="document.getElementById('dataroomModal').remove()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-times text-xl"></i></button>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">Projet : <strong>${title}</strong><br>L'accès est accordé projet par projet par Urbanova après analyse.</p>
+                        <form onsubmit="event.preventDefault(); submitDataroomRequest('${projectId}');" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Niveau d'accès demandé</label>
+                                <select id="drLevel" class="w-full border border-slate-300 rounded-lg p-2.5">
+                                    <option value="view_only">Consultation uniquement</option>
+                                    <option value="download_allowed">Consultation + téléchargement</option>
+                                    <option value="full_access">Accès complet</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Justification</label><textarea id="drJustification" rows="3" class="w-full border border-slate-300 rounded-lg p-2.5"></textarea></div>
+                            <button type="submit" class="w-full bg-brand-navy hover:bg-slate-800 text-white font-bold py-3 rounded-xl">Envoyer la demande</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        async function submitDataroomRequest(projectId) {
+            const payload = {
+                project_id: projectId,
+                permission_level: document.getElementById('drLevel').value,
+                justification: document.getElementById('drJustification').value
+            };
+            try {
+                const res = await fetch('api.php?action=request-data-room-access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Demande envoyée', data.message);
+                    document.getElementById('dataroomModal').remove();
+                    loadMyDataRoomRequests();
+                } else {
+                    showToast('Erreur', data.message, 'warning');
+                }
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        async function loadMyDataRoomRequests() {
+            const container = document.getElementById('investDataroomRequestsList');
+            if (!container) return;
+            try {
+                const res = await fetch('api.php?action=get-my-data-room-requests');
+                const data = await res.json();
+                if (data.success) {
+                    const rows = data.data || [];
+                    const statusLabel = { pending: 'En attente', approved: 'Approuvé', refused: 'Refusé', revoked: 'Retiré', expired: 'Expiré' };
+                    const statusColor = { pending: 'bg-yellow-100 text-yellow-700', approved: 'bg-emerald-100 text-emerald-700', refused: 'bg-red-100 text-red-700', revoked: 'bg-slate-100 text-slate-600', expired: 'bg-slate-100 text-slate-600' };
+                    container.innerHTML = rows.length === 0
+                        ? '<p class="text-sm text-slate-500 text-center py-4">Aucune demande pour le moment.</p>'
+                        : rows.map(r => `
+                            <div class="border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                <div>
+                                    <p class="font-bold text-brand-dark text-sm">${r.project_title || 'Projet #' + r.project_id}</p>
+                                    <p class="text-xs text-slate-500 mt-1">${r.city || ''}${r.country ? ', ' + r.country : ''} • ${r.requested_level}</p>
+                                    ${r.refusal_reason ? `<p class="text-xs text-red-500 mt-1">Motif : ${r.refusal_reason}</p>` : ''}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusColor[r.status] || 'bg-slate-100 text-slate-600'}">${statusLabel[r.status] || r.status}</span>
+                                    ${r.status === 'approved' ? `<button onclick="openDocsModal('${r.project_id}')" class="bg-brand-navy hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Voir documents</button>` : ''}
+                                </div>
+                            </div>
+                        `).join('');
+                }
+            } catch (e) {
+                container.innerHTML = '<p class="text-sm text-slate-500 text-center py-4">Erreur de chargement.</p>';
+            }
+        }
+
+        async function openDocsModal(projectId) {
+            try {
+                const res = await fetch('api.php?action=get-project-documents&project_id=' + projectId);
+                const data = await res.json();
+                const docs = (data.data || []);
+                const modalHtml = `
+                    <div id="docsModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div class="bg-white rounded-2xl max-w-lg w-full p-6 max-h-[85vh] overflow-y-auto">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-brand-dark">Documents confidentiels</h3>
+                                <button onclick="document.getElementById('docsModal').remove()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-times text-xl"></i></button>
+                            </div>
+                            ${docs.length === 0 ? '<p class="text-sm text-slate-500 py-4 text-center">Aucun document disponible.</p>' : docs.map(d => `
+                                <div class="flex items-center justify-between border border-slate-200 rounded-xl p-3 mb-2">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fa-solid fa-file-pdf text-red-500 text-xl"></i>
+                                        <div>
+                                            <p class="text-sm font-bold text-brand-dark">${d.title}</p>
+                                            <p class="text-xs text-slate-400">${d.document_type}${d.is_confidential ? ' • Confidentiel' : ''}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-1">
+                                        <button onclick="logDocAccess(${d.id}, ${projectId}, 'view')" class="text-slate-400 hover:text-brand-gold px-2"><i class="fa-solid fa-eye"></i></button>
+                                        <button onclick="logDocAccess(${d.id}, ${projectId}, 'download')" class="text-slate-400 hover:text-brand-gold px-2"><i class="fa-solid fa-download"></i></button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                const old = document.getElementById('docsModal');
+                if (old) old.remove();
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                window._docsModalProjectId = projectId;
+                window._docsData = docs;
+            } catch (e) {
+                showToast('Erreur', 'Impossible de charger les documents', 'warning');
+            }
+        }
+
+        async function logDocAccess(docId, projectId, action) {
+            try {
+                await fetch('api.php?action=log-document-access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ document_id: docId, project_id: projectId, action })
+                });
+                const doc = (window._docsData || []).find(d => String(d.id) === String(docId));
+                if (doc && doc.file_path) {
+                    window.open(doc.file_path, '_blank');
+                } else {
+                    showToast('Info', 'Document disponible dans la Data Room Urbanova.');
+                }
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        // =========================================================
+        // INVESTISSEUR : OFFRES & NOTIFICATIONS
+        // =========================================================
+        async function loadMyOffers() {
+            const container = document.getElementById('investMyOffersList');
+            if (!container) return;
+            try {
+                const res = await fetch('api.php?action=get-my-investment-offers');
+                const data = await res.json();
+                const rows = data.data || [];
+                const statusLabel = { pending: 'En attente', under_review: 'En analyse', accepted: 'Acceptée', rejected: 'Refusée', withdrawn: 'Retirée' };
+                container.innerHTML = rows.length === 0
+                    ? '<p class="text-sm text-slate-500 text-center py-6">Aucune offre soumise. Consultez les campagnes de levée de fonds.</p>'
+                    : rows.map(o => `
+                        <div class="border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                            <div>
+                                <p class="font-bold text-brand-dark text-sm">${o.project_title || o.campaign_title || 'Campagne #' + o.campaign_id}</p>
+                                <p class="text-xs text-slate-500 mt-1">${Number(o.amount).toLocaleString('fr-FR')} $ • ${new Date(o.created_at).toLocaleDateString('fr-FR')}</p>
+                                ${o.rejection_reason ? `<p class="text-xs text-red-500 mt-1">Motif : ${o.rejection_reason}</p>` : ''}
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${o.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' : o.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">${statusLabel[o.status] || o.status}</span>
+                        </div>
+                    `).join('');
+            } catch (e) {
+                container.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">Erreur de chargement.</p>';
+            }
+        }
+
+        async function loadInvestorNotifications() {
+            const container = document.getElementById('investNotificationsList');
+            if (!container) return;
+            try {
+                const res = await fetch('api.php?action=get-my-notifications');
+                const data = await res.json();
+                const rows = data.data || [];
+                container.innerHTML = rows.length === 0
+                    ? '<p class="text-sm text-slate-500 text-center py-6">Aucune notification.</p>'
+                    : rows.map(n => `
+                        <div class="border border-slate-200 rounded-xl p-4 ${n.is_read ? 'opacity-60' : ''}">
+                            <div class="flex justify-between items-start gap-3">
+                                <div>
+                                    <p class="font-bold text-brand-dark text-sm">${n.title}</p>
+                                    <p class="text-xs text-slate-500 mt-1">${n.message}</p>
+                                    <p class="text-[11px] text-slate-400 mt-1">${new Date(n.created_at).toLocaleString('fr-FR')}</p>
+                                </div>
+                                ${n.is_read ? '' : '<span class="w-2 h-2 rounded-full bg-brand-gold shrink-0 mt-2"></span>'}
+                            </div>
+                        </div>
+                    `).join('');
+            } catch (e) {
+                container.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">Erreur de chargement.</p>';
+            }
+        }
+
+        async function markAllNotificationsRead() {
+            try {
+                await fetch('api.php?action=mark-notifications-read', { method: 'POST' });
+                loadInvestorNotifications();
+                showToast('Notifications', 'Toutes les notifications sont marquées comme lues.');
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        // =========================================================
+        // ADMIN : STATISTIQUES
+        // =========================================================
+        async function loadAdminStats() {
+            try {
+                const res = await fetch('api.php?action=get-admin-stats', {
+                    headers: { 'X-Admin-Password': ADMIN_PASSWORD }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const s = data.data;
+                    const pendingDemandes = (Number(s.pending_reservations) || 0) + (Number(s.pending_visits) || 0);
+                    document.getElementById('adminActiveCampaigns').textContent = s.active_campaigns || 0;
+                    document.getElementById('adminPendingDataroom').textContent = s.pending_dataroom || 0;
+                    document.getElementById('adminPendingDemandes').textContent = pendingDemandes;
+                }
+            } catch (e) {
+                console.error('Admin stats error:', e);
+            }
+        }
+
+        // =========================================================
+        // ADMIN : LEVÉES DE FONDS
+        // =========================================================
+        async function loadAdminLevees() {
+            try {
+                const [mandats, campagnes, offres] = await Promise.all([
+                    fetch('api.php?action=get-funding-requests', { headers: { 'X-Admin-Password': ADMIN_PASSWORD } }).then(r => r.json()),
+                    fetch('api.php?action=get-campaigns', { headers: { 'X-Admin-Password': ADMIN_PASSWORD } }).then(r => r.json()),
+                    fetch('api.php?action=get-investment-offers', { headers: { 'X-Admin-Password': ADMIN_PASSWORD } }).then(r => r.json())
+                ]);
+                if (mandats.success) renderAdminMandats(mandats.data);
+                if (campagnes.success) renderAdminCampaigns(campagnes.data);
+                if (offres.success) renderAdminOffers(offres.data);
+            } catch (e) {
+                console.error('Admin levees error:', e);
+            }
+        }
+
+        function renderAdminMandats(rows) {
+            const container = document.getElementById('adminMandatsList');
+            if (!container) return;
+            const statusLabel = { pending_study: 'Étude préalable', under_review: 'En analyse', accepted: 'Mandat accepté', requested_info: 'Compléments demandés', rejected: 'Refusé', closed: 'Clôturé', cancelled: 'Annulé' };
+            container.innerHTML = rows.length === 0
+                ? '<p class="text-slate-500 text-center py-6">Aucune demande de mandat.</p>'
+                : rows.map(r => `
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-bold text-brand-dark">${r.project_title || 'Projet #' + r.project_id}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${r.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' : r.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">${statusLabel[r.status] || r.status}</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">${r.applicant_name || ''} (${r.applicant_email || ''}) • ${r.city || ''}${r.country ? ', ' + r.country : ''}</p>
+                                ${r.amount_requested ? `<p class="text-xs text-slate-500 mt-1">Montant recherché : ${Number(r.amount_requested).toLocaleString('fr-FR')} $</p>` : ''}
+                                ${r.commission_rate ? `<p class="text-xs text-slate-500">Commission : ${r.commission_rate}% ${r.mandate_reference ? ' • Mandat : ' + r.mandate_reference : ''}</p>` : ''}
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                ${['pending_study', 'under_review', 'requested_info'].includes(r.status) ? `
+                                <button onclick="reviewFundingRequest(${r.id}, 'accept')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Accepter le mandat</button>
+                                <button onclick="reviewFundingRequest(${r.id}, 'request_info')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Demander compléments</button>
+                                <button onclick="reviewFundingRequest(${r.id}, 'reject')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Refuser</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        async function reviewFundingRequest(id, action) {
+            let commission = null, notes = null;
+            if (action === 'accept') {
+                const input = prompt('Commission de succès (%) — entre 2 et 5 :', '3');
+                if (input === null) return;
+                commission = input;
+            }
+            if (action === 'reject') notes = prompt('Motif du refus :', '') || null;
+            try {
+                const res = await fetch('api.php?action=review-funding-request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id, action, commission_rate: commission, notes })
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Succès' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+                loadAdminLevees();
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        function renderAdminCampaigns(rows) {
+            const container = document.getElementById('adminCampaignsList');
+            if (!container) return;
+            const statusLabel = { draft: 'Brouillon', active: 'Active', paused: 'En pause', completed: 'Terminée', cancelled: 'Annulée' };
+            container.innerHTML = rows.length === 0
+                ? '<p class="text-slate-500 text-center py-6">Aucune campagne. Elles sont créées automatiquement à l\'acceptation d\'un mandat.</p>'
+                : rows.map(c => `
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-bold text-brand-dark">${c.title}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${c.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}">${statusLabel[c.status] || c.status}</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Projet : ${c.project_title || '#' + c.project_id} • Objectif ${Number(c.target_amount).toLocaleString('fr-FR')} $ • Commission ${c.commission_rate || 0}%</p>
+                                <div class="w-56 bg-slate-200 h-2 rounded-full overflow-hidden mt-2">
+                                    <div class="bg-brand-gold h-full" style="width: ${Math.min(c.progress || 0, 100)}%"></div>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">${c.progress || 0}% mobilisé</p>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                ${c.status === 'draft' ? `<button onclick="updateCampaignStatus(${c.id}, 'active')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Activer</button>` : ''}
+                                ${c.status === 'active' ? `<button onclick="updateCampaignStatus(${c.id}, 'paused')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Mettre en pause</button>` : ''}
+                                ${c.status !== 'completed' && c.status !== 'cancelled' ? `<button onclick="updateCampaignStatus(${c.id}, 'completed')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Clôturer</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        async function updateCampaignStatus(id, status) {
+            try {
+                const res = await fetch('api.php?action=update-campaign', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id, status })
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Succès' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+                loadAdminLevees();
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        function renderAdminOffers(rows) {
+            const container = document.getElementById('adminOffersList');
+            if (!container) return;
+            container.innerHTML = rows.length === 0
+                ? '<p class="text-slate-500 text-center py-6">Aucune offre d\'investissement.</p>'
+                : rows.map(o => `
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                        <div class="flex-1">
+                            <p class="font-bold text-brand-dark">${Number(o.amount).toLocaleString('fr-FR')} $ — ${o.project_title || o.campaign_title || '#' + o.campaign_id}</p>
+                            <p class="text-xs text-slate-500 mt-1">${o.investor_name || ''} (${o.investor_email || ''}) • ${new Date(o.created_at).toLocaleDateString('fr-FR')} • ${o.status}</p>
+                        </div>
+                        ${o.status === 'pending' ? `
+                        <div class="flex gap-2">
+                            <button onclick="reviewOffer(${o.id}, 'accept')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Accepter</button>
+                            <button onclick="reviewOffer(${o.id}, 'reject')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Refuser</button>
+                        </div>` : ''}
+                    </div>
+                `).join('');
+        }
+
+        async function reviewOffer(id, action) {
+            let reason = null;
+            if (action === 'reject') reason = prompt('Motif du refus :', '') || null;
+            try {
+                const res = await fetch('api.php?action=review-investment-offer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id, action, reason })
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Succès' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+                loadAdminLevees();
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        // =========================================================
+        // ADMIN : DATA ROOM & AUDIT
+        // =========================================================
+        async function loadAdminDataRoom() {
+            try {
+                const [reqs, audit] = await Promise.all([
+                    fetch('api.php?action=get-data-room-requests', { headers: { 'X-Admin-Password': ADMIN_PASSWORD } }).then(r => r.json()),
+                    fetch('api.php?action=get-data-room-audit', { headers: { 'X-Admin-Password': ADMIN_PASSWORD } }).then(r => r.json())
+                ]);
+                if (reqs.success) renderAdminDataroomRequests(reqs.data);
+                if (audit.success) renderAuditLog(audit.data);
+            } catch (e) {
+                console.error('Admin dataroom error:', e);
+            }
+        }
+
+        function renderAdminDataroomRequests(rows) {
+            const container = document.getElementById('adminDataroomRequestsList');
+            if (!container) return;
+            container.innerHTML = rows.length === 0
+                ? '<p class="text-slate-500 text-center py-6">Aucune demande d\'accès.</p>'
+                : rows.map(r => `
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-bold text-brand-dark">${r.project_title || 'Projet #' + r.project_id}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${r.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : r.status === 'refused' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">${r.status}</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">${r.investor_name || ''} (${r.investor_email || ''}) • Niveau demandé : ${r.requested_level}</p>
+                                ${r.justification ? `<p class="text-xs text-slate-500 mt-1">${r.justification}</p>` : ''}
+                                ${r.refusal_reason ? `<p class="text-xs text-red-500 mt-1">Motif : ${r.refusal_reason}</p>` : ''}
+                            </div>
+                            <div class="flex gap-2 flex-wrap">
+                                ${r.status === 'pending' ? `
+                                <button onclick="reviewDataRoomAccess(${r.id}, 'approve')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Accorder</button>
+                                <button onclick="reviewDataRoomAccess(${r.id}, 'refuse')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Refuser</button>
+                                ` : ''}
+                                ${['pending', 'approved'].includes(r.status) ? `<button onclick="reviewDataRoomAccess(${r.id}, 'revoke')" class="bg-slate-500 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Retirer l'accès</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        async function reviewDataRoomAccess(id, action) {
+            let level = null, days = null, reason = null;
+            if (action === 'approve') {
+                level = prompt('Niveau d\'accès (view_only / download_allowed / full_access / temporary) :', 'view_only');
+                if (level === null) return;
+                days = prompt('Durée en jours (laisser vide pour illimité) :', '');
+            }
+            if (action === 'refuse') reason = prompt('Motif du refus :', '') || null;
+            try {
+                const res = await fetch('api.php?action=review-data-room-access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id, action, permission_level: level, duration_days: days || null, reason })
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Succès' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+                loadAdminDataRoom();
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        function renderAuditLog(rows) {
+            const container = document.getElementById('adminAuditLogList');
+            if (!container) return;
+            const actionLabel = { access_granted: 'Accès accordé', access_denied: 'Accès refusé', document_viewed: 'Document consulté', document_downloaded: 'Document téléchargé', access_revoked: 'Accès retiré', permission_changed: 'Permission modifiée' };
+            container.innerHTML = rows.length === 0
+                ? '<p class="text-slate-500 text-center py-6">Aucune activité enregistrée.</p>'
+                : rows.map(a => `
+                    <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs">
+                        <div>
+                            <span class="font-bold text-brand-dark">${actionLabel[a.action] || a.action}</span>
+                            <span class="text-slate-500"> • ${a.project_title || '#' + a.project_id}</span>
+                            <span class="text-slate-400"> • ${a.investor_name || 'Investisseur #' + a.investor_id}</span>
+                        </div>
+                        <span class="text-slate-400 shrink-0 ml-2">${new Date(a.created_at).toLocaleString('fr-FR')}</span>
+                    </div>
+                `).join('');
+        }
+
+        // =========================================================
+        // ADMIN : DEMANDES COMMERCIALES
+        // =========================================================
+        async function loadAdminDemandes() {
+            try {
+                const [inqs, resas, visits] = await Promise.all([
+                    fetch('api.php?action=get-project-inquiries', { headers: { 'X-Admin-Password': ADMIN_PASSWORD } }).then(r => r.json()),
+                    fetch('api.php?action=get-reservations', { headers: { 'X-Admin-Password': ADMIN_PASSWORD } }).then(r => r.json()),
+                    fetch('api.php?action=get-visits', { headers: { 'X-Admin-Password': ADMIN_PASSWORD } }).then(r => r.json())
+                ]);
+                if (inqs.success) renderAdminInquiries(inqs.data);
+                if (resas.success) renderAdminReservations(resas.data);
+                if (visits.success) renderAdminVisits(visits.data);
+            } catch (e) {
+                console.error('Admin demandes error:', e);
+            }
+        }
+
+        function renderAdminInquiries(rows) {
+            const container = document.getElementById('adminInquiriesList');
+            if (!container) return;
+            container.innerHTML = rows.length === 0
+                ? '<p class="text-slate-500 text-center py-6">Aucune demande d\'information.</p>'
+                : rows.map(q => `
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                        <div class="flex-1">
+                            <p class="font-bold text-brand-dark">${q.name} — ${q.project_title || '#' + q.project_id}</p>
+                            <p class="text-xs text-slate-500 mt-1">${q.email} ${q.phone ? '• ' + q.phone : ''} • ${new Date(q.created_at).toLocaleDateString('fr-FR')}</p>
+                            <p class="text-sm text-slate-600 mt-2">${q.message}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="updateInquiryStatus(${q.id}, 'in_progress')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">En cours</button>
+                            <button onclick="updateInquiryStatus(${q.id}, 'resolved')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Résolue</button>
+                            <button onclick="updateInquiryStatus(${q.id}, 'closed')" class="bg-slate-500 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Clôturer</button>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        async function updateInquiryStatus(id, status) {
+            try {
+                const res = await fetch('api.php?action=update-project-inquiry-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id, status })
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Succès' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+                loadAdminDemandes();
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        function renderAdminReservations(rows) {
+            const container = document.getElementById('adminReservationsList');
+            if (!container) return;
+            container.innerHTML = rows.length === 0
+                ? '<p class="text-slate-500 text-center py-6">Aucune réservation.</p>'
+                : rows.map(r => `
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                        <div class="flex-1">
+                            <p class="font-bold text-brand-dark">${r.customer_name} — ${r.project_title || '#' + r.project_id}</p>
+                            <p class="text-xs text-slate-500 mt-1">${r.customer_email} • ${r.reservation_type}${r.amount ? ' • ' + Number(r.amount).toLocaleString('fr-FR') + ' $' : ''} • ${r.status}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="updateReservation(${r.id}, 'confirmed')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Confirmer</button>
+                            <button onclick="updateReservation(${r.id}, 'cancelled')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Annuler</button>
+                            <button onclick="updateReservation(${r.id}, 'completed')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Terminer</button>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        async function updateReservation(id, status) {
+            try {
+                const res = await fetch('api.php?action=update-reservation-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id, status })
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Succès' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+                loadAdminDemandes();
+                loadAdminStats();
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        function renderAdminVisits(rows) {
+            const container = document.getElementById('adminVisitsList');
+            if (!container) return;
+            container.innerHTML = rows.length === 0
+                ? '<p class="text-slate-500 text-center py-6">Aucune demande de visite.</p>'
+                : rows.map(v => `
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                        <div class="flex-1">
+                            <p class="font-bold text-brand-dark">${v.visitor_name} — ${v.project_title || '#' + v.project_id}</p>
+                            <p class="text-xs text-slate-500 mt-1">${v.visitor_email} • ${v.preferred_date} à ${v.preferred_time} • ${v.status}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="updateVisit(${v.id}, 'confirmed')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Confirmer</button>
+                            <button onclick="updateVisit(${v.id}, 'cancelled')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Annuler</button>
+                            <button onclick="updateVisit(${v.id}, 'completed')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Terminer</button>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        async function updateVisit(id, status) {
+            try {
+                const res = await fetch('api.php?action=update-visit-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id, status })
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Succès' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+                loadAdminDemandes();
+                loadAdminStats();
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
+            }
+        }
+
+        // =========================================================
+        // ADMIN : MODIFIER UN PROJET (prix, vidéo, brochure...)
+        // =========================================================
+        async function editProjectAdmin(projectId) {
+            const price = prompt('Prix de vente / location ($) :', '');
+            if (price === null) return;
+            const availability = prompt('Disponibilité (available / reserved / sold / rented) :', 'available');
+            if (availability === null) return;
+            const video = prompt('URL vidéo (YouTube) :', '');
+            if (video === null) return;
+            const tour = prompt('URL visite virtuelle :', '');
+            if (tour === null) return;
+
+            const payload = { id: projectId };
+            if (price !== '') payload.price = price;
+            if (availability !== '') payload.availability = availability;
+            if (video !== '') payload.video_url = video;
+            if (tour !== '') payload.virtual_tour_url = tour;
+
+            try {
+                const res = await fetch('api.php?action=update-project', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                showToast(data.success ? 'Succès' : 'Erreur', data.message, data.success ? 'success' : 'warning');
+                loadAdminData();
+            } catch (e) {
+                showToast('Erreur', 'Erreur de connexion', 'warning');
             }
         }
 
