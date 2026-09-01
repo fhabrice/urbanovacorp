@@ -221,14 +221,14 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                 <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl"></div>
 
                 <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <p class="text-brand-gold uppercase tracking-widest font-semibold text-sm mb-3">URBANOVA SOLUTIONS
+                    <p id="heroPretitle" class="text-brand-gold uppercase tracking-widest font-semibold text-sm mb-3">URBANOVA SOLUTIONS
                     </p>
                     <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 max-w-4xl leading-tight">
-                        Structurer les villes <br><span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-brand-gold to-yellow-400">africaines
+                        <span id="heroTitle">Structurer les villes</span> <br><span
+                            id="heroTitleHighlight" class="text-transparent bg-clip-text bg-gradient-to-r from-brand-gold to-yellow-400">africaines
                             de demain</span>
                     </h1>
-                    <p class="text-slate-300 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
+                    <p id="heroSubtitle" class="text-slate-300 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
                         Construction, Immobilier, Infrastructures et Investissements pour un développement durable en
                         République Démocratique du Congo et Afrique Centrale.
                     </p>
@@ -253,25 +253,25 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                     <div
                         class="grid grid-cols-2 md:grid-cols-5 gap-6 bg-brand-navy/60 backdrop-blur-md border border-slate-700/50 p-6 md:p-8 rounded-2xl">
                         <div class="text-center md:border-r border-slate-700/60 last:border-0 p-2">
-                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">120+</span>
-                            <span class="text-xs md:text-sm text-slate-300">Projets réalisés</span>
+                            <span id="stat1Value" class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">120+</span>
+                            <span id="stat1Label" class="text-xs md:text-sm text-slate-300">Projets réalisés</span>
                         </div>
                         <div class="text-center md:border-r border-slate-700/60 last:border-0 p-2">
-                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">45 M$</span>
-                            <span class="text-xs md:text-sm text-slate-300">Investissements mobilisés</span>
+                            <span id="stat2Value" class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">45 M$</span>
+                            <span id="stat2Label" class="text-xs md:text-sm text-slate-300">Investissements mobilisés</span>
                         </div>
                         <div class="text-center md:border-r border-slate-700/60 last:border-0 p-2">
-                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">2 500</span>
-                            <span class="text-xs md:text-sm text-slate-300">Logements développés</span>
+                            <span id="stat3Value" class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">2 500</span>
+                            <span id="stat3Label" class="text-xs md:text-sm text-slate-300">Logements développés</span>
                         </div>
                         <div class="text-center md:border-r border-slate-700/60 last:border-0 p-2">
-                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">5 000</span>
-                            <span class="text-xs md:text-sm text-slate-300">Emplois créés</span>
+                            <span id="stat4Value" class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">5 000</span>
+                            <span id="stat4Label" class="text-xs md:text-sm text-slate-300">Emplois créés</span>
                         </div>
                         <div class="text-center col-span-2 md:col-span-1 p-2">
-                            <span class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">4</span>
-                            <span class="text-xs md:text-sm text-slate-300">Pays d'intervention <br><span
-                                    class="text-[10px] text-slate-400">RDC • Rwanda • Ouganda • Burundi</span></span>
+                            <span id="stat5Value" class="block text-3xl md:text-4xl font-extrabold text-brand-gold mb-1">4</span>
+                            <span id="stat5Label" class="text-xs md:text-sm text-slate-300">Pays d'intervention <br><span
+                                    id="stat5Detail" class="text-[10px] text-slate-400">RDC • Rwanda • Ouganda • Burundi</span></span>
                         </div>
                     </div>
                 </div>
@@ -281,78 +281,13 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
             <section class="py-20 bg-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="text-center max-w-3xl mx-auto mb-16">
-                        <h2 class="text-3xl md:text-4xl font-extrabold text-brand-dark mb-4">Nos Départements</h2>
-                        <p class="text-slate-600 text-lg">Une expertise multisectorielle au service du développement
+                        <h2 id="departmentsTitle" class="text-3xl md:text-4xl font-extrabold text-brand-dark mb-4">Nos Départements</h2>
+                        <p id="departmentsText" class="text-slate-600 text-lg">Une expertise multisectorielle au service du développement
                             urbain durable en République Démocratique du Congo.</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- Dept 1 -->
-                        <div
-                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
-                            <div
-                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
-                                <i class="fa-solid fa-helmet-safety"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-brand-dark mb-3">Construction & Maintenance</h3>
-                            <p class="text-slate-600">Édification et entretien d'ouvrages durables, respectueux de
-                                l'environnement et des standards de sécurité modernes.</p>
-                        </div>
-                        <!-- Dept 2 -->
-                        <div
-                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
-                            <div
-                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-brand-dark mb-3">Assainissement & Déchets</h3>
-                            <p class="text-slate-600">Gestion environnementale intégrée, tri, recyclage et propreté
-                                urbaine pour préserver la santé publique.</p>
-                        </div>
-                        <!-- Dept 3 -->
-                        <div
-                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
-                            <div
-                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
-                                <i class="fa-solid fa-building-circle-check"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-brand-dark mb-3">Facility Management</h3>
-                            <p class="text-slate-600">Exploitation, sécurisation, et maintenance d'infrastructures
-                                d'envergure pour prolonger la durée de vie de vos actifs.</p>
-                        </div>
-                        <!-- Dept 4 -->
-                        <div
-                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
-                            <div
-                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
-                                <i class="fa-solid fa-house-chimney-window"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-brand-dark mb-3">Immobilier & Aménagement</h3>
-                            <p class="text-slate-600">Promotion immobilière et aménagement de zones urbaines intégrées
-                                favorisant la mixité sociale et économique.</p>
-                        </div>
-                        <!-- Dept 5 -->
-                        <div
-                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
-                            <div
-                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
-                                <i class="fa-solid fa-compass-drafting"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-brand-dark mb-3">Ingénierie</h3>
-                            <p class="text-slate-600">Assistance technique de haut niveau, études de sol, architecture
-                                moderne et conception modulaire de projets.</p>
-                        </div>
-                        <!-- Dept 6 -->
-                        <div
-                            class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
-                            <div
-                                class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
-                                <i class="fa-solid fa-leaf"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-brand-dark mb-3">Développement durable</h3>
-                            <p class="text-slate-600">Conception d'infrastructures à fort impact environnemental positif
-                                (énergies renouvelables, captage d'eau).</p>
-                        </div>
+                    <div id="departmentsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Départements chargés dynamiquement (gérables dans l'espace admin) -->
                     </div>
                 </div>
             </section>
@@ -362,8 +297,8 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
                         <div>
-                            <h2 class="text-3xl font-extrabold text-brand-dark mb-3">Projets phares</h2>
-                            <p class="text-slate-600 max-w-2xl">Découvrez nos réalisations majeures en cours d'exécution
+                            <h2 id="featuredTitle" class="text-3xl font-extrabold text-brand-dark mb-3">Projets phares</h2>
+                            <p id="featuredText" class="text-slate-600 max-w-2xl">Découvrez nos réalisations majeures en cours d'exécution
                                 ou livrées avec succès sur le continent.</p>
                         </div>
                         <button onclick="goToMarketplace()"
@@ -373,92 +308,8 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                         </button>
                     </div>
 
-                    <!-- Projects Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- Project 1 -->
-                        <div
-                            class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all group">
-                            <div class="relative h-60 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80"
-                                    alt="Résidence Kivu Green"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
-                                <span
-                                    class="absolute top-4 right-4 bg-brand-success/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>En cours
-                                </span>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="text-xl font-bold text-brand-dark mb-2">Résidence Kivu Green</h3>
-                                <div class="flex items-center space-x-2 text-slate-500 text-sm mb-4">
-                                    <i class="fa-solid fa-location-dot text-brand-gold"></i>
-                                    <span>Goma, RDC</span>
-                                </div>
-                                <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-sm">
-                                    <span class="text-slate-600 font-medium">40 logements</span>
-                                    <div>
-                                        <p class="text-slate-400 text-xs text-right">Budget</p>
-                                        <p class="text-brand-dark font-extrabold text-base">1 200 000 $</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Project 2 -->
-                        <div
-                            class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all group">
-                            <div class="relative h-60 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=600&q=80"
-                                    alt="Urban Market Center"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
-                                <span
-                                    class="absolute top-4 right-4 bg-blue-600/90 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                                    Finalisé
-                                </span>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="text-xl font-bold text-brand-dark mb-2">Urban Market Center</h3>
-                                <div class="flex items-center space-x-2 text-slate-500 text-sm mb-4">
-                                    <i class="fa-solid fa-location-dot text-brand-gold"></i>
-                                    <span>Butembo, RDC</span>
-                                </div>
-                                <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-sm">
-                                    <span class="text-slate-600 font-medium">Centre commercial</span>
-                                    <div>
-                                        <p class="text-slate-400 text-xs text-right">Budget</p>
-                                        <p class="text-brand-dark font-extrabold text-base">2 500 000 $</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Project 3 -->
-                        <div
-                            class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all group">
-                            <div class="relative h-60 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80"
-                                    alt="Business Park Kinshasa"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
-                                <span
-                                    class="absolute top-4 right-4 bg-brand-success/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>En cours
-                                </span>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="text-xl font-bold text-brand-dark mb-2">Business Park Kinshasa</h3>
-                                <div class="flex items-center space-x-2 text-slate-500 text-sm mb-4">
-                                    <i class="fa-solid fa-location-dot text-brand-gold"></i>
-                                    <span>Kinshasa, RDC</span>
-                                </div>
-                                <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-sm">
-                                    <span class="text-slate-600 font-medium">Bureaux & Commerces</span>
-                                    <div>
-                                        <p class="text-slate-400 text-xs text-right">Budget</p>
-                                        <p class="text-brand-dark font-extrabold text-base">5 800 000 $</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Projects Grid (projets phares configurables dans l'espace admin) -->
+                    <div id="homeFeaturedGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
                 </div>
             </section>
 
@@ -474,8 +325,8 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                 <span
                                     class="text-brand-gold uppercase tracking-wider font-semibold text-xs block mb-2">Secteur
                                     Immobilier</span>
-                                <h3 class="text-2xl font-bold mb-4">Vous avez un projet immobilier ?</h3>
-                                <p class="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
+                                <h3 id="ctaPromoterTitle" class="text-2xl font-bold mb-4">Vous avez un projet immobilier ?</h3>
+                                <p id="ctaPromoterText" class="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
                                     Soumettez votre dossier technique, profitez d'une validation d'experts et accédez à 
                                     notre réseau international d'investisseurs certifiés.
                                 </p>
@@ -494,8 +345,8 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                 <span
                                     class="text-brand-gold uppercase tracking-wider font-semibold text-xs block mb-2">Finance
                                     & Climat</span>
-                                <h3 class="text-2xl font-bold mb-4">Vous êtes investisseur ?</h3>
-                                <p class="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
+                                <h3 id="ctaInvestorTitle" class="text-2xl font-bold mb-4">Vous êtes investisseur ?</h3>
+                                <p id="ctaInvestorText" class="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
                                     Rejoignez notre écosystème d'investisseurs, explorez des opportunités qualifiées et
                                     suivez vos rendements via notre tableau de bord de pointe.
                                 </p>
@@ -538,7 +389,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                     <h2 class="text-2xl font-extrabold text-brand-dark uppercase tracking-wide">Mission
                                     </h2>
                                 </div>
-                                <p class="text-slate-600 text-lg leading-relaxed">
+                                <p id="aboutMission" class="text-slate-600 text-lg leading-relaxed">
                                     Concevoir, développer et opérer des solutions urbaines durables à fort impact pour
                                     restructurer durablement l'environnement urbain et mobiliser des capitaux qualifiés.
                                 </p>
@@ -551,7 +402,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                     <h2 class="text-2xl font-extrabold text-brand-dark uppercase tracking-wide">Vision
                                     </h2>
                                 </div>
-                                <p class="text-slate-600 text-lg leading-relaxed">
+                                <p id="aboutVision" class="text-slate-600 text-lg leading-relaxed">
                                     Devenir la référence africaine incontournable en matière de développement urbain
                                     intégré et de facilitation financière de projets durables en Afrique Centrale.
                                 </p>
@@ -1618,6 +1469,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                     <button onclick="switchAdminTab('levees')" class="admin-tab px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-700">Levées de fonds</button>
                                     <button onclick="switchAdminTab('dataroom')" class="admin-tab px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-700">Data Room</button>
                                     <button onclick="switchAdminTab('demandes')" class="admin-tab px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-700">Demandes</button>
+                                    <button onclick="switchAdminTab('contenus')" class="admin-tab px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-700">Contenus</button>
                                 </div>
                             </div>
 
@@ -1702,6 +1554,94 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                     <p class="text-slate-500 text-center py-6">Chargement...</p>
                                 </div>
                             </div>
+
+                            <!-- Contenus (CMS) Management -->
+                            <div id="adminContenusTab" class="p-6 hidden">
+                                <h3 class="text-lg font-bold text-brand-dark mb-2">Contenus du site</h3>
+                                <p class="text-sm text-slate-500 mb-6">Projets phares de l'accueil, actualités et textes du site : tout est modifiable ici et appliqué immédiatement.</p>
+
+                                <!-- Projets phares -->
+                                <h4 class="font-bold text-brand-dark mb-3">⭐ Projets phares (page d'accueil)</h4>
+                                <p class="text-xs text-slate-500 mb-3">Cochez les projets à afficher en haut de la page d'accueil (projets publiés ou approuvés uniquement).</p>
+                                <div id="adminFeaturedList" class="space-y-3 mb-10">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                </div>
+
+                                <!-- Actualités -->
+                                <div class="flex items-center justify-between mb-3 border-t border-slate-100 pt-6">
+                                    <h4 class="font-bold text-brand-dark">📰 Actualités</h4>
+                                    <button onclick="openNewsForm(null)" class="bg-brand-gold hover:bg-yellow-500 text-brand-dark font-bold px-4 py-2 rounded-lg text-xs transition-all">
+                                        <i class="fa-solid fa-plus mr-1"></i>Nouvelle actualité
+                                    </button>
+                                </div>
+                                <!-- Formulaire actualité -->
+                                <div id="adminNewsForm" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6">
+                                    <h5 class="font-bold text-brand-dark text-sm mb-4">📝 <span id="newsFormHeader">Nouvelle actualité</span></h5>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Titre *</label>
+                                            <input id="newsFormTitle" type="text" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Slug (URL, laisser vide pour auto)</label>
+                                            <input id="newsFormSlug" type="text" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Catégorie</label>
+                                            <select id="newsFormCategory" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm">
+                                                <option value="entreprise">Entreprise</option>
+                                                <option value="projets">Projets</option>
+                                                <option value="marché">Marché</option>
+                                                <option value="partenariats">Partenariats</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Statut</label>
+                                            <select id="newsFormStatus" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm">
+                                                <option value="published">Publiée</option>
+                                                <option value="draft">Brouillon</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Image (URL)</label>
+                                            <input id="newsFormImage" type="text" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm" placeholder="https://...">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Date de publication</label>
+                                            <input id="newsFormDate" type="date" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Résumé</label>
+                                            <textarea id="newsFormExcerpt" rows="2" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm"></textarea>
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Contenu complet</label>
+                                            <textarea id="newsFormContent" rows="6" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end space-x-3 mt-4">
+                                        <button onclick="closeNewsForm()" class="px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100">Annuler</button>
+                                        <button onclick="saveNews(event)" class="px-5 py-2.5 rounded-lg text-sm font-bold text-white bg-brand-navy hover:bg-slate-800">
+                                            <i class="fa-solid fa-floppy-disk mr-1"></i>Enregistrer
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="adminNewsList" class="space-y-3 mb-10">
+                                    <p class="text-slate-500 text-center py-6">Chargement...</p>
+                                </div>
+
+                                <!-- Contenus du site -->
+                                <div class="border-t border-slate-100 pt-6">
+                                    <h4 class="font-bold text-brand-dark mb-1">✏️ Contenus des pages</h4>
+                                    <p class="text-xs text-slate-500 mb-4">Modifiez les textes affichés sur l'accueil, la page À propos, le contact et le pied de page.</p>
+                                    <div id="siteContentForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <p class="text-slate-500 text-center py-6 col-span-full">Chargement...</p>
+                                    </div>
+                                    <button onclick="saveSiteContent(event)" class="mt-5 bg-brand-navy hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-md">
+                                        <i class="fa-solid fa-floppy-disk mr-2"></i>Enregistrer les contenus
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Logout Button -->
@@ -1732,52 +1672,27 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
             </section>
 
             <!-- News Grid with Categorized Filter buttons -->
-            <section class="py-16 bg-white">
+            <section id="newsSection" class="py-16 bg-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <!-- Category Tabs -->
                     <div class="flex flex-wrap gap-2 justify-center mb-12">
-                        <button
+                        <button data-cat="all" onclick="filterNews('all')"
                             class="px-5 py-2 rounded-full text-sm font-bold bg-brand-navy text-white">Toutes</button>
-                        <button
+                        <button data-cat="entreprise" onclick="filterNews('entreprise')"
                             class="px-5 py-2 rounded-full text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600">Entreprise</button>
-                        <button
+                        <button data-cat="projets" onclick="filterNews('projets')"
                             class="px-5 py-2 rounded-full text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600">Projets</button>
-                        <button
+                        <button data-cat="marché" onclick="filterNews('marché')"
                             class="px-5 py-2 rounded-full text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600">Marché</button>
-                        <button
+                        <button data-cat="partenariats" onclick="filterNews('partenariats')"
                             class="px-5 py-2 rounded-full text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600">Partenariats</button>
                     </div>
 
-                    <!-- News Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <?php if (!empty($newsItems)): ?>
-                            <?php foreach ($newsItems as $item): ?>
-                                <div class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between">
-                                    <div>
-                                        <?php if (!empty($item['image'])): ?>
-                                            <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" class="h-48 w-full object-cover">
-                                        <?php else: ?>
-                                            <div class="h-48 w-full bg-slate-200"></div>
-                                        <?php endif; ?>
-                                        <div class="p-6">
-                                            <span class="text-xs font-bold text-brand-gold block mb-2"><?php echo date('d F Y', strtotime($item['published_at'])); ?></span>
-                                            <h3 class="font-bold text-brand-dark text-lg mb-3"><?php echo htmlspecialchars($item['title']); ?></h3>
-                                            <p class="text-sm text-slate-600"><?php echo htmlspecialchars($item['excerpt']); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="p-6 pt-0">
-                                        <a href="?route=news/show-<?php echo urlencode($item['slug']); ?>" class="text-brand-navy font-bold text-sm hover:text-brand-gold flex items-center space-x-1">
-                                            <span>Lire la suite</span>
-                                            <i class="fa-solid fa-arrow-right text-xs"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="col-span-1 md:col-span-3 bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center">
-                                <p class="text-slate-600">Aucune actualité publiée pour le moment.</p>
-                            </div>
-                        <?php endif; ?>
+                    <!-- News Grid (actualités gérées dans l'espace admin) -->
+                    <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="col-span-1 md:col-span-3 bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center">
+                            <p class="text-slate-600">Chargement des actualités...</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1817,7 +1732,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                             class="fa-solid fa-map-location-dot"></i></div>
                                     <div>
                                         <span class="block font-bold text-slate-700">Adresse</span>
-                                        <span class="text-slate-500 text-sm">Avenue de l'Unité, Quartier Himbi, Goma,
+                                        <span id="contactAddress" class="text-slate-500 text-sm">Avenue de l'Unité, Quartier Himbi, Goma,
                                             Nord-Kivu, RD Congo</span>
                                     </div>
                                 </div>
@@ -1827,8 +1742,8 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                             class="fa-solid fa-phone"></i></div>
                                     <div>
                                         <span class="block font-bold text-slate-700">Téléphone</span>
-                                        <span class="text-slate-500 text-sm block">+243 900 000 000</span>
-                                        <span class="text-slate-500 text-sm block">+243 800 000 000</span>
+                                        <span id="contactPhone1" class="text-slate-500 text-sm block">+243 900 000 000</span>
+                                        <span id="contactPhone2" class="text-slate-500 text-sm block">+243 800 000 000</span>
                                     </div>
                                 </div>
                                 <!-- Email -->
@@ -1837,7 +1752,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                             class="fa-solid fa-envelope"></i></div>
                                     <div>
                                         <span class="block font-bold text-slate-700">Email</span>
-                                        <span class="text-slate-500 text-sm">contact@urbanova.cd</span>
+                                        <span id="contactEmail" class="text-slate-500 text-sm">contact@urbanova.cd</span>
                                     </div>
                                 </div>
                                 <!-- Horaires -->
@@ -1846,8 +1761,8 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                                             class="fa-solid fa-clock"></i></div>
                                     <div>
                                         <span class="block font-bold text-slate-700">Horaires d'ouverture</span>
-                                        <span class="text-slate-500 text-sm block">Lun - Ven : 8h00 - 17h00</span>
-                                        <span class="text-slate-500 text-sm block">Sam : 9h00 - 13h00</span>
+                                        <span id="contactHours1" class="text-slate-500 text-sm block">Lun - Ven : 8h00 - 17h00</span>
+                                        <span id="contactHours2" class="text-slate-500 text-sm block">Sam : 9h00 - 13h00</span>
                                     </div>
                                 </div>
                             </div>
@@ -2171,7 +2086,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                             <p class="text-[8px] text-slate-400 tracking-widest uppercase -mt-1">SOLUTIONS</p>
                         </div>
                     </div>
-                    <p class="text-sm text-slate-400 leading-relaxed">
+                    <p id="footerAbout" class="text-sm text-slate-400 leading-relaxed">
                         Construisons aujourd'hui les villes durables de demain. Écosystème d'investissements et
                         d'ingénierie moderne en Afrique Centrale.
                     </p>
@@ -2215,9 +2130,9 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                 <!-- Fast Coordinates -->
                 <div>
                     <h4 class="font-bold text-slate-200 mb-4 text-sm uppercase tracking-wider">Contact</h4>
-                    <p class="text-sm text-slate-400 mb-2">Goma, RD Congo</p>
-                    <p class="text-sm text-slate-400 mb-2">+243 900 000 000</p>
-                    <p class="text-sm text-slate-400">contact@urbanova.cd</p>
+                    <p id="footerCity" class="text-sm text-slate-400 mb-2">Goma, RD Congo</p>
+                    <p id="footerPhone" class="text-sm text-slate-400 mb-2">+243 900 000 000</p>
+                    <p id="footerEmail" class="text-sm text-slate-400">contact@urbanova.cd</p>
                 </div>
             </div>
 
@@ -2525,6 +2440,20 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
             // Check authentication status
             checkAuthStatus();
             initializeProjectWizardFileInputs();
+            // Contenus dynamiques (CMS) sur la page publique
+            loadSiteContent();
+            loadHomeFeatured();
+            loadNewsFront();
+        }
+
+        // Protection XSS des contenus affichés
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         // Demande de mandat de levée de fonds (porteur)
@@ -3500,7 +3429,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
         // Switch Admin Tabs
         function switchAdminTab(tab) {
             // Hide all tabs
-            ['projects', 'users', 'investments', 'levees', 'dataroom', 'demandes'].forEach(t => {
+            ['projects', 'users', 'investments', 'levees', 'dataroom', 'demandes', 'contenus'].forEach(t => {
                 document.getElementById('admin' + t.charAt(0).toUpperCase() + t.slice(1) + 'Tab').classList.add('hidden');
             });
             
@@ -3511,6 +3440,7 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
             if (tab === 'levees') loadAdminLevees();
             if (tab === 'dataroom') loadAdminDataRoom();
             if (tab === 'demandes') loadAdminDemandes();
+            if (tab === 'contenus') loadAdminCMS();
             
             // Update tab styles
             document.querySelectorAll('.admin-tab').forEach(btn => {
@@ -3572,10 +3502,469 @@ $adminPassword = htmlspecialchars($adminPassword, ENT_QUOTES, 'UTF-8');
                 } catch (e) {
                     console.error('Error loading investments:', e);
                 }
+
+                // Load CMS data (projets phares, actualités, contenus)
+                try { await loadAdminCMS(); } catch (e) { console.error(e); }
                 
             } catch (error) {
                 console.error('Error loading admin data:', error);
             }
+        }
+
+        /* ==================== CMS : PROJETS PHARES / ACTUALITÉS / CONTENUS ==================== */
+
+        // Chargement complet de l'onglet Contenus
+        async function loadAdminCMS() {
+            try {
+                await loadAdminFeatured();
+                await loadAdminNews();
+                await loadSiteContent();
+            } catch (e) {
+                console.error('Erreur CMS admin :', e);
+            }
+        }
+
+        // Projets phares : liste avec cases à cocher
+        async function loadAdminFeatured() {
+            const container = document.getElementById('adminFeaturedList');
+            if (!container) return;
+            container.innerHTML = '<p class="text-slate-500 text-center py-6">Chargement...</p>';
+            try {
+                const res = await fetch('api.php?action=projects');
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Erreur');
+                const projects = (result.data || []).filter(p => {
+                    const st = (p.raw_status || p.status || '').toLowerCase();
+                    return st === 'approved' || st === 'approuvé' || st === 'published' || st === 'publié';
+                });
+                if (projects.length === 0) {
+                    container.innerHTML = '<p class="text-slate-500 text-center py-6">Aucun projet approuvé à mettre en avant.</p>';
+                    return;
+                }
+                container.innerHTML = projects.map(p => `
+                    <div class="flex items-start justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" id="feat_${p.id}" ${(p.is_featured == 1 || p.is_featured === true) ? 'checked' : ''}
+                                onchange="toggleFeaturedProject(${p.id}, this.checked)" class="mt-1 h-5 w-5 accent-amber-500">
+                            <div>
+                                <p class="font-bold text-brand-dark text-sm">${escapeHtml(p.name || p.title || 'Projet #' + p.id)}</p>
+                                <p class="text-xs text-slate-500 mt-1">${escapeHtml(p.location || p.city || '')} · ${escapeHtml(p.type || (p.category || ''))}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold ${p.is_featured == 1 ? 'text-brand-gold' : 'text-slate-400'}">${p.is_featured == 1 ? '★ En avant' : 'Non mis en avant'}</span>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p class="text-slate-500 text-center py-6">Erreur de chargement : ' + escapeHtml(e.message) + '</p>';
+            }
+        }
+
+        // Activer / désactiver un projet phare
+        async function toggleFeaturedProject(id, featured) {
+            try {
+                const res = await fetch('api.php?action=set-featured-project', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id: id, featured: featured ? 1 : 0 })
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Erreur');
+                showToast(featured ? 'Mis en avant' : 'Retiré', featured
+                    ? 'Le projet est maintenant affiché sur la page d\'accueil.'
+                    : 'Le projet n\'est plus affiché sur la page d\'accueil.', 'success');
+                await loadAdminFeatured();
+                await loadHomeFeatured();
+            } catch (e) {
+                showToast('Erreur', e.message, 'error');
+            }
+        }
+
+        // Actualités : liste admin
+        async function loadAdminNews() {
+            const container = document.getElementById('adminNewsList');
+            if (!container) return;
+            container.innerHTML = '<p class="text-slate-500 text-center py-6">Chargement...</p>';
+            try {
+                const res = await fetch('api.php?action=get-news&all=1', {
+                    headers: { 'X-Admin-Password': ADMIN_PASSWORD }
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Erreur');
+                                const items = result.data || [];
+                                window._adminNewsCache = items;
+                                if (items.length === 0) {
+                    container.innerHTML = '<p class="text-slate-500 text-center py-6">Aucune actualité. Cliquez sur « Nouvelle actualité » pour commencer.</p>';
+                    return;
+                }
+                container.innerHTML = items.map(n => `
+                    <div class="flex items-start justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
+                        <div class="flex items-start space-x-3">
+                            ${n.image ? `<img src="${escapeHtml(n.image)}" class="w-16 h-12 object-cover rounded-lg">` : '<div class="w-16 h-12 bg-slate-200 rounded-lg"></div>'}
+                            <div>
+                                <p class="font-bold text-brand-dark text-sm">${escapeHtml(n.title)}</p>
+                                <p class="text-xs text-slate-500 mt-1">${escapeHtml(n.category || '')} · ${escapeHtml(n.published_at || '')} · <span class="${n.status === 'published' ? 'text-green-600' : 'text-slate-400'}">${n.status === 'published' ? 'Publiée' : 'Brouillon'}</span></p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="openNewsForm(${n.id})" class="text-xs font-bold text-brand-navy hover:text-brand-gold px-3 py-1.5 bg-white border border-slate-200 rounded-lg">Modifier</button>
+                            <button onclick="deleteNews(${n.id})" class="text-xs font-bold text-red-500 hover:text-red-700 px-3 py-1.5 bg-white border border-slate-200 rounded-lg">Supprimer</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p class="text-slate-500 text-center py-6">Erreur : ' + escapeHtml(e.message) + '</p>';
+            }
+        }
+
+        // Formulaire nouvelle / modification actualité
+        function openNewsForm(id) {
+            const items = window._adminNewsCache || [];
+            const n = id ? items.find(x => x.id === id) : null;
+            window._newsFormMode = id ? 'edit' : 'create';
+            window._newsFormId = id || null;
+            const form = document.getElementById('adminNewsForm');
+            if (!form) return;
+            form.classList.remove('hidden');
+            document.getElementById('newsFormHeader').textContent = id ? 'Modifier l\'actualité' : 'Nouvelle actualité';
+            document.getElementById('newsFormTitle').value = n ? n.title : '';
+            document.getElementById('newsFormCategory').value = n ? (n.category || 'entreprise') : 'entreprise';
+            document.getElementById('newsFormExcerpt').value = n ? (n.excerpt || '') : '';
+            document.getElementById('newsFormContent').value = n ? (n.content || '') : '';
+            document.getElementById('newsFormImage').value = n ? (n.image || '') : '';
+            document.getElementById('newsFormSlug').value = n ? (n.slug || '') : '';
+            document.getElementById('newsFormStatus').value = n ? (n.status || 'published') : 'published';
+            document.getElementById('newsFormDate').value = n ? (n.published_at || '').slice(0, 10) : new Date().toISOString().slice(0, 10);
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function closeNewsForm() {
+            const form = document.getElementById('adminNewsForm');
+            if (form) form.classList.add('hidden');
+        }
+
+        // Enregistrer une actualité
+        async function saveNews(ev) {
+            const title = document.getElementById('newsFormTitle').value.trim();
+            if (!title) { showToast('Titre requis', 'Veuillez saisir un titre.', 'warning'); return; }
+            const isEdit = window._newsFormMode === 'edit';
+            const payload = {
+                id: window._newsFormId,
+                title: title,
+                slug: document.getElementById('newsFormSlug').value.trim(),
+                category: document.getElementById('newsFormCategory').value,
+                excerpt: document.getElementById('newsFormExcerpt').value.trim(),
+                content: document.getElementById('newsFormContent').value,
+                image: document.getElementById('newsFormImage').value.trim(),
+                status: document.getElementById('newsFormStatus').value,
+                published_at: document.getElementById('newsFormDate').value
+            };
+            const btn = ev.target;
+            btn.disabled = true;
+            try {
+                const res = await fetch('api.php?action=' + (isEdit ? 'update-news' : 'create-news'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Erreur');
+                showToast(isEdit ? 'Actualité modifiée' : 'Actualité créée', result.message || 'Opération réussie.', 'success');
+                closeNewsForm();
+                await loadAdminNews();
+                await loadNewsFront();
+            } catch (e) {
+                showToast('Erreur', e.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Supprimer une actualité
+        async function deleteNews(id) {
+            if (!confirm('Supprimer définitivement cette actualité ?')) return;
+            try {
+                const res = await fetch('api.php?action=delete-news', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ id: id })
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Erreur');
+                showToast('Supprimée', 'L\'actualité a été supprimée.', 'success');
+                await loadAdminNews();
+                await loadNewsFront();
+            } catch (e) {
+                showToast('Erreur', e.message, 'error');
+            }
+        }
+
+        // Contenus du site : chargement
+        async function loadSiteContent() {
+            const form = document.getElementById('siteContentForm');
+            if (!form) return;
+            try {
+                const res = await fetch('api.php?action=get-site-content');
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Erreur');
+                const contents = (result.data && typeof result.data === 'object') ? result.data : {};
+                window._siteContentCache = contents;
+                renderSiteContentForm(form, contents);
+                applySiteContent(contents);
+                loadHomeDepartments(contents);
+            } catch (e) {
+                if (form) form.innerHTML = '<p class="text-slate-500 text-center py-6 col-span-full">Erreur : ' + escapeHtml(e.message) + '</p>';
+            }
+        }
+
+        // Contenus du site : formulaire
+        function renderSiteContentForm(form, contents) {
+            const v = (k) => contents[k] || '';
+            const fields = [
+                ['hero_pretitle', 'Accueil — Sur-titre', 'text'],
+                ['hero_title', 'Accueil — Titre', 'text'],
+                ['hero_title_highlight', 'Accueil — Titre en couleur', 'text'],
+                ['hero_subtitle', 'Accueil — Sous-titre', 'textarea'],
+                ['stats_projects_value', 'Stat 1 — Valeur', 'text'],
+                ['stats_projects_label', 'Stat 1 — Libellé', 'text'],
+                ['stats_investments_value', 'Stat 2 — Valeur', 'text'],
+                ['stats_investments_label', 'Stat 2 — Libellé', 'text'],
+                ['stats_housing_value', 'Stat 3 — Valeur', 'text'],
+                ['stats_housing_label', 'Stat 3 — Libellé', 'text'],
+                ['stats_jobs_value', 'Stat 4 — Valeur', 'text'],
+                ['stats_jobs_label', 'Stat 4 — Libellé', 'text'],
+                ['stats_countries_value', 'Stat 5 — Valeur', 'text'],
+                ['stats_countries_label', 'Stat 5 — Libellé', 'text'],
+                ['stats_countries_detail', 'Stat 5 — Détail', 'text'],
+                ['departments_title', 'Départements — Titre', 'text'],
+                ['departments_text', 'Départements — Texte', 'textarea'],
+                ['departments_items', 'Départements — Liste (JSON : icône, titre, description)', 'textarea'],
+                ['featured_title', 'Projets phares — Titre', 'text'],
+                ['featured_text', 'Projets phares — Texte', 'textarea'],
+                ['cta_promoter_title', 'Bandeau 1 — Titre', 'text'],
+                ['cta_promoter_text', 'Bandeau 1 — Texte', 'textarea'],
+                ['cta_investor_title', 'Bandeau 2 — Titre', 'text'],
+                ['cta_investor_text', 'Bandeau 2 — Texte', 'textarea'],
+                ['about_mission', 'À propos — Mission', 'textarea'],
+                ['about_vision', 'À propos — Vision', 'textarea'],
+                ['contact_address', 'Contact — Adresse', 'textarea'],
+                ['contact_phone1', 'Contact — Téléphone 1', 'text'],
+                ['contact_phone2', 'Contact — Téléphone 2', 'text'],
+                ['contact_email', 'Contact — Email', 'text'],
+                ['contact_hours1', 'Contact — Horaires 1', 'text'],
+                ['contact_hours2', 'Contact — Horaires 2', 'text'],
+                ['footer_city', 'Pied de page — Ville', 'text'],
+                ['footer_about', 'Pied de page — Texte de présentation', 'textarea'],
+                ['footer_phone', 'Pied de page — Téléphone', 'text'],
+                ['footer_email', 'Pied de page — Email', 'text']
+            ];
+            form.innerHTML = fields.map(([key, label, type]) => {
+                const input = type === 'textarea'
+                    ? `<textarea id="site_${key}" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm">${escapeHtml(v(key))}</textarea>`
+                    : `<input id="site_${key}" type="text" value="${escapeHtml(v(key))}" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm">`;
+                return `
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">${label}</label>
+                        ${input}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Contenus du site : sauvegarde
+        async function saveSiteContent(ev) {
+            const keys = Array.from(document.querySelectorAll('#siteContentForm [id^="site_"]')).map(el => el.id.replace('site_', ''));
+            const payload = {};
+            keys.forEach(k => { payload[k] = document.getElementById('site_' + k).value; });
+            const btn = ev.target;
+            btn.disabled = true;
+            try {
+                const res = await fetch('api.php?action=update-site-content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+                    body: JSON.stringify({ content: payload })
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Erreur');
+                showToast('Contenus enregistrés', 'Le site affiche maintenant les nouveaux contenus.', 'success');
+                applySiteContent(payload);
+            } catch (e) {
+                showToast('Erreur', e.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Application des contenus sur la page publique
+        function applySiteContent(c) {
+            const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.textContent = val; };
+            set('heroPretitle', c.hero_pretitle);
+            set('heroTitle', c.hero_title);
+            set('heroTitleHighlight', c.hero_title_highlight);
+            set('heroSubtitle', c.hero_subtitle);
+            set('stat1Value', c.stats_projects_value);
+            set('stat1Label', c.stats_projects_label);
+            set('stat2Value', c.stats_investments_value);
+            set('stat2Label', c.stats_investments_label);
+            set('stat3Value', c.stats_housing_value);
+            set('stat3Label', c.stats_housing_label);
+            set('stat4Value', c.stats_jobs_value);
+            set('stat4Label', c.stats_jobs_label);
+            set('stat5Value', c.stats_countries_value);
+            set('stat5Label', c.stats_countries_label);
+            set('stat5Detail', c.stats_countries_detail);
+            set('departmentsTitle', c.departments_title);
+            set('departmentsText', c.departments_text);
+            set('featuredTitle', c.featured_title);
+            set('featuredText', c.featured_text);
+            set('ctaPromoterTitle', c.cta_promoter_title);
+            set('ctaPromoterText', c.cta_promoter_text);
+            set('ctaInvestorTitle', c.cta_investor_title);
+            set('ctaInvestorText', c.cta_investor_text);
+            set('aboutMission', c.about_mission);
+            set('aboutVision', c.about_vision);
+            set('contactAddress', c.contact_address);
+            set('contactPhone1', c.contact_phone1);
+            set('contactPhone2', c.contact_phone2);
+            set('contactEmail', c.contact_email);
+            set('contactHours1', c.contact_hours1);
+            set('contactHours2', c.contact_hours2);
+            set('footerCity', c.footer_city);
+            set('footerAbout', c.footer_about);
+            set('footerPhone', c.footer_phone);
+            set('footerEmail', c.footer_email);
+        }
+
+        /* ==================== FRONTEND : CHARGEMENT CMS ==================== */
+
+        // Départements sur la page d'accueil (contenu JSON gérable dans l'admin)
+        function loadHomeDepartments(contents) {
+            const grid = document.getElementById('departmentsGrid');
+            if (!grid) return;
+            const c = contents || window._siteContentCache || {};
+            let items = [];
+            try {
+                const raw = c.departments_items;
+                if (typeof raw === 'string' && raw.trim()) items = JSON.parse(raw);
+                else if (Array.isArray(raw)) items = raw;
+            } catch (e) { items = []; }
+            if (items.length === 0) {
+                items = [
+                    { icon: 'fa-solid fa-helmet-safety', title: 'Construction & Maintenance', text: "Édification et entretien d'ouvrages durables, respectueux de l'environnement et des standards de sécurité modernes." },
+                    { icon: 'fa-solid fa-trash-can', title: 'Assainissement & Déchets', text: 'Gestion environnementale intégrée, tri, recyclage et propreté urbaine pour préserver la santé publique.' },
+                    { icon: 'fa-solid fa-building-circle-check', title: 'Facility Management', text: "Exploitation, sécurisation, et maintenance d'infrastructures d'envergure pour prolonger la durée de vie de vos actifs." },
+                    { icon: 'fa-solid fa-house-chimney-window', title: 'Immobilier & Aménagement', text: 'Promotion immobilière et aménagement de zones urbaines intégrées favorisant la mixité sociale et économique.' },
+                    { icon: 'fa-solid fa-compass-drafting', title: 'Ingénierie', text: 'Assistance technique de haut niveau, études de sol, architecture moderne et conception modulaire de projets.' },
+                    { icon: 'fa-solid fa-leaf', title: 'Développement durable', text: "Conception d'infrastructures à fort impact environnemental positif (énergies renouvelables, captage d'eau)." }
+                ];
+            }
+            grid.innerHTML = items.map(d => `
+                <div class="border border-slate-100 hover:border-brand-gold/30 bg-slate-50 hover:bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group">
+                    <div class="w-14 h-14 bg-brand-gold/10 group-hover:bg-brand-gold text-brand-gold group-hover:text-brand-dark rounded-xl flex items-center justify-center text-2xl transition-all mb-6">
+                        <i class="${escapeHtml(d.icon || 'fa-solid fa-city')}"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-dark mb-3">${escapeHtml(d.title || '')}</h3>
+                    <p class="text-slate-600">${escapeHtml(d.text || '')}</p>
+                </div>
+            `).join('');
+        }
+
+        // Projets phares sur la page d'accueil
+        async function loadHomeFeatured() {
+            const grid = document.getElementById('homeFeaturedGrid');
+            if (!grid) return;
+            try {
+                const res = await fetch('api.php?action=get-featured-projects');
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Erreur');
+                const projects = result.data || [];
+                if (projects.length === 0) {
+                    grid.innerHTML = '<div class="col-span-1 md:col-span-3 bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center"><p class="text-slate-600">Aucun projet phare sélectionné pour le moment.</p></div>';
+                    return;
+                }
+                grid.innerHTML = projects.map(p => `
+                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col">
+                        <div class="relative h-56 overflow-hidden">
+                            ${p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title || p.name)}" class="w-full h-full object-cover">` : '<div class="w-full h-full bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-city text-4xl text-slate-400"></i></div>'}
+                            ${(p.type || p.project_type) ? `<span class="absolute top-4 left-4 bg-brand-navy/90 text-white text-xs font-bold px-3 py-1 rounded-full">${escapeHtml(p.type || p.project_type)}</span>` : ''}
+                        </div>
+                        <div class="p-6 flex flex-col flex-1">
+                            <h3 class="font-bold text-brand-dark text-lg mb-2">${escapeHtml(p.title || p.name)}</h3>
+                            <p class="text-sm text-slate-600 flex-1">${escapeHtml(p.location || p.city || '')}</p>
+                            <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                                <span class="font-bold text-brand-gold text-lg">${p.price ? escapeHtml(p.price) : ''}</span>
+                                <a href="?route=projects/show-${encodeURIComponent(p.slug || p.id)}" class="text-brand-navy font-bold text-sm hover:text-brand-gold">Détails <i class="fa-solid fa-arrow-right text-xs ml-1"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                grid.innerHTML = '<div class="col-span-1 md:col-span-3 bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center"><p class="text-slate-600">Erreur de chargement des projets phares.</p></div>';
+            }
+        }
+
+        // Actualités sur la page publique
+        async function loadNewsFront() {
+            const grid = document.getElementById('newsGrid');
+            if (!grid) return;
+            try {
+                const res = await fetch('api.php?action=get-news');
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Erreur');
+                window._newsFrontCache = result.data || [];
+                renderNewsFront(window._newsFrontCache);
+            } catch (e) {
+                grid.innerHTML = '<div class="col-span-1 md:col-span-3 bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center"><p class="text-slate-600">Erreur de chargement des actualités.</p></div>';
+            }
+        }
+
+        function renderNewsFront(items) {
+            const grid = document.getElementById('newsGrid');
+            if (!grid) return;
+            const visible = items.filter(i => i.status === 'published');
+            if (visible.length === 0) {
+                grid.innerHTML = '<div class="col-span-1 md:col-span-3 bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center"><p class="text-slate-600">Aucune actualité publiée pour le moment.</p></div>';
+                return;
+            }
+            grid.innerHTML = visible.map(item => `
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between">
+                    <div>
+                        ${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" class="h-48 w-full object-cover">` : '<div class="h-48 w-full bg-slate-200"></div>'}
+                        <div class="p-6">
+                            <span class="text-xs font-bold text-brand-gold block mb-2">${escapeHtml(formatDate(item.published_at))}</span>
+                            <h3 class="font-bold text-brand-dark text-lg mb-3">${escapeHtml(item.title)}</h3>
+                            <p class="text-sm text-slate-600">${escapeHtml(item.excerpt || '')}</p>
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <a href="?route=news/show-${encodeURIComponent(item.slug)}" class="text-brand-navy font-bold text-sm hover:text-brand-gold flex items-center space-x-1">
+                            <span>Lire la suite</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filtre des actualités par catégorie
+        function filterNews(cat) {
+            const items = window._newsFrontCache || [];
+            const filtered = cat === 'all' ? items : items.filter(i => (i.category || '').toLowerCase() === (cat || '').toLowerCase());
+            renderNewsFront(filtered);
+            document.querySelectorAll('#newsSection [data-cat]').forEach(btn => {
+                const active = btn.getAttribute('data-cat') === cat;
+                btn.classList.toggle('bg-brand-navy', active);
+                btn.classList.toggle('text-white', active);
+                btn.classList.toggle('bg-slate-100', !active);
+                btn.classList.toggle('text-slate-600', !active);
+            });
+        }
+
+        function formatDate(value) {
+            if (!value) return '';
+            const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (!match) return String(value).slice(0, 10);
+            const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+            return parseInt(match[3], 10) + ' ' + months[parseInt(match[2], 10) - 1] + ' ' + match[1];
         }
 
         // Render Admin Users List

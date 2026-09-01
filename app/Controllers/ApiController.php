@@ -116,6 +116,7 @@ class ApiController extends SimpleController
                         p.brochure_path,
                         p.availability,
                         p.price,
+                        p.is_featured,
                         CONCAT(p.city, ', ', p.country) as location
                     FROM projects p
                     WHERE p.validation_status IS NOT NULL
@@ -161,7 +162,8 @@ class ApiController extends SimpleController
                         'google_maps_embed' => $p['google_maps_embed'] ?? null,
                         'brochure_path' => $p['brochure_path'] ?? null,
                         'availability' => $p['availability'] ?? 'available',
-                        'price' => $p['price'] ?? null
+                        'price' => $p['price'] ?? null,
+                        'is_featured' => (int)($p['is_featured'] ?? 0)
                     ];
                 }
                 
@@ -3229,5 +3231,289 @@ class ApiController extends SimpleController
         } catch (\PDOException $e) {
             $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
         }
+    }
+    // ==================================================================
+    // ============ CMS CONTENUS (Projets phares, Actualités, Site) ======
+    // ==================================================================
+
+    /**
+     * Projets phares de la page d'accueil
+     */
+    public function getFeaturedProjects()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stmt = $this->db->query("
+                SELECT p.id, p.title, p.slug, p.city, p.country, p.description, p.image,
+                       p.funding_sought AS target, p.funding_raised AS raised,
+                       p.expected_roi AS roi, p.validation_status AS status,
+                       p.housing_units, p.price, p.project_type,
+                       CONCAT(p.city, ', ', p.country) AS location
+                FROM projects p
+                WHERE p.is_featured = 1
+                  AND p.validation_status IN ('published', 'approved', 'funding', 'active')
+                ORDER BY p.updated_at DESC
+                LIMIT 9
+            ");
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $out = [];
+            foreach ($rows as $p) {
+                $out[] = [
+                    'id' => $p['id'],
+                    'title' => $p['title'],
+                    'name' => $p['title'],
+                    'slug' => $p['slug'] ?? null,
+                    'type' => $p['project_type'] ?? 'residential',
+                    'location' => $p['location'],
+                    'city' => $p['city'],
+                    'country' => $p['country'],
+                    'description' => $p['description'] ?? '',
+                    'image' => $p['image'] ?: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80',
+                    'target' => (int)($p['target'] ?? 0),
+                    'raised' => (int)($p['raised'] ?? 0),
+                    'roi' => (int)($p['roi'] ?? 0),
+                    'status' => $this->translateStatus($p['status'] ?? ''),
+                    'raw_status' => $p['status'] ?? '',
+                    'housing_units' => (int)($p['housing_units'] ?? 0),
+                    'price' => $p['price'] ?? null,
+                    'project_type' => $p['project_type'] ?? 'residential',
+                ];
+            }
+            $this->jsonOut(['success' => true, 'data' => $out]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : activer / désactiver la mise en avant d'un projet
+     */
+    public function setFeaturedProject()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id'])) $this->jsonOut(['success' => false, 'message' => 'ID du projet requis']);
+        try {
+            $featured = !empty($data['featured']) ? 1 : 0;
+            $stmt = $this->db->prepare("UPDATE projects SET is_featured = ? WHERE id = ?");
+            $stmt->execute([$featured, $data['id']]);
+            $this->jsonOut(['success' => true, 'message' => $featured ? 'Projet mis en avant (projet phare)' : 'Projet retiré des projets phares']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Actualités publiées (public) ou toutes (admin)
+     */
+    public function getNews()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $isAdmin = in_array($_SESSION['user_role'] ?? '', ['admin', 'super_admin', 'project_manager'], true)
+            || (
+                !empty($_SERVER['HTTP_X_ADMIN_PASSWORD'])
+                && hash_equals(
+                    (string)($this->config['security']['admin_password'] ?? 'urbanova'),
+                    (string)$_SERVER['HTTP_X_ADMIN_PASSWORD']
+                )
+            );
+        try {
+            if ($isAdmin && !empty($_GET['all'])) {
+                $stmt = $this->db->query("
+                    SELECT * FROM news
+                    ORDER BY COALESCE(published_at, created_at) DESC
+                    LIMIT 200
+                ");
+            } else {
+                $stmt = $this->db->query("
+                    SELECT * FROM news
+                    WHERE status = 'published' AND deleted_at IS NULL
+                    ORDER BY published_at DESC
+                    LIMIT 100
+                ");
+            }
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            foreach ($rows as &$r) {
+                $r['date_display'] = !empty($r['published_at'])
+                    ? date('d F Y', strtotime($r['published_at']))
+                    : date('d F Y', strtotime($r['created_at']));
+            }
+            $this->jsonOut(['success' => true, 'data' => $rows]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : créer une actualité
+     */
+    public function createNews()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['title'])) $this->jsonOut(['success' => false, 'message' => 'Titre requis']);
+        try {
+            $slug = $this->uniqueSlug('news', $data['title']);
+            $status = $data['status'] === 'published' ? 'published' : 'draft';
+            $stmt = $this->db->prepare("
+                INSERT INTO news (title, slug, excerpt, content, category, image, author_id, status, published_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $publishedAt = !empty($data['published_at'])
+                ? date('Y-m-d H:i:s', strtotime((string)$data['published_at']))
+                : null;
+            $stmt->execute([
+                trim($data['title']),
+                $slug,
+                trim($data['excerpt'] ?? ''),
+                $data['content'] ?? '',
+                in_array($data['category'] ?? '', ['entreprise', 'projets', 'marché', 'partenariats'], true) ? $data['category'] : 'entreprise',
+                $data['image'] ?? null,
+                $_SESSION['user_id'] ?? null,
+                $status,
+                $status === 'published' ? ($publishedAt ?: date('Y-m-d H:i:s')) : null,
+            ]);
+            $this->jsonOut(['success' => true, 'message' => 'Actualité créée', 'id' => (int)$this->db->lastInsertId()]);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : modifier une actualité
+     */
+    public function updateNews()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id']) || empty($data['title'])) {
+            $this->jsonOut(['success' => false, 'message' => 'ID et titre requis']);
+        }
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE news SET
+                    title = ?, excerpt = ?, content = ?, category = ?, image = ?, status = ?,
+                    published_at = CASE
+                        WHEN ? = 'published' AND ? IS NOT NULL THEN ?
+                        WHEN ? = 'published' AND published_at IS NULL THEN NOW()
+                        ELSE published_at
+                    END
+                WHERE id = ?
+            ");
+            $publishedAt = !empty($data['published_at'])
+                ? date('Y-m-d H:i:s', strtotime((string)$data['published_at']))
+                : null;
+            $stmt->execute([
+                trim($data['title']),
+                trim($data['excerpt'] ?? ''),
+                $data['content'] ?? '',
+                in_array($data['category'] ?? '', ['entreprise', 'projets', 'marché', 'partenariats'], true) ? $data['category'] : 'entreprise',
+                $data['image'] ?? null,
+                $data['status'] === 'published' ? 'published' : 'draft',
+                $data['status'] === 'published' ? 'published' : 'draft',
+                $publishedAt,
+                $data['status'] === 'published' ? 'published' : 'draft',
+                $data['id'],
+            ]);
+            $this->jsonOut(['success' => true, 'message' => 'Actualité mise à jour']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin : supprimer (soft delete) une actualité
+     */
+    public function deleteNews()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['id'])) $this->jsonOut(['success' => false, 'message' => 'ID requis']);
+        try {
+            $stmt = $this->db->prepare("UPDATE news SET deleted_at = NOW() WHERE id = ?");
+            $stmt->execute([$data['id']]);
+            $this->jsonOut(['success' => true, 'message' => 'Actualité supprimée']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Contenu du site (clé -> valeur)
+     */
+    public function getSiteContent()
+    {
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        try {
+            $stmt = $this->db->query("SELECT content_key, content_value, category FROM site_content");
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $map = [];
+            foreach ($rows as $r) $map[$r['content_key']] = $r['content_value'];
+            $this->jsonOut(['success' => true, 'data' => $map]);
+        } catch (\PDOException $e) {
+            // Table absente -> valeurs par défaut
+            $this->jsonOut(['success' => true, 'data' => []]);
+        }
+    }
+
+    /**
+     * Admin : enregistrer les contenus du site
+     */
+    public function updateSiteContent()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonOut(['success' => false, 'message' => 'Méthode non autorisée'], 405);
+        }
+        if (!$this->db) $this->jsonOut(['success' => false, 'message' => 'Base de données non disponible']);
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        if (empty($data['content']) || !is_array($data['content'])) {
+            $this->jsonOut(['success' => false, 'message' => 'Contenus requis']);
+        }
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO site_content (content_key, content_value, category, updated_by)
+                VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE content_value = VALUES(content_value), updated_by = VALUES(updated_by)
+            ");
+            foreach ($data['content'] as $key => $value) {
+                $key = preg_replace('/[^a-z0-9_\-]/i', '_', (string)$key);
+                if ($key === '') continue;
+                $value = is_string($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+                $stmt->execute([$key, $value, $data['category'] ?? 'general', $_SESSION['user_id'] ?? null]);
+            }
+            $this->jsonOut(['success' => true, 'message' => 'Contenus du site enregistrés']);
+        } catch (\PDOException $e) {
+            $this->jsonOut(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Génère un slug unique dans une table
+     */
+    private function uniqueSlug($table, $title)
+    {
+        $base = trim(preg_replace('/[^a-z0-9]+/i', '-', mb_strtolower($title)), '-');
+        if ($base === '') $base = 'article-' . time();
+        $slug = $base;
+        $i = 1;
+        while (true) {
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM $table WHERE slug = ?");
+            $stmt->execute([$slug]);
+            if ((int)$stmt->fetchColumn() === 0) break;
+            $slug = $base . '-' . $i++;
+        }
+        return $slug;
     }
 }

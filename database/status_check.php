@@ -52,6 +52,7 @@ $expectedTables = [
     'funding_campaigns', 'investment_offers', 'data_room_permissions', 'data_room_audit_log',
     'notifications', 'permissions', 'role_permissions', 'funding_requests',
     'data_room_requests', 'project_inquiries', 'contacts', 'investments',
+    'news', 'site_content',
 ];
 
 echo "--- Tables ---\n";
@@ -71,7 +72,7 @@ $critical = [
 $check = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?");
 $hasMissing = false;
 foreach ([
-    'projects' => ['validation_status', 'project_type', 'operation_type', 'coordinates_lat', 'coordinates_lng', 'user_id', 'video_url', 'price', 'availability', 'brochure_path'],
+    'projects' => ['validation_status', 'project_type', 'operation_type', 'coordinates_lat', 'coordinates_lng', 'user_id', 'video_url', 'price', 'availability', 'brochure_path', 'is_featured'],
     'users' => ['first_name', 'last_name', 'name'],
     'investors' => ['investor_status', 'country', 'city'],
     'investor_messages' => ['project_id'],

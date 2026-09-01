@@ -146,6 +146,16 @@ $actionMap = [
     'get-investor-messages'   => 'getInvestorMessages',
     'send-investor-message'   => 'sendInvestorMessage',
     'reply-investor-message'  => 'replyInvestorMessage',
+
+    // ---- CMS : projets phares, actualités, contenus du site ----
+    'get-featured-projects'   => 'getFeaturedProjects',
+    'set-featured-project'    => 'setFeaturedProject',
+    'get-news'                => 'getNews',
+    'create-news'             => 'createNews',
+    'update-news'             => 'updateNews',
+    'delete-news'             => 'deleteNews',
+    'get-site-content'        => 'getSiteContent',
+    'update-site-content'     => 'updateSiteContent',
 ];
 
 // ---------------------------------------------------------------
@@ -192,6 +202,12 @@ $adminActions = [
     'update-visit-status',
     // Messagerie admin (réponses)
     'reply-investor-message',
+    // CMS - contenus
+    'set-featured-project',
+    'create-news',
+    'update-news',
+    'delete-news',
+    'update-site-content',
 ];
 
 // ---------------------------------------------------------------
