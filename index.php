@@ -1,3 +1,51 @@
+<?php
+// Urbanova bootstrap for MVC routes (admin, auth, api)
+$uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$uri = rtrim($uri, '/');
+if ($uri === '') $uri = '/';
+// Routes that should be handled by MVC Application
+$mvcPrefixes = ['/admin','/login','/register','/logout','/projects','/promoter','/marketplace','/investor','/lang','/api'];
+$needsMvc = false;
+foreach ($mvcPrefixes as $p) {
+    if ($uri === $p || strpos($uri.'/', $p.'/') === 0) { $needsMvc = true; break; }
+}
+// Also handle /debug and /contact etc? include contact
+if (in_array($uri, ['/about','/governance','/services','/contact']) || strpos($uri,'/contact')===0) $needsMvc = true;
+// If URL contains ?route= legacy, also MVC
+if (isset($_GET['route']) && $_GET['route'] !== '') $needsMvc = true;
+
+if ($needsMvc) {
+    if (!defined('BASE_PATH')) define('BASE_PATH', __DIR__);
+    if (!defined('APP_PATH')) define('APP_PATH', __DIR__ . '/app');
+    if (!defined('CONFIG_PATH')) define('CONFIG_PATH', __DIR__ . '/config');
+    if (!defined('PUBLIC_PATH')) define('PUBLIC_PATH', __DIR__ . '/public');
+    if (!defined('STORAGE_PATH')) define('STORAGE_PATH', __DIR__ . '/storage');
+    // Composer autoload
+    if (file_exists(__DIR__ . '/vendor/autoload.php')) require __DIR__ . '/vendor/autoload.php';
+    else {
+        spl_autoload_register(function($class){
+            $prefix = 'App\\';
+            $base = __DIR__ . '/app/';
+            $len = strlen($prefix);
+            if (strncmp($prefix, $class, $len) !== 0) return;
+            $relative = substr($class, $len);
+            $file = $base . str_replace('\\', '/', $relative) . '.php';
+            if (file_exists($file)) require $file;
+        });
+    }
+    // Load app and run
+    require __DIR__ . '/app/Core/Application.php';
+    require __DIR__ . '/app/Core/Database.php';
+    require __DIR__ . '/app/Core/Request.php';
+    require __DIR__ . '/app/Core/Response.php';
+    require __DIR__ . '/app/Core/Router.php';
+    require __DIR__ . '/app/Core/Session.php';
+    // Middleware may be autoloaded via spl above, but ensure
+    $app = new \App\Core\Application();
+    $app->run();
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
 

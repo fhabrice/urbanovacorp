@@ -4,8 +4,16 @@
     <div class="auth-box">
         <h1><?php echo __('auth.register_title'); ?></h1>
         
+        <?php if(!empty($interest) || !empty($preselected_role) || !empty($_GET['interest'])): ?>
+        <div style="margin-bottom:1.2rem;padding:1rem;background:linear-gradient(135deg,#0f2a44,#1a4d7a);color:#fff;border-radius:12px;">
+          <div style="font-weight:800;">🎯 Parcours Investisseur Urbanova</div>
+          <div style="font-size:.9rem;opacity:.9;margin-top:.3rem;"><?php if(!empty($interest) || !empty($_GET['interest'])): $pid = htmlspecialchars($interest ?? $_GET['interest']); ?>Vous manifestez votre intérêt pour le <strong>Projet #<?= $pid ?></strong> — votre compte sera créé en tant qu'<strong>Investisseur</strong> et vous serez ramené automatiquement vers le projet pour <strong>Confirmer mon intérêt</strong>. <?php else: ?>Inscription en tant qu'<strong>Investisseur</strong> — rôle pré-sélectionné pour accéder au Marketplace.<?php endif; ?></div>
+          <?php if(!empty($interest) || !empty($_GET['interest'])): $pid = htmlspecialchars($interest ?? $_GET['interest']); ?><div style="margin-top:.6rem;"><a href="/marketplace/<?= $pid ?>" style="color:#fff;text-decoration:underline;font-size:.85rem;">← Revenir au projet #<?= $pid ?></a></div><?php endif; ?>
+        </div>
+        <?php endif; ?>
         <form method="POST" action="/register">
             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token ?? ''; ?>">
+            <?php if(!empty($interest) || !empty($_GET['interest']) || !empty($pending_interest)): ?><input type="hidden" name="interest" value="<?php echo htmlspecialchars($interest ?? $_GET['interest'] ?? $pending_interest) ?>"><?php endif; ?>
             
             <div class="form-group">
                 <label for="first_name"><?php echo __('auth.first_name'); ?></label>
@@ -25,8 +33,8 @@
             <div class="form-group">
                 <label for="role"><?php echo __('auth.role'); ?></label>
                 <select id="role" name="role" required>
-                    <option value="promoter"><?php echo __('auth.role_promoter'); ?></option>
-                    <option value="investor"><?php echo __('auth.role_investor'); ?></option>
+                    <option value="promoter" <?php echo (!empty($preselected_role) && $preselected_role==='promoter') ? 'selected' : (empty($preselected_role) ? '' : '') ?>><?php echo __('auth.role_promoter'); ?></option>
+                    <option value="investor" <?php echo (!empty($preselected_role) && $preselected_role==='investor') || !empty($interest) || !empty($_GET['interest']) ? 'selected' : '' ?>><?php echo __('auth.role_investor'); ?></option>
                 </select>
             </div>
 
@@ -64,7 +72,7 @@
                     <textarea id="address" name="address"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="phone"><?php echo __('auth.phone'); ?></label>
+                    <label for="phone"><?php echo __('auth.phone'); ?> <small style="color:#dc2626;">* requis investisseur</small></label>
                     <input type="tel" id="phone" name="phone">
                 </div>
                 <div class="form-group">
@@ -104,4 +112,9 @@ function toggleInvestorFields() {
 }
 roleSelect.addEventListener('change', toggleInvestorFields);
 toggleInvestorFields();
+<?php if(!empty($interest) || !empty($preselected_role) || !empty($_GET['interest'])): ?>
+// Pré-sélection investisseur depuis Marketplace
+roleSelect.value='investor';
+toggleInvestorFields();
+<?php endif; ?>
 </script>

@@ -1,103 +1,31 @@
-<?php ob_start(); ?>
-
-<div class="page-header">
-    <h1><?php echo __('admin.investors'); ?></h1>
+<?php ob_start();?>
+<div class="page-header"><div><h1>Investisseurs</h1><div class="breadcrumb">Admin / Investisseurs</div></div><div style="display:flex;gap:8px"><a href="/admin/export?module=investors&type=csv" class="btn btn-white btn-sm">CSV</a><a href="/admin/reports" class="btn btn-white btn-sm">Rapports</a></div></div>
+<div class="card card-pad" style="margin-bottom:12px">
+<form method="GET" style="display:flex;gap:8px;flex-wrap:wrap">
+<input name="q" value="<?=htmlspecialchars($_GET['q']??'')?>" placeholder="Nom, email, type..." style="flex:1;min-width:200px;padding:8px;border:1px solid #e2e8f0;border-radius:8px">
+<select name="status" style="padding:8px;border:1px solid #e2e8f0;border-radius:8px"><option value="">Tous KYC</option><option value="pending">En attente</option><option value="approved">Validé</option><option value="rejected">Rejeté</option></select>
+<select name="type" style="padding:8px;border:1px solid #e2e8f0;border-radius:8px"><option value="">Tous types</option><option value="individual">Particulier</option><option value="family_office">Family Office</option><option value="investment_fund">Fonds</option><option value="bank">Banque</option></select>
+<button class="btn btn-dark btn-sm">Filtrer</button>
+</form>
 </div>
-
-<div class="investors-table-container">
-    <?php if (empty($investors)): ?>
-        <div class="no-data">
-            <p><?php echo __('admin.no_investors'); ?></p>
-        </div>
-    <?php else: ?>
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th><?php echo __('auth.name'); ?></th>
-                    <th><?php echo __('auth.email'); ?></th>
-                    <th>Type</th>
-                    <th><?php echo __('admin.status'); ?></th>
-                    <th><?php echo __('admin.approve'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($investors as $investor): ?>
-                    <tr>
-                        <td><?php echo $investor['id']; ?></td>
-                        <td>
-                            <strong><?php echo htmlspecialchars($investor['first_name'] . ' ' . $investor['last_name']); ?></strong>
-                        </td>
-                        <td><?php echo htmlspecialchars($investor['email']); ?></td>
-                        <td><?php echo $investor['investor_type'] ? __('investor.type_' . $investor['investor_type']) : ($investor['type'] === 'individual' ? __('investor.individual') : __('investor.corporate')); ?></td>
-                        <td>
-                            <span class="status status-<?php echo $investor['investor_status']; ?>">
-                                <?php echo __('admin.' . $investor['investor_status']); ?>
-                            </span>
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <?php if ($investor['investor_status'] === 'pending' || $investor['investor_status'] === 'additional_info'): ?>
-                                    <a href="/admin/investors/<?php echo $investor['id']; ?>/approve" class="btn btn-sm btn-success" title="<?php echo __('admin.approve'); ?>">
-                                        <i class="fas fa-check"></i>
-                                    </a>
-                                    <a href="/admin/investors/<?php echo $investor['id']; ?>/request-info" class="btn btn-sm btn-warning" title="<?php echo __('admin.request_info'); ?>">
-                                        <i class="fas fa-info-circle"></i>
-                                    </a>
-                                    <form method="POST" action="/admin/investors/<?php echo $investor['id']; ?>/reject" style="display:inline;">
-                                        <button type="submit" class="btn btn-sm btn-danger" title="<?php echo __('admin.reject'); ?>" onclick="return confirm('<?php echo __('admin.confirm_reject_investor'); ?>');">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </form>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-</div>
-
-<style>
-.admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.admin-table th,
-.admin-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.admin-table th {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: 600;
-}
-
-.admin-table tr:hover {
-    background-color: var(--bg-color);
-}
-
-.action-buttons {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.no-data {
-    text-align: center;
-    padding: 3rem;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-</style>
-
-<?php $content = ob_get_clean(); require_once APP_PATH . '/Views/layouts/admin-layout.php'; ?>
+<div class="table-wrap"><table><thead><tr><th>Nom</th><th>Type</th><th>Pays</th><th>Ticket min/max</th><th>Secteurs</th><th>KYC</th><th>Investissements</th><th>Statut</th><th>Actions</th></tr></thead><tbody>
+<?php foreach(($investors??[]) as $inv): $type=$inv['investor_type']??$inv['type']??'—'; $kyc=$inv['investor_status']??$inv['kyc_status']??'—'; ?>
+<tr>
+<td><b><?=htmlspecialchars($inv['full_name']??($inv['first_name'].' '.$inv['last_name']))?></b><br><small class="muted"><?=htmlspecialchars($inv['email'])?></small></td>
+<td><?=htmlspecialchars($type)?></td>
+<td><?=htmlspecialchars($inv['country']??'—')?></td>
+<td><?= $inv['ticket_minimum']?number_format($inv['ticket_minimum'],0,'',' ').' $':'—'?> / <?= $inv['ticket_maximum']?number_format($inv['ticket_maximum'],0,'',' ').' $':'—'?></td>
+<td class="muted" style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?=htmlspecialchars($inv['investment_sectors']??$inv['sectors']??'—')?></td>
+<td><?=\App\Helpers\AdminHelper::getStatusBadge($kyc)?></td>
+<td class="muted">—</td>
+<td><?=\App\Helpers\AdminHelper::getStatusBadge($inv['user_status']??'active')?></td>
+<td><div style="display:flex;gap:6px">
+<a href="/admin/investors/<?=$inv['id']?>" class="btn btn-white btn-sm"><i class="fa-regular fa-eye"></i></a>
+<a href="/admin/investors/<?=$inv['id']?>/approve" class="btn btn-white btn-sm" style="color:#059669"><i class="fa-solid fa-check"></i></a>
+<a href="/admin/investors/<?=$inv['id']?>/request-info" class="btn btn-white btn-sm"><i class="fa-solid fa-circle-question"></i></a>
+<a href="/admin/investors/<?=$inv['id']?>/reject" onclick="return confirm('Rejeter KYC?')" class="btn btn-white btn-sm" style="color:#ef4444"><i class="fa-solid fa-xmark"></i></a>
+</div></td>
+</tr>
+<?php endforeach; if(empty($investors)) echo '<tr><td colspan=9 class="muted">Aucun investisseur</td></tr>'; ?>
+</tbody></table></div>
+<?php $content=ob_get_clean(); require APP_PATH.'/Views/layouts/admin-layout.php'; ?>
