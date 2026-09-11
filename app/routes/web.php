@@ -23,9 +23,10 @@ return [
     ['method' => 'POST', 'path' => '/projects/submit', 'handler' => 'ProjectController@submit', 'middleware' => ['AuthMiddleware']],
     // Promoter Dashboard
     ['method' => 'GET', 'path' => '/promoter', 'handler' => 'PromoterController@index', 'middleware' => ['AuthMiddleware', 'PromoterMiddleware']],
-    // Marketplace
+    // Marketplace — public sans compte (§1)
     ['method' => 'GET', 'path' => '/marketplace', 'handler' => 'MarketplaceController@index'],
     ['method' => 'GET', 'path' => '/marketplace/{id}', 'handler' => 'MarketplaceController@show'],
+    ['method' => 'POST', 'path' => '/marketplace/{id}/interest', 'handler' => 'InvestorController@expressInterest', 'middleware' => ['AuthMiddleware']],
     ['method' => 'GET', 'path' => '/debug/marketplace', 'handler' => 'MarketplaceController@debug'],
     // Investor Portal
     ['method' => 'GET', 'path' => '/investor', 'handler' => 'InvestorController@index', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
@@ -34,7 +35,10 @@ return [
     ['method' => 'GET', 'path' => '/investor/profile', 'handler' => 'InvestorController@profileForm', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
     ['method' => 'POST', 'path' => '/investor/profile', 'handler' => 'InvestorController@profileSubmit', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
     ['method' => 'GET', 'path' => '/investor/data-room/{id}', 'handler' => 'InvestorController@dataRoom', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
-    ['method' => 'POST', 'path' => '/investor/interest/{id}', 'handler' => 'InvestorController@expressInterest', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
+    ['method' => 'POST', 'path' => '/investor/interest/{id}', 'handler' => 'InvestorController@expressInterest', 'middleware' => ['AuthMiddleware']],
+    ['method' => 'GET', 'path' => '/investor/interest/{id}', 'handler' => 'InvestorController@expressInterest', 'middleware' => ['AuthMiddleware']],
+    ['method' => 'GET', 'path' => '/investor/activate', 'handler' => 'InvestorController@activate', 'middleware' => ['AuthMiddleware']],
+    ['method' => 'POST', 'path' => '/investor/activate', 'handler' => 'InvestorController@activate', 'middleware' => ['AuthMiddleware']],
     ['method' => 'GET', 'path' => '/investor/favorites/{id}/add', 'handler' => 'InvestorController@addFavorite', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
     ['method' => 'GET', 'path' => '/investor/favorites/{id}/remove', 'handler' => 'InvestorController@removeFavorite', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
     ['method' => 'GET', 'path' => '/investor/messages', 'handler' => 'InvestorController@messages', 'middleware' => ['AuthMiddleware', 'InvestorMiddleware']],
