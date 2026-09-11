@@ -1,0 +1,9 @@
+<?php ob_start();?>
+<div class="page-header"><div><h1>Recherche globale</h1><div class="breadcrumb">Admin / Recherche • “<?=htmlspecialchars($q)?>”</div></div><a href="/admin/dashboard" class="btn btn-white btn-sm">Retour</a></div>
+<div class="grid-2">
+<div class="card card-pad"><h3 style="font-weight:900">Projets</h3><ul style="font-size:13px"><?php foreach(($results['projects']??[]) as $r): ?><li><a href="/admin/projects/<?=$r['id']?>"><?=htmlspecialchars($r['title'])?></a> — <small class="muted"><?=htmlspecialchars($r['status'])?></small></li><?php endforeach; if(empty($results['projects'])) echo '<li class="muted">Aucun</li>'; ?></ul></div>
+<div class="card card-pad"><h3 style="font-weight:900">Utilisateurs</h3><ul style="font-size:13px"><?php foreach(($results['users']??[]) as $r): ?><li><a href="/admin/users/<?=$r['id']?>"><?=htmlspecialchars($r['name'])?></a> — <small class="muted"><?=htmlspecialchars($r['email'])?></small></li><?php endforeach; if(empty($results['users'])) echo '<li class="muted">Aucun</li>'; ?></ul></div>
+<div class="card card-pad"><h3 style="font-weight:900">Opportunités</h3><ul style="font-size:13px"><?php foreach(($results['opportunities']??[]) as $r): ?><li><a href="/admin/crm/opportunities"><?=htmlspecialchars($r['name'])?></a> — <?=htmlspecialchars($r['stage'])?></li><?php endforeach; if(empty($results['opportunities'])) echo '<li class="muted">Aucune</li>'; ?></ul></div>
+<div class="card card-pad"><h3 style="font-weight:900">Investisseurs</h3><ul style="font-size:13px"><?php foreach(($results['investors']??[]) as $r): ?><li><a href="/admin/investors/<?=$r['id']?>"><?=htmlspecialchars($r['name'])?></a></li><?php endforeach; if(empty($results['investors'])) echo '<li class="muted">Aucun</li>'; ?></ul></div>
+</div>
+<?php $content=ob_get_clean(); require APP_PATH.'/Views/layouts/admin-layout.php'; ?>
